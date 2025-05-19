@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -23,4 +24,39 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  font-family: "Montserrat", sans-serif;
+}
+
+.bg-primary{
+  background-color: #171717;
+}
+
+.bg-secondary{
+  background-color: #0a0a0a;
+}
+
+.text-primary{
+  color: #31caff;
+}
+.text-secondary{
+  color: #999;
+}
+.hover-primary:hover{
+ color: #31caff;
+}
+
+.font-heading{
+  font-size: 32px;
+}
+.font-sub-heading{
+  font-size: 16px;
+}
+
+
+.font-md{
+  font-size: 18px;
+}
+
+.font-sub-md{
+  font-size: 15px;
 }
