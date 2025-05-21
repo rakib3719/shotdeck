@@ -1,6 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/shared/Navbar";
+import ReduxProvider from "@/providers/ReduxProvider";
+import { ToastContainer } from "react-toastify";
+import SessionProviders from "@/providers/SessionProvider";
 
 
 
@@ -16,8 +19,13 @@ export default function RootLayout({ children }) {
         className=''
       >
 
-        <Navbar/>
+<SessionProviders>
+     <ReduxProvider>
+    <ToastContainer/>
+         <Navbar/>
         {children}
+   </ReduxProvider>
+</SessionProviders>
       </body>
     </html>
   );

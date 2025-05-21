@@ -1,0 +1,58 @@
+
+
+
+<!-- Scroll Animation Container -->
+<div id="scrollAnimation" style="height: 1500px; position: relative;">
+  <!-- SVG Line -->
+  <svg
+    width="4"
+    height="100%"
+    style="position: absolute; top: 0; left: 50%; transform: translateX(-50%);"
+  >
+    <line
+      x1="2"
+      y1="0"
+      x2="2"
+      y2="100%"
+      stroke="#00f"
+      stroke-width="4"
+      stroke-dasharray="1000"
+      stroke-dashoffset="1000"
+    />
+  </svg>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+  const target = document.getElementById("scrollAnimation");
+  const line = target.querySelector("line");
+  const lineLength = line.getTotalLength();
+
+  // Set initial stroke properties
+  line.style.strokeDasharray = lineLength;
+  line.style.strokeDashoffset = lineLength;
+
+  // Function to update the stroke based on scroll
+  function updateLine() {
+    const rect = target.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+
+    if (rect.top < windowHeight && rect.bottom > 0) {
+      const visibleHeight = Math.min(windowHeight, rect.bottom) - Math.max(0, rect.top);
+      const totalHeight = rect.height;
+      const progress = visibleHeight / totalHeight;
+      const drawLength = lineLength * progress;
+      line.style.strokeDashoffset = lineLength - drawLength;
+    }
+  }
+
+  // Listen to scroll events
+  window.addEventListener("scroll", updateLine);
+  window.addEventListener("resize", updateLine);
+
+  // Initial update
+  updateLine();
+});
+
+</script>
