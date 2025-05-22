@@ -3,21 +3,26 @@ import React from 'react'
 import logo from '@/assets/logo.png'
 import Image from 'next/image'
 import Nav from './Nav'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 
 export default function Navbar() {
   const pathName = usePathname();
+  const router = useRouter();
 
+  const navigateHandaler = ()=>{
+    router.push('/')
+
+  }
   // if(pathName.includes('/admin')){
   //   return null;
   // }
   return (
-    <div className='bg-primary p-4 flex justify-between '>
+    <div className='bg-primary px-4 py-5 flex justify-between '>
       
-<section>
+<section >
 
-  <Image alt='logo' src={logo} className='w-64'/>
+  <Image onClick={navigateHandaler} alt='logo' src={logo} className='w-64  cursor-pointer'/>
 </section>
 <section>
 <Nav/>

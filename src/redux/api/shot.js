@@ -7,9 +7,11 @@ export const shotApi = createApi({
   endpoints: (builder) => ({
     getShots: builder.query({
       query: (params) => {
+   
         const searchParams = new URLSearchParams(params).toString();
         console.log(searchParams, 'searchparams');
         return `/shot?${searchParams}`;
+        
       },
     }),
 
@@ -20,8 +22,13 @@ export const shotApi = createApi({
         body: shot,
       }),
     }),
+
+getRequestedShot:builder.query({
+  query:()=>({url: '/shot/shot-request/'})
+})
+
   }),
 });
 
 
-export const { useGetShotsQuery, usePostShotsMutation } = shotApi;
+export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery} = shotApi;

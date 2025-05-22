@@ -7,7 +7,7 @@ import Search from './Search'
 export default function Cover() {
   return (
     <div
-      className="w-full h-screen bg-cover bg-center max-h-[80vh]"
+      className="w-full lg:h-screen bg-cover bg-center max-h-[80vh]"
       style={{ backgroundImage: `url(${coverImg.src})` }}
     >
       <h1 className="text-white text-center   font-heading p-10">THE INDUSTRY'S BEST RESEARCH TOOL</h1>
@@ -16,7 +16,7 @@ export default function Cover() {
   
       <Image alt='lineGif' src={line} className='text-center'/>
 </div>
-<div className='flex justify-center items-center mt-80'>
+<div className='flex justify-center items-center mt-24 lg:mt-80'>
   
 <Search/>
 </div>

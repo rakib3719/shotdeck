@@ -1,14 +1,16 @@
 'use client'
 import { useGetShotsQuery } from '@/redux/api/shot'
 import { filters } from '@/utils/utils';
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react'
 
-export default function Browse() {
+export default function Browse({search}) {
   const [showDropDown, setShowDropDown] = useState(false);
   const [id, setId] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({}); 
 
-  console.log(selectedFilters, 'selected filters')
+  // console.log(selectedFilters, 'selected filters')
+  console.log(search, 'this is search for ')
 
   const query = {};
   for (const key in selectedFilters) {
@@ -17,9 +19,10 @@ export default function Browse() {
     }
   }
   const searchParams = new URLSearchParams(query).toString();
-  console.log(searchParams,'this is query')
+  // console.log(searchParams,'this is query')
 
   const { data } = useGetShotsQuery(query); 
+  console.log(query, 'thisi sqauery')
   
   console.log('Shots Data:', data);
 
@@ -97,6 +100,18 @@ export default function Browse() {
         <h2 className="text-white text-lg font-bold mb-4">Filtered Shots</h2>
         <pre className="text-white">{JSON.stringify(query, null, 2)}</pre>
       </section> */}
+
+
+      <section className='grid grid-cols-4'>
+        {
+          data?.data && data?.data?.map((data, idx)=> (
+            <div key={idx}>
+              <Image alt='img' src={data?.imageUrl} height={400} width={400}/>
+
+            </div>
+          ))
+        }
+      </section>
     </div>
   );
 }

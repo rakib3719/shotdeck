@@ -5,22 +5,32 @@ import { IoMdSettings, IoMdLogOut, IoMdPerson } from "react-icons/io";
 import { BiSolidDownArrow } from "react-icons/bi";
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut, useSession } from 'next-auth/react';
+import { RiMenuFill } from "react-icons/ri";
+import { usePathname } from 'next/navigation';
 
 export default function Nav() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const user = useSession();
   console.log(user, 'hey user')
+  const pathname = usePathname();
+  if(pathname.includes('/admin')){
+    return null;
+  }
 
   const navItems = [
-    { name: 'BROWSE TITLES', link: '/' },
+    { name: 'ADD SHOTS', link: '/add-shots' },
     { name: 'BROWSE SHOTS', link: '/' },
-    { name: 'DECKS', link: '/' },
+    { name: 'RENDOM SHOTS', link: '/' },
     // { name: 'PRICING', link: '/' },
-    { name: 'BLOG', link: '/' },
+    { name: 'ADD SHOT', link: '/' },
   ];
 
+const [showMenu, setShowMenu] = useState(false);
 
+const toogleShowMenu = ()=>{
+  setShowMenu(!showMenu)
+}
 
 
   // Close dropdown when clicking outside
@@ -38,11 +48,17 @@ export default function Nav() {
   }, []);
 
   return (
-    <div className='flex text-white font-semibold pt-1 items-center gap-6 relative'>
+ <div className='bg-primary'>
+
+
+ <div>
+   <RiMenuFill onClick={toogleShowMenu} className={` ${showMenu && 'text-primary'} lg:hidden text-3xl ml-auto `}/>
+ </div>
+     <div className={`  ${!showMenu ? '-mt-24 hidden  duration-1000 transform ease-in-out' : 'duration-1000 absolute p-8  transform ease-in-out'} lg:mt-0   right-0 w-full  duration-700 bg-primary top-16 lg:top-5 lg:flex space-y-4 lg:space-y-0 text-white font-semibold pt-1 items-center gap-6 relative1`}>
       {/* Home Icon */}
-      <div>
+      <div className='flex justify-end lg:justify-start mt-8 lg:mt-0'>
         <Link href={'/'}>
-          <FaHome className='text-primary text-xl hover:text-primary-light transition-colors' />
+          <FaHome className='text-primary  text-xl hover:text-primary-light transition-colors' />
         </Link>
       </div>
 
@@ -50,7 +66,7 @@ export default function Nav() {
       {navItems.map((item, idx) => (
         <div key={idx}>
           <Link href={item.link}>
-            <p className='hover:text-primary font-sub-heading transition-colors'>
+            <p className='hover:text-primary text-right  whitespace-nowrap   lg:text-left font-sub-heading transition-colors'>
               {item.name}
             </p>
           </Link>
@@ -70,7 +86,7 @@ export default function Nav() {
 
       {/* Settings Dropdown */}
      {
-      user.status === "authenticated" ?  <div ref={dropdownRef} className='relative'>
+      user.status === "authenticated" ?  <div ref={dropdownRef} className='relative flex justify-end lg:justify-start'>
         <div 
           className='flex items-center gap-1 cursor-pointer hover:text-primary transition-colors'
           onClick={() => setIsOpen(!isOpen)}
@@ -92,7 +108,7 @@ export default function Nav() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className='absolute right-0 mt-2 w-48 bg-primary rounded-md shadow-lg z-50 overflow-hidden border border-gray-700'
+              className='absolute  right-0 mt-2 w-48 bg-primary rounded-md shadow-lg z-50 overflow-hidden border border-gray-700'
             >
               <Link href="/account">
                 <motion.div 
@@ -126,5 +142,6 @@ export default function Nav() {
       </div>
      }
     </div>
+ </div>
   );
 }
