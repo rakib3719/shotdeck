@@ -231,16 +231,16 @@ export default function AddShot() {
                   name="genre"
                   register={register}
                   options={[
-                    { value: "Action", label: "Action" },
-                    { value: "Comedy", label: "Comedy" },
-                    { value: "Comic Adaptation", label: "Comic Adaptation" },
-                    { value: "DC Extended Universe", label: "DC Extended Universe" },
-                    { value: "Drama", label: "Drama" },
-                    { value: "Satire", label: "Satire" },
-                    { value: "Science Fiction", label: "Science Fiction" },
-                    { value: "Vigilante", label: "Vigilante" },
-                    { value: "Dark Comedy", label: "Dark Comedy" },
-                    { value: "Superhero", label: "Superhero" }
+                    { value: "Movie/TV", label: "Movie/TV" },
+                    { value: "Music Video", label: " Music Video" },
+                    { value: "Commercial", label: "Commercial" },
+                    // { value: "DC Extended Universe", label: "DC Extended Universe" },
+                    // { value: "Drama", label: "Drama" },
+                    // { value: "Satire", label: "Satire" },
+                    // { value: "Science Fiction", label: "Science Fiction" },
+                    // { value: "Vigilante", label: "Vigilante" },
+                    // { value: "Dark Comedy", label: "Dark Comedy" },
+                    // { value: "Superhero", label: "Superhero" }
                   ]}
                 />
               </div>

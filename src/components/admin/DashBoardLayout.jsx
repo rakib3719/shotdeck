@@ -29,7 +29,7 @@ export default function DashBoardLayout({ children }) {
      <div className="flex h-screen ">
       {/* Sidebar */}
       <div
-        className={`bg-gray-900 duration-1000 text-white p-4 transition-all   flex flex-col ${
+        className={`bg-gray-800 mt-[71px] fixed duration-1000 text-white p-4 transition-all   flex flex-col ${
           collapsed ? 'hidden' : 'w-64'
         } md:w-64 md:relative fixed  z-50 h-full`}
       >
@@ -67,12 +67,18 @@ export default function DashBoardLayout({ children }) {
                 >
                   <PiUsersThreeFill /> <span>All Users</span>
                 </Link>
+                <Link 
+                  href="/admin/all-shot" 
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/all-shot' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
+                >
+                  <PiUsersThreeFill /> <span>All Shot</span>
+                </Link>
               </div>
         )}
       </div>
 
       {/* Main Content */}
-      <div className="w-full  p-4 overflow-auto">
+      <div className="w-full bg-gray-900  p-4 overflow-auto">
         {children}
       </div>
     </div>

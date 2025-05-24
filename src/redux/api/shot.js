@@ -25,10 +25,13 @@ export const shotApi = createApi({
 
 getRequestedShot:builder.query({
   query:()=>({url: '/shot/shot-request/'})
+}),
+getOverview:builder.query({
+  query:()=>({url:'/shot/overview'})
 })
 
   }),
 });
 
 
-export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery} = shotApi;
+export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery} = shotApi;

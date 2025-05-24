@@ -18,7 +18,7 @@ export default function Navbar() {
   //   return null;
   // }
   return (
-    <div className='bg-primary px-4 py-5 flex justify-between '>
+    <div className='bg-primary px-4 fixed w-full py-5 flex justify-between '>
       
 <section >
 
