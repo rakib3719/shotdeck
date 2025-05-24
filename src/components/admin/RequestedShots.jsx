@@ -14,37 +14,76 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useGetRequestedShotQuery } from '@/redux/api/shot';
+import Image from 'next/image';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
+import { useSecureAxios } from '@/utils/Axios';
+import Button from '@mui/material/Button';
+import Swal from 'sweetalert2';
 
-function createData(name, calories, fat, carbs, protein, price) {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-    price,
-    history: [
-      {
-        date: '2020-01-05',
-        customerId: '11091700',
-        amount: 3,
-      },
-      {
-        date: '2020-01-02',
-        customerId: 'Anonymous',
-        amount: 1,
-      },
-    ],
-  };
-}
-
-function Row(props) {
-  const { row } = props;
+function Row({ row }) {
   const [open, setOpen] = React.useState(false);
+  const axiosInstance = useSecureAxios();
+  const { refetch } = useGetRequestedShotQuery();
+
+ const handleStatusChange = async (newStatus) => {
+    try {
+      // Show confirmation dialog
+      const result = await Swal.fire({
+        title: `Are you sure you want to ${newStatus} this?`,
+        text: `${newStatus === 'approved' ? 'This shot will be approved' : 'This shot will be rejected'}`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: newStatus === 'approved' ? '#3085d6' : '#d33',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: `Yes, ${newStatus} it!`,
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+      });
+
+      if (result.isConfirmed) {
+        // Show loading
+        MySwal.fire({
+          title: 'Processing...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            MySwal.showLoading();
+          }
+        });
+
+        const resp = await axiosInstance.patch(`/shot/update-status/${row._id}`, { 
+          status: newStatus 
+        });
+        
+        // Close loading
+        MySwal.close();
+        
+        // Show success
+        MySwal.fire({
+          title: 'Success!',
+          text: `Shot has been ${newStatus}`,
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        refetch();
+      }
+    } catch (error) {
+      MySwal.close();
+      MySwal.fire({
+        title: 'Error!',
+        text: error.response?.data?.message || 'Failed to update status',
+        icon: 'error'
+      });
+    }
+  };
 
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className='bg-primary'>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className='bg-primary hover:bg-blue-600 transition-colors'>
         <TableCell>
           <IconButton
             aria-label="expand row"
@@ -55,45 +94,159 @@ function Row(props) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row" sx={{ color: 'white' }}>
-          {row.name}
+        <TableCell sx={{ color: 'white' }}>
+          {row.imageUrl && (
+            <div className="relative w-16 h-16 rounded-md overflow-hidden">
+              <Image
+                src={row.imageUrl}
+                alt={row.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
         </TableCell>
-        <TableCell align="right" sx={{ color: 'white' }}>{row.calories}</TableCell>
-        <TableCell align="right" sx={{ color: 'white' }}>{row.fat}</TableCell>
-        <TableCell align="right" sx={{ color: 'white' }}>{row.carbs}</TableCell>
-        <TableCell align="right" sx={{ color: 'white' }}>{row.protein}</TableCell>
+        <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{row.title}</TableCell>
+        <TableCell sx={{ color: 'white' }}>{row.director}</TableCell>
+        <TableCell sx={{ color: 'white' }}>{row.cinematographer}</TableCell>
+        <TableCell sx={{ color: 'white' }}>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              color="success"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatusChange('active');
+              }}
+              disabled={row.status === 'active'}
+              sx={{ 
+                color: 'white',
+                fontWeight: 'bold',
+                textTransform: 'none'
+              }}
+            >
+              Approve
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStatusChange('rejected');
+              }}
+              disabled={row.status === 'rejected'}
+              sx={{ 
+                color: 'white',
+                fontWeight: 'bold',
+                textTransform: 'none'
+              }}
+            >
+              Reject
+            </Button>
+          </Stack>
+        </TableCell>
       </TableRow>
+      {/* Rest of your row implementation remains the same */}
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6} className='bg-primary'>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6} className='bg-blue-50'>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div" sx={{ color: 'white' }}>
-                History
+              <Typography variant="h6" gutterBottom component="div" className="text-blue-800">
+                Shot Details
               </Typography>
-              <Table size="small" aria-label="purchases">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: 'white' }}>Date</TableCell>
-                    <TableCell sx={{ color: 'white' }}>Customer</TableCell>
-                    <TableCell align="right" sx={{ color: 'white' }}>Amount</TableCell>
-                    <TableCell align="right" sx={{ color: 'white' }}>Total price ($)</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {row.history.map((historyRow) => (
-                    <TableRow key={historyRow.date}>
-                      <TableCell component="th" scope="row" sx={{ color: 'white' }}>
-                        {historyRow.date}
-                      </TableCell>
-                      <TableCell sx={{ color: 'white' }}>{historyRow.customerId}</TableCell>
-                      <TableCell align="right" sx={{ color: 'white' }}>{historyRow.amount}</TableCell>
-                      <TableCell align="right" sx={{ color: 'white' }}>
-                        {Math.round(historyRow.amount * row.price * 100) / 100}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Left Column */}
+                <div>
+                  <Typography variant="subtitle1" className="font-bold text-blue-700">Description</Typography>
+                  <Typography paragraph className="text-gray-700">{row.description}</Typography>
+                  
+                  <Typography variant="subtitle1" className="font-bold text-blue-700 mt-4">Technical Details</Typography>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Format:</span>
+                      <span className="text-gray-800 font-medium">{row.format}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Frame Size:</span>
+                      <span className="text-gray-800 font-medium">{row.frameSize}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Aspect Ratio:</span>
+                      <span className="text-gray-800 font-medium">{row.aspectRatio}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Media Type:</span>
+                      <span className="text-gray-800 font-medium">{row.mediaType}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Right Column */}
+                <div>
+                  <Typography variant="subtitle1" className="font-bold text-blue-700">Creative Details</Typography>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Genre:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {row?.genre?.map((g, i) => (
+                          <Chip key={i} label={g} size="small" className="bg-blue-100 text-blue-800" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Color Style:</span>
+                      <div className="flex flex-wrap gap-1">
+                        {row.color?.map((c, i) => (
+                          <Chip key={i} label={c} size="small" className="bg-purple-100 text-purple-800" />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Time Period:</span>
+                      <span className="text-gray-800 font-medium">{row.timePeriod}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Release Year:</span>
+                      <span className="text-gray-800 font-medium">{row.releaseYear}</span>
+                    </div>
+                  </div>
+                  
+                  {row.youtubeLink && (
+                    <>
+                      <Typography variant="subtitle1" className="font-bold text-blue-700 mt-4">Video Link</Typography>
+                      <a 
+                        href={row.youtubeLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Watch Video
+                      </a>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              <Divider sx={{ my: 2 }} />
+              
+              <Typography variant="subtitle1" className="font-bold text-blue-700">Production Team</Typography>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                <div>
+                  <Typography className="text-gray-600">Director</Typography>
+                  <Typography className="text-gray-800 font-medium">{row.director}</Typography>
+                </div>
+                <div>
+                  <Typography className="text-gray-600">Cinematographer</Typography>
+                  <Typography className="text-gray-800 font-medium">{row.cinematographer}</Typography>
+                </div>
+                <div>
+                  <Typography className="text-gray-600">Production Designer</Typography>
+                  <Typography className="text-gray-800 font-medium">{row.productionDesigner}</Typography>
+                </div>
+              </div>
             </Box>
           </Collapse>
         </TableCell>
@@ -102,52 +255,55 @@ function Row(props) {
   );
 }
 
+// Rest of your component remains the same
+
 Row.propTypes = {
-  row: PropTypes.shape({
-    calories: PropTypes.number.isRequired,
-    carbs: PropTypes.number.isRequired,
-    fat: PropTypes.number.isRequired,
-    history: PropTypes.arrayOf(
-      PropTypes.shape({
-        amount: PropTypes.number.isRequired,
-        customerId: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
-      }),
-    ).isRequired,
-    name: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
-    protein: PropTypes.number.isRequired,
-  }).isRequired,
+  row: PropTypes.object.isRequired,
 };
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 3.99),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 4.99),
-  createData('Eclair', 262, 16.0, 24, 6.0, 3.79),
-  createData('Cupcake', 305, 3.7, 67, 4.3, 2.5),
-  createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
-];
-
 export default function CollapsibleTable() {
+  const { data, isLoading, error, refetch } = useGetRequestedShotQuery();
+
+  const reqData = data?.data;
+  console.log(reqData, 'this is -.**') 
+  
+
+  if (isLoading) return <div className="text-center py-8">Loading...</div>;
+  if (error) return <div className="text-center py-8 text-red-500">Error loading data</div>;
+
   return (
-    <TableContainer component={Paper} sx={{ bgcolor: 'primary.main' }}>
+    <TableContainer 
+      component={Paper} 
+      sx={{ 
+        bgcolor: 'transparent',
+        boxShadow: '0 4px 20px rgba(0, 120, 255, 0.1)',
+        borderRadius: '12px',
+        overflow: 'hidden'
+      }}
+    >
       <Table aria-label="collapsible table">
         <TableHead>
-          <TableRow>
-            <TableCell sx={{ color: 'white' }} />
-            <TableCell sx={{ color: 'white' }}>Dessert (100g serving)</TableCell>
-            <TableCell align="right" sx={{ color: 'white' }}>Calories</TableCell>
-            <TableCell align="right" sx={{ color: 'white' }}>Fat&nbsp;(g)</TableCell>
-            <TableCell align="right" sx={{ color: 'white' }}>Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right" sx={{ color: 'white' }}>Protein&nbsp;(g)</TableCell>
+          <TableRow className="bg-gradient-to-r from-blue-600 to-blue-500">
+            <TableCell sx={{ color: 'white', width: '50px' }} />
+            <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Thumbnail</TableCell>
+            <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Title</TableCell>
+            <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Director</TableCell>
+            <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Cinematographer</TableCell>
+            <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Status</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <Row key={row.name} row={row} />
+          {reqData.map((row, idx) => (
+            <Row key={idx} row={row} />
           ))}
         </TableBody>
       </Table>
+      
+      {reqData.length === 0 && (
+        <div className="py-12 text-center text-gray-500">
+          No shot requests found
+        </div>
+      )}
     </TableContainer>
   );
 }

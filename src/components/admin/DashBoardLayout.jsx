@@ -6,6 +6,7 @@ import Link from 'next/link';
 import logo from '@/assets/logo.png'
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { PiUsersThreeFill } from "react-icons/pi";
 
 
 export default function DashBoardLayout({ children }) {
@@ -14,7 +15,7 @@ export default function DashBoardLayout({ children }) {
 
 
   return (
-   <div  className='border '>
+   <div  className=' '>
 
  <button
           className="text-white absolute top-6 right-4  mb-6 md:hidden"
@@ -30,15 +31,15 @@ export default function DashBoardLayout({ children }) {
       <div
         className={`bg-gray-900 duration-1000 text-white p-4 transition-all   flex flex-col ${
           collapsed ? 'hidden' : 'w-64'
-        } md:w-64 md:relative fixed fixed  z-50 h-full`}
+        } md:w-64 md:relative fixed  z-50 h-full`}
       >
        
 
         {!collapsed && (
            <div className="space-y-4 mt-8">
                 <Link 
-                  href="/admin/dashboard" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/dashboard' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
+                  href="/admin/" 
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
                 >
                   <FaTachometerAlt /> <span>Dashboard</span>
                 </Link>
@@ -59,6 +60,12 @@ export default function DashBoardLayout({ children }) {
                   className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/requested-shots' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
                 >
                   <FaPlus /> <span>Requested Shots</span>
+                </Link>
+                <Link 
+                  href="/admin/users" 
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/users' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
+                >
+                  <PiUsersThreeFill /> <span>All Users</span>
                 </Link>
               </div>
         )}
