@@ -20,8 +20,8 @@ export default function Nav() {
 
   const navItems = [
     { name: 'ADD SHOTS', link: '/add-shots' },
-    { name: 'BROWSE SHOTS', link: '/' },
-    { name: 'RENDOM SHOTS', link: '/' },
+    { name: 'BROWSE SHOTS', link: '/browse' },
+    { name: 'RENDOM SHOTS', link: '/browse/?sortBy=random' },
     // { name: 'PRICING', link: '/' },
     { name: 'ADD SHOT', link: '/' },
   ];

@@ -45,11 +45,11 @@ function Row({ row }) {
 
       if (result.isConfirmed) {
         // Show loading
-        MySwal.fire({
+       Swal.fire({
           title: 'Processing...',
           allowOutsideClick: false,
           didOpen: () => {
-            MySwal.showLoading();
+           Swal.showLoading();
           }
         });
 
@@ -58,10 +58,10 @@ function Row({ row }) {
         });
         
         // Close loading
-        MySwal.close();
+       Swal.close();
         
         // Show success
-        MySwal.fire({
+       Swal.fire({
           title: 'Success!',
           text: `Shot has been ${newStatus}`,
           icon: 'success',
@@ -72,8 +72,8 @@ function Row({ row }) {
         refetch();
       }
     } catch (error) {
-      MySwal.close();
-      MySwal.fire({
+     Swal.close();
+     Swal.fire({
         title: 'Error!',
         text: error.response?.data?.message || 'Failed to update status',
         icon: 'error'
@@ -83,7 +83,7 @@ function Row({ row }) {
 
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className='bg-primary hover:bg-blue-600 transition-colors'>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className='bg-primary  hover:bg-blue-600 transition-colors'>
         <TableCell>
           <IconButton
             aria-label="expand row"
@@ -279,6 +279,7 @@ export default function CollapsibleTable() {
         boxShadow: '0 4px 20px rgba(0, 120, 255, 0.1)',
         borderRadius: '12px',
         overflow: 'hidden'
+ 
       }}
     >
       <Table aria-label="collapsible table">

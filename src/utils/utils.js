@@ -1,5 +1,5 @@
-// export const base_url = 'https://shotdeck-backend.vercel.app/api';
-export const base_url = 'http://localhost:5000/api';
+export const base_url = 'https://shotdeck-backend.vercel.app/api';
+// export const base_url = 'http://localhost:5000/api';
 export const filters = [
   {
     id: 1,

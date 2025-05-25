@@ -24,6 +24,8 @@ export default function AddShot() {
 
   const axiosInstence = useSecureAxios();
   const onSubmit = async (data) => {
+
+    console.log(data, 'Initial data')
     try {
       setIsUploading(true);
       

@@ -8,8 +8,18 @@ export const usersApi = createApi({
   endpoints: (builder) => ({
     getUsers: builder.query({
       query: () => '/user/' 
-    })
+    }),
+  getSingleUser: builder.query({
+  query: (token) => ({
+    url: '/user/single-user',
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+})
+
   })
 });
 
-export const { useGetUsersQuery } = usersApi;
+export const { useGetUsersQuery, useGetSingleUserQuery } = usersApi;

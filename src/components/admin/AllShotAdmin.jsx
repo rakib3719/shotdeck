@@ -112,7 +112,7 @@ export default function AllShotAdmin() {
   };
 
   return (
-    <div className=" min-h-screen p-6">
+    <div className=" min-h-screen no-scrollbar  p-6">
       <h1 className="text-2xl font-bold text-white mb-6">Admin - All Shots</h1>
       
       {/* Filter Section - Top */}
@@ -182,13 +182,13 @@ export default function AllShotAdmin() {
               
               {/* Action Buttons */}
               <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
+                {/* <button
                   onClick={() => {}}
                   className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full"
                   title="Edit shot"
                 >
                   <FiEdit size={16} />
-                </button>
+                </button> */}
                 <button
                   onClick={() => handleDelete(shot._id, shot.title)}
                   className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full"
@@ -215,6 +215,16 @@ export default function AllShotAdmin() {
           No shots found matching your filters
         </div>
       )}
+        <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+      `}</style>
     </div>
   )
 }
+

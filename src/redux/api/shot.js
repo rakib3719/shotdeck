@@ -28,10 +28,17 @@ getRequestedShot:builder.query({
 }),
 getOverview:builder.query({
   query:()=>({url:'/shot/overview'})
+}),
+
+
+getTrendingShot: builder.query({
+
+  query:()=>({url:'/shot/treanding'})
 })
+
 
   }),
 });
 
 
-export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery} = shotApi;
+export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery, useGetTrendingShotQuery} = shotApi;
