@@ -4,6 +4,7 @@ import Navbar from "@/shared/Navbar";
 import ReduxProvider from "@/providers/ReduxProvider";
 import { ToastContainer } from "react-toastify";
 import SessionProviders from "@/providers/SessionProvider";
+import 'aos/dist/aos.css'; 
 
 
 

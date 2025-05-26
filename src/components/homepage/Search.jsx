@@ -1,10 +1,15 @@
 'use client'
+import Aos from 'aos';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoSearchSharp } from "react-icons/io5";
 
 export default function Search() {
   const [search, setSearch] = useState('');
+  useEffect(()=>{
+
+    Aos.init()
+  }, [])
 
   const router = useRouter()
 
@@ -22,6 +27,7 @@ export default function Search() {
     <div className="relative w-full max-w-2xl">
       <form onSubmit={(e) => e.preventDefault()}>
         <input
+        data-aos="fade-up" data-aos-duration="1500" data-aos-delay="300" 
           type="search"
           name="search"
           id="search"

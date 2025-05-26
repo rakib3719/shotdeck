@@ -85,12 +85,20 @@ export default function AddShot() {
       // Here you would typically send the data to your API
       // await axios.post('/api/shots', data);
       
-      alert('Shot added successfully!');
+     Swal.fire({
+         title: 'Shot added successfully',
+         text: 'Profile changes have been saved',
+         icon: 'success'
+       });
       resetForm();
 
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Error uploading files. Please try again.');
+ Swal.fire({
+        title: 'Error',
+        text: error.response?.data?.message || error.message || 'Failed add shot',
+        icon: 'error'
+      });
     } finally {
       setIsUploading(false);
     }
@@ -154,7 +162,7 @@ export default function AddShot() {
             type="checkbox"
             value={option.value}
             {...register(name)}
-            className="rounded bg-gray-700 border-gray-600 text-blue-500 "
+            className="rounded bg-gray-700 border-gray-600 text-[ "
           />
           <span>{option.label}</span>
         </label>
@@ -637,7 +645,7 @@ export default function AddShot() {
                       type="radio"
                       value="Interior"
                       {...register("interiorExterior")}
-                      className="rounded bg-gray-700 border-gray-600 text-blue-500 "
+                      className="rounded bg-gray-700 border-gray-600 text-[#31caff] "
                     />
                     <span>Interior</span>
                   </label>
@@ -646,7 +654,7 @@ export default function AddShot() {
                       type="radio"
                       value="Exterior"
                       {...register("interiorExterior")}
-                      className="rounded bg-gray-700 border-gray-600 text-blue-500 "
+                      className="rounded bg-gray-700 border-gray-600 text-[#31caff] "
                     />
                     <span>Exterior</span>
                   </label>
@@ -803,12 +811,12 @@ export default function AddShot() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex items-center justify-center min-w-32"
+              className="px-6 py-2 bg-[#31caff] hover:bg-[#31caff] text-black rounded-md transition-colors flex items-center justify-center min-w-32"
               disabled={isUploading}
             >
               {isUploading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -962,7 +970,7 @@ export default function AddShot() {
 //             type="checkbox"
 //             value={option.value}
 //             {...register(name)}
-//             className="rounded bg-gray-700 border-gray-600 text-blue-500"
+//             className="rounded bg-gray-700 border-gray-600 text-[#31caff]"
 //           />
 //           <span>{option.label}</span>
 //         </label>
@@ -991,7 +999,7 @@ export default function AddShot() {
 //                 <label className="block text-sm font-medium mb-1">Title *</label>
 //                 <input
 //                   {...register("title", { required: true })}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                   placeholder="Shot title"
 //                 />
 //                 {errors.title && <p className="mt-1 text-sm text-red-400">Title is required</p>}
@@ -1001,7 +1009,7 @@ export default function AddShot() {
 //                 <label className="block text-sm font-medium mb-1">Description</label>
 //                 <textarea
 //                   {...register("description")}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                   rows={2}
 //                   placeholder="Brief description"
 //                 />
@@ -1011,7 +1019,7 @@ export default function AddShot() {
 //                 <label className="block text-sm font-medium mb-1">Media Type *</label>
 //                 <select
 //                   {...register("mediaType", { required: true })}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                 >
 //                   <option value="">Select media type</option>
 //                   <option value="Movie">Movie</option>
@@ -1028,7 +1036,7 @@ export default function AddShot() {
 //                 <input
 //                   type="number"
 //                   {...register("releaseYear")}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                   placeholder="2023"
 //                   min="1900"
 //                   max={new Date().getFullYear()}
@@ -1157,7 +1165,7 @@ export default function AddShot() {
 //                 <label className="block text-sm font-medium mb-1">Aspect Ratio</label>
 //                 <select
 //                   {...register("aspectRatio")}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                 >
 //                   <option value="">Select aspect ratio</option>
 //                   <option value="16:9">16:9</option>
@@ -1172,7 +1180,7 @@ export default function AddShot() {
 //                 <label className="block text-sm font-medium mb-1">Camera</label>
 //                 <input
 //                   {...register("camera")}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                   placeholder="e.g. Sony A7S III"
 //                 />
 //               </div>
@@ -1181,7 +1189,7 @@ export default function AddShot() {
 //                 <label className="block text-sm font-medium mb-1">Lens</label>
 //                 <input
 //                   {...register("lens")}
-//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-[#31caff]"
 //                   placeholder="e.g. Canon 24-70mm f/2.8"
 //                 />
 //               </div>
