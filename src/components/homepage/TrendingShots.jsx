@@ -35,7 +35,9 @@ export default function TrendingShots() {
   }
 
   if(isFetching){
-    return <h4>Loading....</h4>
+    return    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
   }
 
   if(isError){
@@ -46,7 +48,7 @@ export default function TrendingShots() {
     <div className='px-4 md:px-8'>
       <h1 className='text-xl font-semibold mt-8'>Trending Shot</h1>
 
-      <div className='grid  w-full  grid-cols-[repeat(auto-fit,minmax(200px,1fr))] '>
+      <div className='grid  w-full  grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] '>
         {data?.data?.map((data, idx) => (
           <div 
             key={idx} 

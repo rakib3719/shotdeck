@@ -707,7 +707,9 @@ function Browse() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return    <div className="flex justify-center my-auto items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
   }
 
   if (error) {
@@ -722,7 +724,7 @@ function Browse() {
     <div>
       <div className="flex">
         {/* Sort Dropdown */}
-        <div className="absolute top-[136.5px] md:top-24 z-30 right-12 md:right-8">
+        <div className="absolute top-[90.5px] md:top-24 z-30 right-12 md:right-8">
           <button
             onClick={() => setShowSortDropdown(!showSortDropdown)}
             className="text-white bg-[#333333] px-4 py-2 rounded-md text-sm focus:outline-none hover:bg-[#444444]"
@@ -809,8 +811,8 @@ function Browse() {
         <section className="md:min-w-[250px]"></section>
 
         {/* Main Content */}
-        <section className="grid mt-32 w-full  grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <div className="flex justify-end lg:hidden p-4 space-x-4">
+        <section className="grid mt-32 w-full  grid-cols-3 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+          <div className="flex justify-end a absolute top-20 right-0  lg:hidden p-4 space-x-4">
             <button onClick={toggleSidebar} className="text-white focus:outline-none md:hidden">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -851,7 +853,7 @@ function Browse() {
             onClick={() => setModalIsOpen(false)}
           >
             <motion.div
-              className="bg-[#1a1a1a] text-white rounded-xl shadow-2xl w-[60%] ml-20 mt-16 overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
+              className="bg-[#1a1a1a] text-white rounded-xl shadow-2xl w-[90%] lg:w-[60%] lg:ml-20 mt-16  overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
@@ -887,7 +889,7 @@ function Browse() {
                 <p className="text-sm text-gray-300">{selectedShot.description || 'No description available.'}</p>
 
                 <div className="border-t border-gray-400">
-                  <section className="flex justify-between gap-8">
+                  <section className="lg:flex justify-between gap-8">
                     {/* Left Side */}
                     <div className="space-y-1 mt-4">
                       <h4 className="font-semibold text-white text-xs">

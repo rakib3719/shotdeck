@@ -5,14 +5,36 @@ import { FaBars, FaTimes, FaTachometerAlt, FaGlobe, FaPlus, FaPhotoVideo, FaUser
 import Link from 'next/link';
 import logo from '@/assets/logo.png'
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { PiUsersThreeFill } from "react-icons/pi";
 import { MdVideoCameraBack } from 'react-icons/md';
+import { useSession } from 'next-auth/react';
 
 
 export default function DashBoardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
+
+  const user = useSession();
+  console.log(user?.data?.user?.role, 'this is user')
+
+  const router = useRouter()
   const pathname = usePathname();
+  if(user?.data?.user?.role !== 'admin'){
+
+  return <div className="flex justify-center items-center min-h-screen bg-gray-900 px-4">
+  <div className="bg-gray-800 border-l-4 border-red-600 p-6 rounded-md shadow-lg max-w-md text-center">
+    <h1 className="text-2xl font-bold text-red-500 mb-2">Access Denied</h1>
+    <p className="text-gray-300 font-medium">
+      This dashboard is restricted to <span className="text-red-400 font-semibold">ADMIN</span> users only.
+    </p>
+    <div className="mt-4 text-sm text-gray-500">
+      Please contact support if you believe this is a mistake.
+    </div>
+  </div>
+</div>
+
+
+  }
 
 
   return (

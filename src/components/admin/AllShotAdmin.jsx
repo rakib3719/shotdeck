@@ -26,7 +26,7 @@ export default function AllShotAdmin() {
     }
   }
 
-  const { data, refetch } = useGetShotsQuery(query);
+  const { data, refetch, isLoading } = useGetShotsQuery(query);
 
   const dropDownHandler = (id) => {
     setShowDropDown(!showDropDown);
@@ -110,6 +110,12 @@ export default function AllShotAdmin() {
       console.error('Delete error:', error);
     }
   };
+
+  if(isLoading){
+    return    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  }
 
   return (
     <div className=" min-h-screen no-scrollbar  p-6">
@@ -198,7 +204,10 @@ export default function AllShotAdmin() {
                 </button>
               </div>
             </div>
-            
+
+            {/* views */}
+
+ <h4 className='absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded'>{shot.click || 0} Views</h4>           
             <div className="p-4">
               <h3 className="text-white font-medium truncate">{shot.title}</h3>
               <p className="text-gray-400 text-sm mt-1">{shot.director}</p>

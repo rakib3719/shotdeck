@@ -83,7 +83,7 @@ function Row({ row }) {
 
   return (
     <React.Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className='bg-primary  hover:bg-blue-600 transition-colors'>
+      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }} className='bg-gray-800   transition-colors'>
         <TableCell>
           <IconButton
             aria-label="expand row"
@@ -268,7 +268,9 @@ export default function CollapsibleTable() {
   console.log(reqData, 'this is -.**') 
   
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>;
+  if (isLoading) return    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>;
   if (error) return <div className="text-center py-8 text-red-500">Error loading data</div>;
 
   return (

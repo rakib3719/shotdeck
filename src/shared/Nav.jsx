@@ -9,27 +9,17 @@ import { RiMenuFill, RiCloseFill } from "react-icons/ri";
 import { usePathname } from 'next/navigation';
 
 export default function Nav() {
+  // All hooks must be called unconditionally at the top level
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const user = useSession();
   const pathname = usePathname();
-  
-  if(pathname.includes('/admin')){
-    return null;
-  }
-
-  const navItems = [
-    { name: 'ADD SHOTS', link: '/add-shots' },
-    { name: 'BROWSE SHOTS', link: '/browse' },
-    { name: 'RENDOM SHOTS', link: '/browse/?sortBy=random' },
-    { name: 'ADD SHOT', link: '/' },
-  ];
-
+  const [isClient, setIsClient] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-
-  const toggleShowMenu = () => {
-    setShowMenu(!showMenu);
-  }
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -44,6 +34,24 @@ export default function Nav() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Now we can do conditional rendering AFTER all hooks
+  if(pathname.includes('/admin')){
+    return null;
+  }
+
+  const navItems = [
+    { name: 'ADD SHOTS', link: '/add-shots' },
+    { name: 'BROWSE SHOTS', link: '/browse' },
+    { name: 'RENDOM SHOTS', link: '/browse/?sortBy=random' },
+    { name: 'ADD SHOT', link: '/' },
+  ];
+
+  const toggleShowMenu = () => {
+    setShowMenu(!showMenu);
+  }
+  // Close dropdown when clicking outside
+
 
   return (
     <div className='bg-primary'>
@@ -64,7 +72,7 @@ export default function Nav() {
 
       {/* Navigation content */}
       <AnimatePresence>
-        {(showMenu || window.innerWidth >= 1024) && (
+        {(showMenu || (isClient && window.innerWidth >= 1024)) && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ 
