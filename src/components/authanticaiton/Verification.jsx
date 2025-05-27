@@ -131,7 +131,7 @@ router.push(`/register/${email}`)
             <div className="inline-flex items-center gap-2 justify-center text-sm text-white bg-gray-200 px-4 py-2 rounded-md shadow-inner">
               <Timer
                 seconds={1}
-                minutes={0}
+                minutes={1}
                 resend={handleResendClick}
                 resendText="Resend Code"
                 className=" hover:underline cursor-pointer font-medium"

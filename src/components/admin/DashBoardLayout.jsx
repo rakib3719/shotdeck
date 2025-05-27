@@ -1,14 +1,12 @@
 'use client';
-
 import React, { useState } from 'react';
 import { FaBars, FaTimes, FaTachometerAlt, FaGlobe, FaPlus, FaPhotoVideo, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
-import logo from '@/assets/logo.png'
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { PiUsersThreeFill } from "react-icons/pi";
+
 import { MdVideoCameraBack } from 'react-icons/md';
 import { useSession } from 'next-auth/react';
+import { IoSettingsSharp } from 'react-icons/io5';
 
 
 export default function DashBoardLayout({ children }) {
@@ -19,22 +17,22 @@ export default function DashBoardLayout({ children }) {
 
   const router = useRouter()
   const pathname = usePathname();
-  if(user?.data?.user?.role !== 'admin'){
+//   if(user?.data?.user?.role !== 'user'){
 
-  return <div className="flex justify-center items-center min-h-screen bg-gray-900 px-4">
-  <div className="bg-gray-800 border-l-4 border-red-600 p-6 rounded-md shadow-lg max-w-md text-center">
-    <h1 className="text-2xl font-bold text-red-500 mb-2">Access Denied</h1>
-    <p className="text-gray-300 font-medium">
-      This dashboard is restricted to <span className="text-red-400 font-semibold">ADMIN</span> users only.
-    </p>
-    <div className="mt-4 text-sm text-gray-500">
-      Please contact support if you believe this is a mistake.
-    </div>
-  </div>
-</div>
+//   return <div className="flex justify-center items-center min-h-screen bg-gray-900 px-4">
+//   <div className="bg-gray-800 border-l-4 border-red-600 p-6 rounded-md shadow-lg max-w-md text-center">
+//     <h1 className="text-2xl font-bold text-red-500 mb-2">Access Denied</h1>
+//     <p className="text-gray-300 font-medium">
+//       This dashboard is restricted to <span className="text-red-400 font-semibold">ADMIN</span> users only.
+//     </p>
+//     <div className="mt-4 text-sm text-gray-500">
+//       Please contact support if you believe this is a mistake.
+//     </div>
+//   </div>
+// </div>
 
 
-  }
+//   }
 
 
   return (
@@ -52,7 +50,7 @@ export default function DashBoardLayout({ children }) {
      <div className="flex h-screen ">
       {/* Sidebar */}
       <div
-        className={`bg-gray-800 mt-[74px] fixed duration-1000 text-white p-4 transition-all   flex flex-col ${
+        className={`bg-gray-800 mt-[42px] fixed duration-1000 text-white p-4 transition-all   flex flex-col ${
           collapsed ? 'hidden' : 'w-64'
         } md:w-64 md:relative fixed   h-full`}
       >
@@ -95,6 +93,12 @@ export default function DashBoardLayout({ children }) {
                   className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/all-shot' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
                 >
                 <FaPhotoVideo /> <span>All Shot</span>
+                </Link>
+                <Link 
+                  href="/admin/setting" 
+                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/setting' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
+                >
+                <IoSettingsSharp /> <span>Setting</span>
                 </Link>
               </div>
         )}

@@ -111,7 +111,7 @@ export default function Account() {
   };
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen mt-8'>
       <h2 className='text-2xl text-center pt-8'>Account</h2>
 
       <form 

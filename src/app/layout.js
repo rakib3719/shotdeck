@@ -5,6 +5,7 @@ import ReduxProvider from "@/providers/ReduxProvider";
 import { ToastContainer } from "react-toastify";
 import SessionProviders from "@/providers/SessionProvider";
 import 'aos/dist/aos.css'; 
+import Footer from "@/shared/Footer";
 
 
 
@@ -23,8 +24,12 @@ export default function RootLayout({ children }) {
 <SessionProviders>
      <ReduxProvider>
     <ToastContainer/>
-         <Navbar/>
-        {children}
+         <Navbar/>\
+         <div className="min-h-screen">
+                  {children}
+         </div>
+
+        <Footer/>
    </ReduxProvider>
 </SessionProviders>
       </body>

@@ -100,7 +100,7 @@ const handleSubmit = async (e) => {
           text: 'Now redirect to login',
           icon: "success"
         });
-        router.push('/login')
+        router.push('/sign-in')
       }
     }
   } catch (error) {

@@ -23,3 +23,8 @@ export const usersApi = createApi({
 });
 
 export const { useGetUsersQuery, useGetSingleUserQuery } = usersApi;
+
+
+
+
+

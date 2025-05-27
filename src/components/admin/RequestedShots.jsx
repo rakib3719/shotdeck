@@ -22,11 +22,15 @@ import Divider from '@mui/material/Divider';
 import { useSecureAxios } from '@/utils/Axios';
 import Button from '@mui/material/Button';
 import Swal from 'sweetalert2';
+import { useSession } from 'next-auth/react';
 
 function Row({ row }) {
   const [open, setOpen] = React.useState(false);
   const axiosInstance = useSecureAxios();
-  const { refetch } = useGetRequestedShotQuery();
+  const user = useSession();
+     const token = user?.data?.user?.token;
+  
+  const { refetch } = useGetRequestedShotQuery(token);
 
  const handleStatusChange = async (newStatus) => {
     try {
@@ -56,12 +60,12 @@ function Row({ row }) {
         const resp = await axiosInstance.patch(`/shot/update-status/${row._id}`, { 
           status: newStatus 
         });
-        
-        // Close loading
-       Swal.close();
-        
-        // Show success
-       Swal.fire({
+
+        console.log(resp, 'update statsu')
+
+        if(resp.status === 201){
+           refetch();
+            Swal.fire({
           title: 'Success!',
           text: `Shot has been ${newStatus}`,
           icon: 'success',
@@ -69,7 +73,11 @@ function Row({ row }) {
           showConfirmButton: false
         });
 
-        refetch();
+        }
+        
+    
+       
+     
       }
     } catch (error) {
      Swal.close();
@@ -262,7 +270,9 @@ Row.propTypes = {
 };
 
 export default function CollapsibleTable() {
-  const { data, isLoading, error, refetch } = useGetRequestedShotQuery();
+  const user = useSession();
+    const token = user?.data?.user?.token;
+  const { data, isLoading, error, refetch } = useGetRequestedShotQuery(token);
 
   const reqData = data?.data;
   console.log(reqData, 'this is -.**') 
@@ -271,7 +281,7 @@ export default function CollapsibleTable() {
   if (isLoading) return    <div className="flex justify-center items-center h-64">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
     </div>;
-  if (error) return <div className="text-center py-8 text-red-500">Error loading data</div>;
+  if (error) return console.log(error);
 
   return (
     <TableContainer 

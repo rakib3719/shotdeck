@@ -44,7 +44,9 @@ export default function Nav() {
     { name: 'ADD SHOTS', link: '/add-shots' },
     { name: 'BROWSE SHOTS', link: '/browse' },
     { name: 'RENDOM SHOTS', link: '/browse/?sortBy=random' },
-    { name: 'ADD SHOT', link: '/' },
+    { name: 'MY COLLECTION', link: '/my-collection' },
+    { name: 'MY SHOT', link: '/my-shot' },
+
   ];
 
   const toggleShowMenu = () => {

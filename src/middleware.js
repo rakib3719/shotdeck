@@ -18,5 +18,6 @@ if(!token){
 
 
 export const config = {
-  matcher: ["/((?!api|_next|sign-in|sign-up).*)"],
+matcher: ["/my-collection", '/my-shot'],
+
 };

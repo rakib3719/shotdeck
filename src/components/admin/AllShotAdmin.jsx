@@ -118,7 +118,7 @@ export default function AllShotAdmin() {
   }
 
   return (
-    <div className=" min-h-screen no-scrollbar  p-6">
+    <div className=" min-h-screen no-scrollbar mt-8  p-6">
       <h1 className="text-2xl font-bold text-white mb-6">Admin - All Shots</h1>
       
       {/* Filter Section - Top */}
@@ -207,7 +207,7 @@ export default function AllShotAdmin() {
 
             {/* views */}
 
- <h4 className='absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded'>{shot.click || 0} Views</h4>           
+ <h4 className='absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded'>{shot.click || 0} Views</h4>           
             <div className="p-4">
               <h3 className="text-white font-medium truncate">{shot.title}</h3>
               <p className="text-gray-400 text-sm mt-1">{shot.director}</p>

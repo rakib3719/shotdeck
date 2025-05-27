@@ -87,7 +87,7 @@ export default function AddShot() {
       
      Swal.fire({
          title: 'Shot added successfully',
-         text: 'Profile changes have been saved',
+         text: 'Shot Saved Sucessfully waitn for aproval',
          icon: 'success'
        });
       resetForm();

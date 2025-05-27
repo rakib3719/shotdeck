@@ -24,7 +24,13 @@ export const shotApi = createApi({
     }),
 
 getRequestedShot:builder.query({
-  query:()=>({url: '/shot/shot-request/'})
+  query:(token)=>({url: '/shot/shot-request/',
+
+   headers: {
+      Authorization: `Bearer ${token}`,
+    },
+
+  })
 }),
 getOverview:builder.query({
   query:()=>({url:'/shot/overview'})
@@ -34,6 +40,24 @@ getOverview:builder.query({
 getTrendingShot: builder.query({
 
   query:()=>({url:'/shot/treanding'})
+}),
+getShotById:builder.query({
+  query:(token)=>({
+    url:'/shot/shot-by-id',
+     headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    
+    
+  })
+
+}),
+getMyShot:builder.query({
+  query:(id)=>({
+
+    url:`/shot/collection/${id}`
+
+  })
 })
 
 
@@ -41,4 +65,4 @@ getTrendingShot: builder.query({
 });
 
 
-export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery, useGetTrendingShotQuery} = shotApi;
+export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery, useGetTrendingShotQuery, useGetShotByIdQuery, useGetMyShotQuery} = shotApi;

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import Swal from 'sweetalert2';
 
 function Browse() {
@@ -22,54 +22,26 @@ function Browse() {
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedShot, setSelectedShot] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true); // Track if more data is available
   const user = useSession();
   const axiosInstance = useSecureAxios();
-  const [currentPage, setCurrentPage] = useState(1);
-  
-const Userid = user?.data?.user?.id;
+  const observer = useRef(null);
 
-
-  const handleClick = async (id) => {
-    try {
-      const data = await axios.patch(`${base_url}/shot/click/${id}`);
-      console.log(data, 'click handle');
-    } catch (error) {
-      console.error('Error handling click:', error);
+    const query = {};
+  for (const key in selectedFilters) {
+    if (selectedFilters[key].length > 0) {
+      query[key] = selectedFilters[key];
     }
-  };
-
-  const  addCollection= async(id, data)=>{
-
-
-
-const response = await axiosInstance.post(`/shot/collection/`, {
-    userId: Userid,
-    shotId: id,
-    data
-  });
-    console.log(response, 'post ho plz')
-    if(response.status === 201){
-       Swal.fire({
-               title: 'Success',
-               text: 'Shot added To Your Collection',
-               icon: 'success'
-             });
-    }
-
-    
-
   }
-
-  const sortOptions = [
-    { label: 'Most Popular', value: 'mostPopular' },
-    { label: 'Release Date (Newest to Oldest)', value: 'releaseDateDesc' },
-    { label: 'Release Date (Oldest to Newest)', value: 'releaseDateAsc' },
-    { label: 'Recently Added', value: 'recentlyAdded' },
-    { label: 'Random', value: 'random' },
-    { label: 'Alphabetically by Title', value: 'alphabetical' },
-  ];
-
-  // Parse URL parameters on component mount
+  if (submittedSearch && submittedSearch.trim() !== '') {
+    query.search = submittedSearch;
+  }
+  if (sortBy) {
+    query.sortBy = sortBy;
+  }
+  query.page = currentPage;
+  query.limit = 50;
   useEffect(() => {
     if (!searchParams) return;
     const params = new URLSearchParams(searchParams);
@@ -92,6 +64,64 @@ const response = await axiosInstance.post(`/shot/collection/`, {
 
     setSelectedFilters(initialFilters);
   }, [searchParams]);
+  const Userid = user?.data?.user?.id;
+    const { data, isLoading, error } = useGetShotsQuery(query);
+
+  // Ref for the sentinel element
+  const lastShotElementRef = useCallback(
+    (node) => {
+      if (isLoading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setCurrentPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, hasMore]
+  );
+
+  const handleClick = async (id) => {
+    try {
+      const data = await axios.patch(`${base_url}/shot/click/${id}`);
+      console.log(data, 'click handle');
+    } catch (error) {
+      console.error('Error handling click:', error);
+    }
+  };
+
+  const addCollection = async (id, data) => {
+    try {
+      const response = await axiosInstance.post(`/shot/collection/`, {
+        userId: Userid,
+        shotId: id,
+        data,
+      });
+      console.log(response, 'post ho plz');
+      if (response.status === 201) {
+        Swal.fire({
+          title: 'Success',
+          text: 'Shot added To Your Collection',
+          icon: 'success',
+        });
+      }
+    } catch (error) {
+      console.error('Error adding to collection:', error);
+    }
+  };
+
+  const sortOptions = [
+    { label: 'Most Popular', value: 'mostPopular' },
+    { label: 'Release Date (Newest to Oldest)', value: 'releaseDateDesc' },
+    { label: 'Release Date (Oldest to Newest)', value: 'releaseDateAsc' },
+    { label: 'Recently Added', value: 'recentlyAdded' },
+    { label: 'Random', value: 'random' },
+    { label: 'Alphabetically by Title', value: 'alphabetical' },
+  ];
+
+  // Parse URL parameters on component mount
+
 
   function getYouTubeEmbedUrl(url) {
     try {
@@ -109,25 +139,18 @@ const response = await axiosInstance.post(`/shot/collection/`, {
   }
 
   // Build query object from state
-  const query = {};
-  for (const key in selectedFilters) {
-    if (selectedFilters[key].length > 0) {
-      query[key] = selectedFilters[key];
+
+
+
+
+  // Check if there's more data to load
+  useEffect(() => {
+    if (data?.data) {
+      if (data.data.length < 50) {
+        setHasMore(false); // No more data if fewer than limit returned
+      }
     }
-  }
-  if (submittedSearch && submittedSearch.trim() !== '') {
-    query.search = submittedSearch;
-  }
-  if (sortBy) {
-    query.sortBy = sortBy;
-  }
-  if(currentPage){
-    query.page = 1;
-    query.limit = currentPage * 50
-
-  }
-
-  const { data, isLoading, error } = useGetShotsQuery(query);
+  }, [data]);
 
   const dropDownHandler = (id) => {
     setShowDropDown(!showDropDown);
@@ -157,6 +180,8 @@ const response = await axiosInstance.post(`/shot/collection/`, {
     setLocalSearch('');
     setSubmittedSearch('');
     setSortBy('mostPopular');
+    setCurrentPage(1); // Reset to first page
+    setHasMore(true); // Reset hasMore
   };
 
   const toggleSidebar = () => {
@@ -166,18 +191,24 @@ const response = await axiosInstance.post(`/shot/collection/`, {
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter') {
       setSubmittedSearch(localSearch);
+      setCurrentPage(1); // Reset to first page on new search
+      setHasMore(true); // Reset hasMore
     }
   };
 
   const handleSortSelect = (value) => {
     setSortBy(value);
     setShowSortDropdown(false);
+    setCurrentPage(1); // Reset to first page on sort change
+    setHasMore(true); // Reset hasMore
   };
 
-  if (isLoading) {
-    return    <div className="flex justify-center my-auto items-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
+  if (isLoading && currentPage === 1) {
+    return (
+      <div className="flex justify-center my-auto items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -279,8 +310,8 @@ const response = await axiosInstance.post(`/shot/collection/`, {
         <section className="md:min-w-[250px]"></section>
 
         {/* Main Content */}
-        <section className="grid mt-32 w-full  grid-cols-3 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <div className="flex justify-end a absolute top-20 right-0  lg:hidden p-4 space-x-4">
+        <section className="grid mt-32 w-full grid-cols-3 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+          <div className="flex justify-end absolute top-20 right-0 lg:hidden p-4 space-x-4">
             <button onClick={toggleSidebar} className="text-white focus:outline-none md:hidden">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -288,62 +319,50 @@ const response = await axiosInstance.post(`/shot/collection/`, {
             </button>
           </div>
 
-        {data?.data?.map((data, idx) => (
-  <div
-    onClick={() => {
-      setSelectedShot(data);
-      setModalIsOpen(true);
-      handleClick(data._id);
-    }}
-    key={idx}
-    className="p-2 cursor-pointer relative group" // Added relative and group classes
-  >
-    {/* Image container */}
-    <div className="relative">
-      <Image
-        alt="img"
-        src={data?.imageUrl}
-        height={400}
-        width={400}
-        className="object-cover h-40 w-50"
-      />
-      
-      {/* Overlay - hidden by default, shown on hover */}
-      <div className="absolute inset-0 bg-black  flex flex-col justify-between p-2 opacity-0 group-hover:opacity-60 transition-opacity duration-500">
-        {/* Title at top */}
-        <div className="text-white text-xs truncate">
-          {data?.title}
-        </div>
-        
-        {/* Add to Collection button at bottom left */}
-        <button 
-      
-      
-          className="b cursor-pointer text-xs px-2 py-1 rounded self-start hover:underline transition-colors"
-          onClick={(e) => {
-            e.stopPropagation(); 
-            addCollection(data._id,data)
-            console.log("Add to collection:", data._id);
-          }}
-        >
-          Add to Collection
-        </button>
-      </div>
-    </div>
-  </div>
-))}
+          {data?.data?.map((data, idx) => (
+            <div
+              ref={idx === data?.data?.length - 1 ? lastShotElementRef : null} // Attach ref to last item
+              onClick={() => {
+                setSelectedShot(data);
+                setModalIsOpen(true);
+                handleClick(data._id);
+              }}
+              key={idx}
+              className="p-2 cursor-pointer relative group"
+            >
+              <div className="relative">
+                <Image
+                  alt="img"
+                  src={data?.imageUrl}
+                  height={400}
+                  width={400}
+                  className="object-cover h-40 w-50"
+                />
+                <div className="absolute inset-0 bg-black flex flex-col justify-between p-2 opacity-0 group-hover:opacity-60 transition-opacity duration-500">
+                  <div className="text-white text-xs truncate">{data?.title}</div>
+                  <button
+                    className="cursor-pointer text-xs px-2 py-1 rounded self-start hover:underline transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addCollection(data._id, data);
+                      console.log('Add to collection:', data._id);
+                    }}
+                  >
+                    Add to Collection
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </section>
 
-   
+        {/* Loading indicator for additional pages */}
+        {isLoading && currentPage > 1 && (
+          <div className="flex justify-center my-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        )}
       </div>
-      
-           <button onClick={()=>setCurrentPage(currentPage + 1)} className='cursor-pointer  ml-[50%] mt-16 text-center flex justify-center mx-auto'>
-
-{
-  isLoading ? 'loading...' : 'Load More'
-}
-
-           </button>
 
       {/* Modal */}
       <AnimatePresence>
@@ -356,7 +375,7 @@ const response = await axiosInstance.post(`/shot/collection/`, {
             onClick={() => setModalIsOpen(false)}
           >
             <motion.div
-              className="bg-[#1a1a1a] text-white rounded-xl shadow-2xl w-[90%] lg:w-[60%] lg:ml-20 mt-16  overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
+              className="bg-[#1a1a1a] text-white rounded-xl shadow-2xl w-[90%] lg:w-[60%] lg:ml-20 mt-16 overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
@@ -550,13 +569,10 @@ const response = await axiosInstance.post(`/shot/collection/`, {
           scrollbar-width: none;
         }
       `}</style>
-
-
     </div>
   );
 }
 
-// Wrap the Browse component with Suspense
 export default function BrowseWithSuspense() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
