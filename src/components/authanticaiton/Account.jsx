@@ -61,7 +61,9 @@ export default function Account() {
 
     try {
       
+
       const data = await axiosInstence.patch(`/user/update`, formData);
+      console.log(data, 'hey update')
        Swal.fire({
       title: 'Profile Updated',
       text: 'Profile changes have been saved',
@@ -69,6 +71,7 @@ export default function Account() {
     });
       console.log(data)
     } catch (error) {
+      console.log(error)
         Swal.fire({
         title: 'Error',
         text: error.response?.data?.message || error.message || 'Failed to change password',
