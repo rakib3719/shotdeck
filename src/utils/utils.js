@@ -1,5 +1,10 @@
 // export const base_url = 'https://shotdeck-backend.vercel.app/api';
 export const base_url = 'http://localhost:5000/api';
+
+export const upload_preset = 'e-paper';
+export const cloud_name = 'djf8l2ahy'
+
+
 export const filters = [
   {
     id: 1,

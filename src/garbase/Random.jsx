@@ -108,14 +108,9 @@ function Random() {
   }
 
   return (
-    <div className="mt-28 min-h-screen">
+    <div className=" mt-28 min-h-screen">
       {/* Main Content Area */}
       <div className="container mx-auto px-4 py-8">
-        {/* Heading */}
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center drop-shadow-md">
-          Random Shots
-        </h1>
-
         {/* Carousel Slider */}
         <div className="relative mb-8 h-[40vh] md:h-[50vh] lg:h-[60vh]">
           <Swiper
@@ -156,7 +151,7 @@ function Random() {
               return (
                 <SwiperSlide key={shot._id}>
                   <div
-                    className="relative h-full w-full rounded-xl overflow-hidden cursor-pointer transition-transform duration-300 shadow-lg"
+                    className="relative h-full w-full rounded-xl overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 shadow-lg"
                     onClick={() => {
                       setSelectedShot(shot);
                       setModalIsOpen(true);

@@ -1,5 +1,5 @@
 'use client';
-import { useGetShotsQuery } from '@/redux/api/shot';
+import { useGetShotCountQuery, useGetShotsQuery } from '@/redux/api/shot';
 import { useSecureAxios } from '@/utils/Axios';
 import { base_url, filters } from '@/utils/utils';
 import axios from 'axios';
@@ -69,6 +69,7 @@ const response = await axiosInstance.post(`/shot/collection/`, {
     { label: 'Alphabetically by Title', value: 'alphabetical' },
   ];
 
+
   // Parse URL parameters on component mount
   useEffect(() => {
     if (!searchParams) return;
@@ -92,6 +93,52 @@ const response = await axiosInstance.post(`/shot/collection/`, {
 
     setSelectedFilters(initialFilters);
   }, [searchParams]);
+
+  function getYouTubeThumbnail(url) {
+  try {
+    const yt = new URL(url);
+    let videoId;
+    
+    if (yt.hostname.includes('youtu.be')) {
+      videoId = yt.pathname.split('/')[1];
+    } else if (yt.hostname.includes('youtube.com')) {
+      videoId = yt.searchParams.get('v');
+    }
+    
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+  } catch (err) {
+    console.error('Error parsing YouTube URL:', err);
+  }
+  return null;
+}
+
+function getCloudinaryThumbnail(url) {
+  try {
+    const cloudinaryUrl = new URL(url);
+    if (cloudinaryUrl.hostname.includes('cloudinary.com') && url.includes('/video/')) {
+      // Insert video thumbnail transformation parameters
+      const pathParts = cloudinaryUrl.pathname.split('/');
+      const uploadIndex = pathParts.findIndex(part => part === 'upload');
+      
+      if (uploadIndex !== -1) {
+        // Add transformations for video thumbnail (frame at 10 seconds, 400x400, auto gravity)
+        pathParts.splice(uploadIndex + 1, 0, 'c_thumb,w_400,h_400,g_auto,so_10');
+        // Change the file extension to .jpg for thumbnail
+        const fileNameParts = pathParts[pathParts.length - 1].split('.');
+        if (fileNameParts.length > 1) {
+          fileNameParts[fileNameParts.length - 1] = 'jpg';
+          pathParts[pathParts.length - 1] = fileNameParts.join('.');
+        }
+        return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
+      }
+    }
+  } catch (err) {
+    console.error('Error parsing Cloudinary URL:', err);
+  }
+  return null;
+}
 
   function getYouTubeEmbedUrl(url) {
     try {
@@ -128,7 +175,21 @@ const response = await axiosInstance.post(`/shot/collection/`, {
   }
 
   const { data, isLoading, error } = useGetShotsQuery(query);
+  const {data:count} = useGetShotCountQuery();
+  const counts = count?.count;
 
+//   const getCount = async()=>{
+//     const data = await axiosInstance.get(`shot/shot-count`);
+//     console.log(data, 'this is data')
+//   }
+
+// useEffect(()=>{
+
+// getCount()
+// }, [])
+
+  console.log(counts, 'Total count')
+  console.log(data?.data?.length, 'Hey young m an')
   const dropDownHandler = (id) => {
     setShowDropDown(!showDropDown);
     setId(id);
@@ -288,62 +349,76 @@ const response = await axiosInstance.post(`/shot/collection/`, {
             </button>
           </div>
 
-        {data?.data?.map((data, idx) => (
-  <div
-    onClick={() => {
-      setSelectedShot(data);
-      setModalIsOpen(true);
-      handleClick(data._id);
-    }}
-    key={idx}
-    className="p-2 cursor-pointer relative group" // Added relative and group classes
-  >
-    {/* Image container */}
-    <div className="relative">
-      <Image
-        alt="img"
-        src={data?.imageUrl}
-        height={400}
-        width={400}
-        className="object-cover h-40 w-50"
-      />
-      
-      {/* Overlay - hidden by default, shown on hover */}
-      <div className="absolute inset-0 bg-black  flex flex-col justify-between p-2 opacity-0 group-hover:opacity-60 transition-opacity duration-500">
-        {/* Title at top */}
-        <div className="text-white text-xs truncate">
-          {data?.title}
-        </div>
+{data?.data?.map((data, idx) => {
+  // Determine the image source
+  let imageSrc = data?.imageUrl;
+  
+  if (!imageSrc && data?.youtubeLink) {
+    imageSrc = getYouTubeThumbnail(data.youtubeLink);
+  }
+  
+  if (!imageSrc && data?.youtubeLink?.includes('cloudinary.com')) {
+    imageSrc = getCloudinaryThumbnail(data.youtubeLink);
+  }
+  
+  return (
+    <div
+      onClick={() => {
+        setSelectedShot(data);
+        setModalIsOpen(true);
+        handleClick(data._id);
+      }}
+      key={idx}
+      className="p-2 cursor-pointer relative group"
+    >
+      <div className="relative">
+        {imageSrc ? (
+          <Image
+            alt="img"
+            src={imageSrc}
+            height={400}
+            width={400}
+            className="object-cover h-40 w-50"
+          />
+        ) : (
+          <div className="bg-gray-800 h-40 w-full flex items-center justify-center">
+            <span className="text-gray-500">No thumbnail available</span>
+          </div>
+        )}
         
-        {/* Add to Collection button at bottom left */}
-        <button 
-      
-      
-          className="b cursor-pointer text-xs px-2 py-1 rounded self-start hover:underline transition-colors"
-          onClick={(e) => {
-            e.stopPropagation(); 
-            addCollection(data._id,data)
-            console.log("Add to collection:", data._id);
-          }}
-        >
-          Add to Collection
-        </button>
+        {/* Rest of your overlay code remains the same */}
+        <div className="absolute inset-0 bg-black flex flex-col justify-between p-2 opacity-0 group-hover:opacity-60 transition-opacity duration-500">
+          <div className="text-white text-xs truncate">
+            {data?.title}
+          </div>
+          <button 
+            className="cursor-pointer text-xs px-2 py-1 rounded self-start hover:underline transition-colors"
+            onClick={(e) => {
+              e.stopPropagation(); 
+              addCollection(data._id, data)
+            }}
+          >
+            Add to Collection
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-))}
+  );
+})}
         </section>
 
    
       </div>
       
-           <button onClick={()=>setCurrentPage(currentPage + 1)} className='cursor-pointer  ml-[50%] mt-16 text-center flex justify-center mx-auto'>
+        {
+        data?.data?.length &&  data?.data.length !== counts &&    <button onClick={()=>setCurrentPage(currentPage + 1)} className='cursor-pointer  ml-[50%] mt-16 text-center flex justify-center mx-auto'>
 
 {
   isLoading ? 'loading...' : 'Load More'
 }
 
            </button>
+        }
 
       {/* Modal */}
       <AnimatePresence>
@@ -372,7 +447,7 @@ const response = await axiosInstance.post(`/shot/collection/`, {
               {selectedShot.youtubeLink?.includes('youtu') ? (
                 <iframe
                   width="100%"
-                  height="360"
+                  height="460"
                   src={getYouTubeEmbedUrl(selectedShot.youtubeLink)}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

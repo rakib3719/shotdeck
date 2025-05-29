@@ -1,33 +1,71 @@
 'use client'
 
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { base_url } from '@/utils/utils';
 import { useGetMyShotQuery } from '@/redux/api/shot';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { FaTrash } from "react-icons/fa"; // Changed to a more standard trash icon
+import { FaTrash } from 'react-icons/fa';
 import { useSecureAxios } from '@/utils/Axios';
 import Link from 'next/link';
 
 export default function MyCollection() {
   const user = useSession();
   const id = user?.data?.user?.id;
-  const {data, isFetching, isError, refetch} = useGetMyShotQuery(id);
+  const { data, isFetching, isError, refetch } = useGetMyShotQuery(id);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedShot, setSelectedShot] = useState(null);
   const [isDetails, setIsDetails] = useState(false);
   const pathname = usePathname();
-  
   const axiosInstance = useSecureAxios();
 
   useEffect(() => {
-    if(pathname.includes('my-collection')) {
+    if (pathname.includes('my-collection')) {
       setIsDetails(true);
     }
   }, [pathname]);
+
+  // Helper functions for video thumbnails
+  function getYouTubeThumbnail(url) {
+    try {
+      const yt = new URL(url);
+      let videoId;
+
+      if (yt.hostname.includes('youtu.be')) {
+        videoId = yt.pathname.split('/')[1];
+      } else if (yt.hostname.includes('youtube.com')) {
+        videoId = yt.searchParams.get('v');
+      }
+
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      }
+    } catch (err) {
+      console.error('Error parsing YouTube URL:', err);
+    }
+    return null;
+  }
+
+  function getCloudinaryThumbnail(url) {
+    try {
+      const cloudinaryUrl = new URL(url);
+      if (cloudinaryUrl.hostname.includes('cloudinary.com')) {
+        const pathParts = cloudinaryUrl.pathname.split('/');
+        const uploadIndex = pathParts.findIndex(part => part === 'upload');
+
+        if (uploadIndex !== -1) {
+          pathParts.splice(uploadIndex + 1, 0, 'c_thumb,w_400,h_400,g_auto');
+          return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
+        }
+      }
+    } catch (err) {
+      console.error('Error parsing Cloudinary URL:', err);
+    }
+    return null;
+  }
 
   const finalData = isDetails ? data?.data : data?.data?.slice(0, 10);
 
@@ -39,15 +77,12 @@ export default function MyCollection() {
     }
   };
 
-  // Improved delete handler
-  const handleDelete = async(e, id) => {
-    e.stopPropagation(); // Prevent triggering the parent onClick
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
     console.log('Deleting item with id:', id);
     const resp = await axiosInstance.delete(`/shot/collection/${id}`);
-    console.log(resp, 'This is response') 
-    refetch()
-
-    // Add your actual delete logic here when ready
+    console.log(resp, 'This is response');
+    refetch();
   };
 
   function getYouTubeEmbedUrl(url) {
@@ -65,7 +100,7 @@ export default function MyCollection() {
     return null;
   }
 
-  if(isFetching) {
+  if (isFetching) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -73,56 +108,77 @@ export default function MyCollection() {
     );
   }
 
-  if(isError) {
+  if (isError) {
     return <h4 className="text-center py-8">Something went wrong!</h4>;
   }
 
   return (
-    <div className='px-4 mt-16 md:px-8'>
+    <div className='px-4 mt-16 overflow-hidden md:px-8'>
       <h1 className='text-xl font-semibold mt-8'>My Collected Shot</h1>
 
-      <div className={`${isDetails ? 'grid  grid-cols-[repeat(auto-fit,minmax(200px,1fr))]' : 'flex gap-4'} `}>
-        {finalData?.map((item) => (
-          <div 
-            key={item._id} 
-            className='mt-8 relative 40 max-w-[200px] cursor-pointer group'
-            onClick={() => {
-              setSelectedShot(item?.data);
-              setModalIsOpen(true);
-              handleClick(item._id);
-            }}
-          >
-            <Image 
-              alt={'img'} 
-              src={item?.data?.imageUrl} 
-              height={300} 
-              width={300}
-              className='object-cover h-40 max-w-[200px] rounded-lg'
-            />
+      <div className={`${isDetails ? 'grid grid-cols-2 overflow-hidden md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]' : 'flex gap-4'}`}>
+        {finalData?.map((item) => {
+          // Determine the image source
+          let imageSrc = item?.data?.imageUrl;
 
-            {/* Delete Button - Only shows on hover */}
-            <button
-              onClick={(e) => handleDelete(e, item._id)}
-              className="absolute top-2 right-2 p-2 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-500"
-              aria-label="Delete"
+          if (!imageSrc && item?.data?.youtubeLink) {
+            if (item.data.youtubeLink.includes('youtu.be') || item.data.youtubeLink.includes('youtube.com')) {
+              imageSrc = getYouTubeThumbnail(item.data.youtubeLink);
+            } else if (item.data.youtubeLink.includes('cloudinary.com')) {
+              imageSrc = getCloudinaryThumbnail(item.data.youtubeLink);
+            }
+          }
+
+          return (
+            <div
+              key={item._id}
+              className='mt-8 relative max-w-[200px] cursor-pointer group'
+              onClick={() => {
+                setSelectedShot(item?.data);
+                setModalIsOpen(true);
+                handleClick(item._id);
+              }}
             >
-              <FaTrash className="text-white text-lg" />
-            </button>
-          </div>
-        ))}
+              {imageSrc ? (
+                <Image
+                  alt={'img'}
+                  src={imageSrc}
+                  height={300}
+                  width={300}
+                  className='object-cover h-40 max-w-[200px] rounded-lg'
+                />
+              ) : (
+                <div className="bg-gray-800 h-40 w-full flex items-center justify-center rounded-lg">
+                  <span className="text-gray-500">No thumbnail available</span>
+                </div>
+              )}
 
-
+              {/* Delete Button - Only shows on hover */}
+              <button
+                onClick={(e) => handleDelete(e, item._id)}
+                className="absolute top-2 right-2 p-2 bg-black/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-500"
+                aria-label="Delete"
+              >
+                <FaTrash className="text-white text-lg" />
+              </button>
+            </div>
+          );
+        })}
       </div>
-      
-        {
-          isDetails ? <div></div> : <Link href={'/my-collection'} className='text-green-800 flex justify-center text-center w-full mt-8 cursor-pointer hover:underline'>See More</Link>
-        }
+
+      {isDetails ? (
+        <div></div>
+      ) : (
+        <Link href={'/my-collection'} className='text-green-800 flex justify-center text-center w-full mt-8 cursor-pointer hover:underline'>
+          See More
+        </Link>
+      )}
 
       {/* Modal for showing shot details */}
       <AnimatePresence>
         {modalIsOpen && selectedShot && (
           <motion.div
-            className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999] "
+            className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

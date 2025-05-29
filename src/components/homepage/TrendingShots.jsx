@@ -1,15 +1,55 @@
 'use client'
-import { useGetTrendingShotQuery } from '@/redux/api/shot'
+
+import { useGetTrendingShotQuery } from '@/redux/api/shot';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { base_url } from '@/utils/utils';
 
 export default function TrendingShots() {
-  const {data, isFetching, isError} = useGetTrendingShotQuery();
+  const { data, isFetching, isError } = useGetTrendingShotQuery();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedShot, setSelectedShot] = useState(null);
+
+  // Helper functions for video thumbnails
+  function getYouTubeThumbnail(url) {
+    try {
+      const yt = new URL(url);
+      let videoId;
+
+      if (yt.hostname.includes('youtu.be')) {
+        videoId = yt.pathname.split('/')[1];
+      } else if (yt.hostname.includes('youtube.com')) {
+        videoId = yt.searchParams.get('v');
+      }
+
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      }
+    } catch (err) {
+      console.error('Error parsing YouTube URL:', err);
+    }
+    return null;
+  }
+
+  function getCloudinaryThumbnail(url) {
+    try {
+      const cloudinaryUrl = new URL(url);
+      if (cloudinaryUrl.hostname.includes('cloudinary.com')) {
+        const pathParts = cloudinaryUrl.pathname.split('/');
+        const uploadIndex = pathParts.findIndex(part => part === 'upload');
+
+        if (uploadIndex !== -1) {
+          pathParts.splice(uploadIndex + 1, 0, 'c_thumb,w_400,h_400,g_auto');
+          return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
+        }
+      }
+    } catch (err) {
+      console.error('Error parsing Cloudinary URL:', err);
+    }
+    return null;
+  }
 
   const handleClick = async (id) => {
     try {
@@ -34,47 +74,68 @@ export default function TrendingShots() {
     return null;
   }
 
-  if(isFetching){
-    return    <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
+  if (isFetching) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
-  if(isError){
-    return <h4>Something went wrong!</h4>
+  if (isError) {
+    return <h4>Something went wrong!</h4>;
   }
 
   return (
     <div className='px-4 md:px-8'>
       <h1 className='text-xl font-semibold mt-8'>Trending Shot</h1>
 
-      <div className='grid  w-full  grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] '>
-        {data?.data?.map((data, idx) => (
-          <div 
-            key={idx} 
-            className='mt-8 cursor-pointer'
-            onClick={() => {
-              setSelectedShot(data);
-              setModalIsOpen(true);
-              handleClick(data._id);
-            }}
-          >
-            <Image 
-              alt={'img'} 
-              src={data?.imageUrl} 
-              height={300} 
-              width={300}
-              className='object-cover h-40 w-50 '
-            />
-          </div>
-        ))}
+      <div className='grid w-full grid-cols-3 gap-2 md:grid-cols-4 lg:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]'>
+        {data?.data?.map((data, idx) => {
+          // Determine the image source
+          let imageSrc = data?.imageUrl;
+
+          if (!imageSrc && data?.youtubeLink) {
+            if (data.youtubeLink.includes('youtu.be') || data.youtubeLink.includes('youtube.com')) {
+              imageSrc = getYouTubeThumbnail(data.youtubeLink);
+            } else if (data.youtubeLink.includes('cloudinary.com')) {
+              imageSrc = getCloudinaryThumbnail(data.youtubeLink);
+            }
+          }
+
+          return (
+            <div
+              key={idx}
+              className='mt-8 cursor-pointer'
+              onClick={() => {
+                setSelectedShot(data);
+                setModalIsOpen(true);
+                handleClick(data._id);
+              }}
+            >
+              {imageSrc ? (
+                <Image
+                  alt={'img'}
+                  src={imageSrc}
+                  height={300}
+                  width={300}
+                  className='object-cover h-40 w-50'
+                />
+              ) : (
+                <div className="bg-gray-800 h-40 w-full flex items-center justify-center">
+                  <span className="text-gray-500">No thumbnail available</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Modal for showing shot details */}
       <AnimatePresence>
         {modalIsOpen && selectedShot && (
           <motion.div
-            className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999] "
+            className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

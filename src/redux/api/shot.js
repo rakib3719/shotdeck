@@ -58,6 +58,18 @@ getMyShot:builder.query({
     url:`/shot/collection/${id}`
 
   })
+}),
+getSetting:builder.query({
+
+  query:()=>({
+    url:'/shot/website'
+  })
+}),
+getShotCount:builder.query({
+
+  query:()=>({
+    url:'/shot/shot-count'
+  })
 })
 
 
@@ -65,4 +77,4 @@ getMyShot:builder.query({
 });
 
 
-export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery, useGetTrendingShotQuery, useGetShotByIdQuery, useGetMyShotQuery} = shotApi;
+export const { useGetShotsQuery, usePostShotsMutation, useGetRequestedShotQuery, useGetOverviewQuery, useGetTrendingShotQuery, useGetShotByIdQuery, useGetMyShotQuery, useGetSettingQuery, useGetShotCountQuery} = shotApi;

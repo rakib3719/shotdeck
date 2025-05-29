@@ -28,28 +28,31 @@ export default function AddShot() {
     console.log(data, 'Initial data')
     try {
       setIsUploading(true);
+    
+    // Upload image if exists
+    if (data.imageUrl && data.imageUrl[0]) {
+      const img = data.imageUrl[0];
+      const formDataImage = new FormData();
+      formDataImage.append('file', img);
+      formDataImage.append('upload_preset', 'e-paper');
+      formDataImage.append('cloud_name', 'djf8l2ahy');
       
-      // Upload image if exists
-      if (data.imageUrl && data.imageUrl[0]) {
-        const img = data.imageUrl[0];
-        const formDataImage = new FormData();
-        formDataImage.append('file', img);
-        formDataImage.append('upload_preset', 'e-paper');
-        formDataImage.append('cloud_name', 'djf8l2ahy');
-        
-        const imgResp = await axios.post(
-          'https://api.cloudinary.com/v1_1/djf8l2ahy/image/upload', 
-          formDataImage,
-          {
-            onUploadProgress: (progressEvent) => {
-              const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
-              setUploadProgress(progress);
-            }
+      const imgResp = await axios.post(
+        'https://api.cloudinary.com/v1_1/djf8l2ahy/image/upload', 
+        formDataImage,
+        {
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
+            setUploadProgress(progress);
           }
-        );
-        
-        data.imageUrl = imgResp.data.secure_url;
-      }
+        }
+      );
+      
+      data.imageUrl = imgResp.data.secure_url;
+    } else {
+      // Set a default image or handle the case where no image is provided
+      data.imageUrl = null;
+    }
 
       // Upload video if exists
       if (selectedVideo) {
@@ -266,16 +269,16 @@ export default function AddShot() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium mb-1">Image *</label>
+                <label className="block text-sm font-medium mb-1">Image </label>
                 <div className="flex">
                   <input
                     type="file"
                     accept="image/*"
-                    {...register("imageUrl", { required: true })}
+                    {...register("imageUrl")}
                     className="flex-1 bg-gray-700 border border-gray-600 max-w-[300px] md:w-auto rounded-md py-2 px-3 focus:outline-none"
-                  />
+                  /> 
                 </div>
-                {errors.imageUrl && <p className="mt-1 text-sm text-red-400">Image is required</p>}
+                {/* {errors.imageUrl && <p className="mt-1 text-sm text-red-400">Image is required</p>} */}
               </div>
 
               <div>

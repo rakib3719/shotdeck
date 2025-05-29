@@ -106,7 +106,7 @@ function Row({ row }) {
           {row.imageUrl && (
             <div className="relative w-16 h-16 rounded-md overflow-hidden">
               <Image
-                src={row.imageUrl}
+                src={row?.imageUrl}
                 alt={row.title}
                 fill
                 className="object-cover"

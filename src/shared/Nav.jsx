@@ -43,7 +43,7 @@ export default function Nav() {
   const navItems = [
     { name: 'ADD SHOTS', link: '/add-shots' },
     { name: 'BROWSE SHOTS', link: '/browse' },
-    { name: 'RENDOM SHOTS', link: '/browse/?sortBy=random' },
+    { name: 'RENDOM SHOTS', link: '/random' },
     { name: 'MY COLLECTION', link: '/my-collection' },
     { name: 'MY SHOT', link: '/my-shot' },
 
@@ -119,6 +119,37 @@ export default function Nav() {
                 </motion.div>
               ))}
 
+             <div className='lg:hidden'>
+                   <motion.div 
+               
+                  initial={{ x: 20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay:  0.05 + 0.2 }}
+                >
+                  <Link href={'/account'}>
+                    <p className='hover:text-primary hover:text-[#31caff] lg:mt-8 text-right lg:text-left font-sub-heading transition-colors whitespace-nowrap'>
+                  Your Account
+                    </p>
+                  </Link>
+                </motion.div>
+                  <motion.button
+                          whileHover={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+                          className=' text-right py-3 text-sm  ml-auto justify-end text-gray-300 hover:text-white flex items-center gap-2'
+                          onClick={() => {
+                            signOut()
+                            setIsOpen(false);
+                          }}
+                        >
+                      
+                          <span>Logout</span>
+                              <IoMdLogOut className="text-red-500" />
+                        </motion.button>
+             </div>
+
+            
+
+              
+
               {user.status !== "authenticated" && (
                 <motion.div
                   initial={{ x: 20, opacity: 0 }}
@@ -137,13 +168,13 @@ export default function Nav() {
               {user.status === "authenticated" ? (
                 <motion.div 
                   ref={dropdownRef} 
-                  className='relative flex justify-end lg:justify-start'
+                  className='relative hidden lg:flex justify-end  lg:justify-start'
                   initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: navItems.length * 0.05 + 0.2 }}
                 >
                   <div 
-                    className='flex items-center  gap-1 cursor-pointer hover:text-primary transition-colors'
+                    className='flex items-center z-50 gap-1 cursor-pointer hover:text-primary transition-colors'
                     onClick={() => setIsOpen(!isOpen)}
                   >
                     <IoMdSettings className='text-white text-xl lg:mt-8' />
@@ -162,7 +193,7 @@ export default function Nav() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className='absolute right-0 mt-16 w-48 bg-primary rounded-md shadow-lg z-50 overflow-hidden border border-gray-700'
+                        className='absolute  right-0 mt-16 w-48 bg-primary rounded-md shadow-lg z-50 overflow-hidden border border-gray-700'
                       >
                         <Link href="/account">
                           <motion.div 
