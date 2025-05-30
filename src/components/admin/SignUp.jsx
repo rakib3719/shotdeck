@@ -110,7 +110,7 @@ router.push(`/verification/${email}`)
             
             <button
               type="submit"
-              className="w-full bg-primary text-white font-bold py-3 px-4 rounded-md transition duration-200 transform  cursor-pointer focus:outline-none focus:ring-20 focus:ring-opacity-50"
+              className="w-full bg-primary text-white font-bold py-3 px-4 rounded-md   cursor-pointer "
             >
           {
             loading ? 'Loading...' : 'Sign Up Free'

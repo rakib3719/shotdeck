@@ -110,7 +110,7 @@ router.push('/')
   };
 
   return (
-    <div     className="w-full h-screen bg-cover bg-center my-auto  max-h-[80vh]"
+    <div     className="w-full h-screen min-h-screen bg-cover bg-center my-auto  "
           style={{ backgroundImage: `url(${coverImg.src})` }}>
       <form onSubmit={handleSubmit} className=" bg-opacity-70 p-8 rounded-lg shadow-lg w-full  max-w-2xl mx-auto pt-52   space-y-4">
         <h2 className="text-2xl font-bold mb-6 text-center text-white">Sign In</h2>

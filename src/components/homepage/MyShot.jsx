@@ -8,21 +8,52 @@ import { base_url } from '@/utils/utils';
 import { useSession } from 'next-auth/react';
 import { useGetShotByIdQuery } from '@/redux/api/shot';
 import { usePathname } from 'next/navigation';
+import { useSecureAxios } from '@/utils/Axios';
+import Swal from 'sweetalert2';
 
 export default function MySHot() {
   const user = useSession();
   const token = user?.data?.user?.token
-  const {data, isFetching, isError} = useGetShotByIdQuery(token);
+  const {data, isFetching, isError, refetch} = useGetShotByIdQuery(token);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedShot, setSelectedShot] = useState(null);
   const [isDetails, setIsDetails] = useState(false);
   const pathname = usePathname();
+  const axiosInstance = useSecureAxios();
 
   useEffect(() => {
     if(pathname.includes('my-shot')) {
       setIsDetails(true);
     }
   }, [pathname]);
+
+  // Helper function to handle delete button click
+const handleDeleteClick = async (main_id) => {
+    // Show SweetAlert2 confirmation dialog
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await axios.delete(`${base_url}/shot/delete/${main_id}`);
+        console.log(response)
+       
+        Swal.fire('Deleted!', 'Your shot has been deleted.', 'success');
+        refetch(); 
+      } catch (error) {
+        console.error('Error deleting shot:', error);
+        Swal.fire('Error!', 'Failed to delete the shot.', 'error');
+      }
+    }
+  };
 
   // Helper functions for video thumbnails
   function getYouTubeThumbnail(url) {
@@ -104,7 +135,7 @@ export default function MySHot() {
     <div className='px-4 md:px-8 overflow-hidden'>
       <h1 className='text-xl font-semibold mt-8'>My Shot</h1>
 
-      <div className={`${isDetails ? 'grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))]' : 'flex gap-4'}`}>
+      <div className={`${isDetails ? 'grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))]' : 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8  gap-4'}`}>
         {finalData?.map((data, idx) => {
           // Determine the image source
           let imageSrc = data?.imageUrl;
@@ -140,13 +171,23 @@ export default function MySHot() {
                   <span className="text-gray-500">No thumbnail available</span>
                 </div>
               )}
+              {/* Delete Button */}
+              <button
+                className="absolute top-2 right-2 cursor-pointer bg-red-500 text-white rounded-full h-8 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the modal
+                  handleDeleteClick(data._id);
+                }}
+              >
+                ×
+              </button>
             </div>
           );
         })}
       </div>
 
       {/* Modal for showing shot details */}
-     <AnimatePresence>
+      <AnimatePresence>
         {modalIsOpen && selectedShot && (
           <motion.div
             className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999] "

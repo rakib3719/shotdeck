@@ -20,7 +20,7 @@ const {data, isFetching, isError} = useGetSettingQuery();
   //   return null;
   // }
   return (
-    <div className='bg-primary px-4 fixed z-50  border-b-gray-400 w-full py-5 flex justify-between '>
+    <div className='bg-primary px-4 fixed  z-50  border-b-gray-400 w-full py-5 flex justify-between '>
       
 <section >
 

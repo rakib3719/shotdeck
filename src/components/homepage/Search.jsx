@@ -27,7 +27,7 @@ export default function Search() {
     <div className="relative w-full max-w-2xl">
       <form onSubmit={(e) => e.preventDefault()}>
         <input
-        data-aos="fade-up" data-aos-duration="1500" data-aos-delay="300" 
+        data-aos="fade-up" data-aos-duration="1500" data-aos-delay="400" 
           type="search"
           name="search"
           id="search"
@@ -37,7 +37,11 @@ export default function Search() {
           onKeyDown={handleKeyPress}
           className="bg-white text-gray-800 px-4 py-3 pl-12 w-full rounded outline-none placeholder:text-gray-600"
         />
-        <IoSearchSharp className="absolute top-3 left-3 text-gray-400 text-2xl" />
+        <IoSearchSharp
+             data-aos="fade-up"
+          data-aos-duration="1500"
+          data-aos-delay="500"
+        className="absolute top-3 left-3 text-gray-400 text-2xl" />
       </form>
     </div>
   );

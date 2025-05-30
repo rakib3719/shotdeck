@@ -257,7 +257,7 @@ export default function Settings() {
             </label>
             <p className="text-xs text-gray-500 dark:text-gray-400">Recommended size: 200x50 pixels</p>
           </div>
-          <div className="md:col-span-2 flex items-center space-x-4">
+          <div className="md:col-span-2 md:flex items-center space-x-4">
             {settings.logoPreview ? (
               <img src={settings.logoPreview} alt="Logo preview" className="h-12 object-contain" />
             ) : (
@@ -266,7 +266,7 @@ export default function Settings() {
               </div>
             )}
             <label className="cursor-pointer">
-              <span className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+              <span className="px-4  py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
                 Upload Logo
               </span>
               <input
@@ -394,7 +394,7 @@ export default function Settings() {
         </div>
 
         {/* Contact Email */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           <div className="md:col-span-1">
             <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Contact Email
@@ -411,7 +411,7 @@ export default function Settings() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Save Button */}
         <div className="flex justify-end pt-4">

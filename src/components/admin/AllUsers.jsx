@@ -33,11 +33,16 @@ export default function AllUsers() {
     </div>
   );
 
+  console.log(allUsers, 'this is datadd')
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="bg-gray-900 text-white rounded-lg shadow overflow-hidden">
+    <div className="container mt-8 mx-auto px-4 py-8">
+
+   
+      <div className="bg-gray-900 text-white rounded-lg  ">
+               <h2 className="text-xl font-semibold text-gray-50">All Users</h2>
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-50">All Users</h2>
+       
           <div className="relative">
             <input
               type="text"
@@ -90,50 +95,52 @@ export default function AllUsers() {
               </tr>
             </thead>
             <tbody className="bg-gray-900 divide-y divide-gray-200">
-              {currentUsers.length > 0 ? (
-                currentUsers.map((user) => (
-                  <tr key={user._id} className=" transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <span className="text-blue-600 font-medium">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm -mt-6 font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-300">{user.role}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {user.primaryOccupation}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {user.primaryIndustry}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${user.verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {user.verified ? 'Verified' : 'Pending'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {format(new Date(user.createdAt), 'MMM dd, yyyy')}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-300">
-                    No users found
-                  </td>
-                </tr>
-              )}
-            </tbody>
+  {currentUsers.length > 0 ? (
+    currentUsers.map((user) => (
+      <tr key={user._id} className="transition-colors">
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <span className="text-blue-600 font-medium">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <div className="ml-4">
+              <div className="text-sm -mt-6 font-medium text-gray-900">{user.name}</div>
+              <div className="text-sm text-gray-300">{user.role}</div>
+            </div>
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+          {user.email}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+          {user.primaryOccupation}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+          {user.primaryIndustry}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+            ${user.verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+          >
+            {user.verified ? 'Verified' : 'Pending'}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+          {format(new Date(user.createdAt), 'MMM dd, yyyy')}
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-300">
+        No users found
+      </td>
+    </tr>
+  )}
+</tbody>
           </table>
         </div>
 

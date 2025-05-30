@@ -1,5 +1,5 @@
 'use client';
-import { useGetShotCountQuery, useGetShotsQuery } from '@/redux/api/shot';
+import { useGetMyShotQuery, useGetShotCountQuery, useGetShotsQuery } from '@/redux/api/shot';
 import { useSecureAxios } from '@/utils/Axios';
 import { base_url, filters } from '@/utils/utils';
 import axios from 'axios';
@@ -25,6 +25,9 @@ function Browse() {
   const user = useSession();
   const axiosInstance = useSecureAxios();
   const [currentPage, setCurrentPage] = useState(1);
+ 
+    const ids = user?.data?.user?.id;
+    const {  refetch } = useGetMyShotQuery(ids);
   
 const Userid = user?.data?.user?.id;
 
@@ -54,6 +57,7 @@ const response = await axiosInstance.post(`/shot/collection/`, {
                text: 'Shot added To Your Collection',
                icon: 'success'
              });
+             refetch()
     }
 
     

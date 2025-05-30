@@ -14,12 +14,7 @@ export default function Dashboard() {
     totalUsers: 187
   }
 
-  const menuItems = [
-    { name: "Dashboard", icon: <FiHome />, active: true },
-    { name: "Add Shot", icon: <FiPlusSquare /> },
-    { name: "All Videos", icon: <FiFilm /> },
-    { name: "Settings", icon: <FiSettings /> }
-  ]
+
 
   if(isLoading || trendingLoading){
     return <p>Loading...</p>
@@ -46,9 +41,9 @@ export default function Dashboard() {
   }));
 
   return (
-    <div className="flex bg-gray-900 min-h-screen">
+    <div className="flex bg-gray-900 mt-8 min-h-screen">
       {/* Main Content */}
-      <div className="flex-1 p-6">
+      <div className="flex-1  md:p-6">
         <h1 className="text-3xl font-bold text-white mb-8">Dashboard Overview</h1>
         
         {/* Stats Cards */}
@@ -146,18 +141,7 @@ export default function Dashboard() {
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 flex justify-around md:hidden py-3">
-          {menuItems.slice(0, 4).map((item, index) => (
-            <a 
-              key={index} 
-              href="#"
-              className={`flex flex-col items-center p-2 ${item.active ? 'text-blue-400' : 'text-gray-400'}`}
-            >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-xs mt-1">{item.name}</span>
-            </a>
-          ))}
-        </div>
+  
       </div>
     </div>
   )

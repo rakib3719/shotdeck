@@ -290,7 +290,7 @@ export default function CollapsibleTable() {
         bgcolor: 'transparent',
         boxShadow: '0 4px 20px rgba(0, 120, 255, 0.1)',
         borderRadius: '12px',
-        overflow: 'hidden'
+        overflow: 'scroll'
  
       }}
     >

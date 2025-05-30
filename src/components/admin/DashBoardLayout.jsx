@@ -1,114 +1,183 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes, FaTachometerAlt, FaGlobe, FaPlus, FaPhotoVideo, FaUsers } from 'react-icons/fa';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-
 import { MdVideoCameraBack } from 'react-icons/md';
 import { useSession } from 'next-auth/react';
 import { IoSettingsSharp } from 'react-icons/io5';
-
+import { FiFilm, FiHome, FiPlusSquare, FiSettings } from 'react-icons/fi';
 
 export default function DashBoardLayout({ children }) {
-  const [collapsed, setCollapsed] = useState(false);
-
-  const user = useSession();
-  console.log(user?.data?.user?.role, 'this is user')
-
-  const router = useRouter()
+  const [collapsed, setCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
-//   if(user?.data?.user?.role !== 'user'){
+  const { data } = useSession();
+  const router = useRouter();
 
-//   return <div className="flex justify-center items-center min-h-screen bg-gray-900 px-4">
-//   <div className="bg-gray-800 border-l-4 border-red-600 p-6 rounded-md shadow-lg max-w-md text-center">
-//     <h1 className="text-2xl font-bold text-red-500 mb-2">Access Denied</h1>
-//     <p className="text-gray-300 font-medium">
-//       This dashboard is restricted to <span className="text-red-400 font-semibold">ADMIN</span> users only.
-//     </p>
-//     <div className="mt-4 text-sm text-gray-500">
-//       Please contact support if you believe this is a mistake.
-//     </div>
-//   </div>
-// </div>
+  // Move all hooks to the top, before any conditional returns
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
+    handleResize(); // Set initial value
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-//   }
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    if (!isMobile || collapsed) return;
 
+    const handleClickOutside = (e) => {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar && !sidebar.contains(e.target)) {
+        setCollapsed(true);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobile, collapsed]);
+
+  // Now we can do the admin check after all hooks
+  if (data?.user?.role !== 'admin') {
+    return (
+      <div className="mt-28 p-4 max-w-7xl mx-auto bg-yellow-100 text-yellow-800 border border-yellow-300 rounded">
+        <h4 className="text-lg font-semibold">Access Denied</h4>
+        <p>You do not have permission to view this page.</p>
+      </div>
+    );
+  }
+
+  const mobileMenuItems = [
+    { 
+      name: "Dashboard", 
+      icon: <FiHome />, 
+      href: "/admin/",
+      active: pathname === '/admin'
+    },
+    { 
+      name: "Add Shot", 
+      icon: <FiPlusSquare />,
+      href: "/admin/add-shot",
+      active: pathname === '/admin/add-shot'
+    },
+    { 
+      name: "All Videos", 
+      icon: <FiFilm />,
+      href: "/admin/all-shot",
+      active: pathname === '/admin/all-shot'
+    },
+    { 
+      name: "Settings", 
+      icon: <FiSettings />,
+      href: "/admin/setting",
+      active: pathname === '/admin/setting'
+    }
+  ];
+
+  const sidebarMenuItems = [
+    { 
+      name: "Dashboard", 
+      icon: <FaTachometerAlt />, 
+      href: "/admin/",
+      active: pathname === '/admin'
+    },
+    { 
+      name: "Website", 
+      icon: <FaGlobe />,
+      href: "/",
+      active: false // This is external link
+    },
+    { 
+      name: "Add New Shot", 
+      icon: <FaPlus />,
+      href: "/admin/add-shot",
+      active: pathname === '/admin/add-shot'
+    },
+    { 
+      name: "Requested Shots", 
+      icon: <MdVideoCameraBack />,
+      href: "/admin/requested-shots",
+      active: pathname === '/admin/requested-shots'
+    },
+    { 
+      name: "All Users", 
+      icon: <FaUsers />,
+      href: "/admin/users",
+      active: pathname === '/admin/users'
+    },
+    { 
+      name: "All Shot", 
+      icon: <FaPhotoVideo />,
+      href: "/admin/all-shot",
+      active: pathname === '/admin/all-shot'
+    },
+    { 
+      name: "Setting", 
+      icon: <IoSettingsSharp />,
+      href: "/admin/setting",
+      active: pathname === '/admin/setting'
+    }
+  ];
+
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
 
   return (
-   <div  className=' '>
-
- <button
-          className="text-white absolute top-6 right-4   mb-6 md:hidden"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          {collapsed ? <FaBars size={20} /> : <FaTimes size={20} />}
-        </button>
-    <div>
-
-    </div>
-     <div className="flex h-screen ">
-      {/* Sidebar */}
-      <div
-        className={`bg-gray-800 mt-[42px] fixed duration-1000 text-white p-4 transition-all   flex flex-col ${
-          collapsed ? 'hidden' : 'w-64'
-        } md:w-64 md:relative fixed   h-full`}
+    <div className="relative">
+      {/* Mobile menu button - absolute positioned top right */}
+      <button
+        className="text-white fixed top-4 right-4 z-50 p-2 rounded-md bg-gray-800 bg-opacity-80 lg:hidden"
+        onClick={toggleSidebar}
       >
-       
+        {collapsed ? <FaBars size={20} /> : <FaTimes size={20} />}
+      </button>
 
-        {!collapsed && (
-           <div className="space-y-4 mt-8">
-                <Link 
-                  href="/admin/" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
-                >
-                  <FaTachometerAlt /> <span>Dashboard</span>
-                </Link>
-                <Link 
-                  href="/" 
-                  className="flex items-center gap-2 p-2 rounded hover:bg-gray-800 hover:text-blue-400 transition-colors"
-                >
-                  <FaGlobe /> <span>Website</span>
-                </Link>
-                <Link 
-                  href="/admin/add-shot" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/add-shot' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
-                >
-                  <FaPlus /> <span>Add New Shot</span>
-                </Link>
-                <Link 
-                  href="/admin/requested-shots" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/requested-shots' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
-                >
-                  <MdVideoCameraBack  /> <span>Requested Shots</span>
-                </Link>
-                <Link 
-                  href="/admin/users" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/users' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
-                >
-                  <FaUsers  /> <span>All Users</span>
-                </Link>
-                <Link 
-                  href="/admin/all-shot" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/all-shot' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
-                >
-                <FaPhotoVideo /> <span>All Shot</span>
-                </Link>
-                <Link 
-                  href="/admin/setting" 
-                  className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${pathname === '/admin/setting' ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
-                >
-                <IoSettingsSharp /> <span>Setting</span>
-                </Link>
-              </div>
-        )}
-      </div>
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <div
+          className={`sidebar bg-gray-800 text-white p-4 flex flex-col 
+            transition-all duration-300 ease-in-out
+            ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'}
+            fixed lg:relative z-40 w-64 h-full`}
+        >
+          <div className="space-y-4 mt-16">
+            {sidebarMenuItems.map((item, index) => (
+              <Link 
+                key={index}
+                href={item.href} 
+                className={`flex items-center gap-2 p-2 rounded hover:bg-gray-800 transition-colors ${item.active ? 'bg-gray-800 text-blue-400' : 'hover:text-blue-400'}`}
+                onClick={() => isMobile && setCollapsed(true)}
+              >
+                {item.icon} <span>{item.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
 
-      {/* Main Content */}
-      <div className="w-full bg-gray-900  p-4 overflow-auto">
-        {children}
+        {/* Mobile Bottom Menu */}
+        <div className="fixed bottom-0 z-50 left-0 right-0 bg-gray-800 border-t border-gray-700 flex justify-around md:hidden py-3">
+          {mobileMenuItems.map((item, index) => (
+            <Link 
+              key={index} 
+              href={item.href}
+              className={`flex flex-col items-center p-2 ${item.active ? 'text-blue-400' : 'text-gray-400'}`}
+            >
+              <span className="text-xl">{item.icon}</span>
+              <span className="text-xs mt-1">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 bg-gray-900 p-2 md:p-4 overflow-auto transition-all duration-300">
+          <div className="pt-12 md:pt-0 pb-16 md:pb-0">{children}</div>
+        </div>
       </div>
     </div>
-   </div>
   );
 }

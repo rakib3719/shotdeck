@@ -181,7 +181,7 @@ export default function AddShot() {
           <h1 className="text-2xl font-bold">Add New Shot</h1>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-800 rounded-lg shadow-xl p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-800 rounded-lg shadow-xl p-2 md:p-6">
           {/* Basic Information Section */}
           <div className="mb-10">
             <div className="flex items-center mb-4">
@@ -275,7 +275,7 @@ export default function AddShot() {
                     type="file"
                     accept="image/*"
                     {...register("imageUrl")}
-                    className="flex-1 bg-gray-700 border border-gray-600 max-w-[300px] md:w-auto rounded-md py-2 px-3 focus:outline-none"
+                    className="flex-1 bg-gray-700 border border-gray-600  max-w-[250px] md:max-w-[300px] md:w-auto rounded-md py-2 px-3 focus:outline-none"
                   /> 
                 </div>
                 {/* {errors.imageUrl && <p className="mt-1 text-sm text-red-400">Image is required</p>} */}
@@ -284,10 +284,10 @@ export default function AddShot() {
               <div>
                 <label className="block text-sm font-medium mb-1">Video</label>
                 <div className="flex flex-col">
-                  <div className="flex">
+                  <div className="flex ">
                     <input
                       {...register("youtubeLink")}
-                      className="flex-1 bg-gray-700 border border-gray-600 rounded-l-md py-2 px-3 focus:outline-none"
+                      className="flex-1 bg-gray-700 border border-gray-600   rounded-l-md  py-2 px-3 focus:outline-none"
                       placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube link"}
              
                     />

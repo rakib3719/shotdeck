@@ -1,0 +1,53 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.9.2
+2 info using node@v22.15.1
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\project\SHOTDECK\frontend\shotdeck\.npmrc
+5 silly config load:file:C:\Users\rakib\.npmrc
+6 silly config load:file:C:\Program Files\nodejs\npm-global\etc\npmrc
+7 verbose title npm install gsap @gsap/shockingly
+8 verbose argv "install" "gsap" "@gsap/shockingly"
+9 verbose logfile logs-max:10 dir:C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-05-30T09_00_44_546Z-
+10 verbose logfile C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-05-30T09_00_44_546Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+13 silly logfile done cleaning log files
+14 silly idealTree buildDeps
+15 silly fetch manifest gsap@^3.13.0
+16 silly packumentCache full:https://registry.npmjs.org/gsap cache-miss
+17 http fetch GET 200 https://registry.npmjs.org/gsap 142ms (cache revalidated)
+18 silly packumentCache full:https://registry.npmjs.org/gsap set size:235740 disposed:false
+19 silly fetch manifest @gsap/shockingly@*
+20 silly packumentCache full:https://registry.npmjs.org/@gsap%2fshockingly cache-miss
+21 http fetch GET 404 https://registry.npmjs.org/@gsap%2fshockingly 1008ms (cache skip)
+22 silly placeDep ROOT @gsap/shockingly@ OK for: shotdeck@0.1.0 want: *
+23 silly placeDep ROOT gsap@3.13.0 REPLACE for: shotdeck@0.1.0 want: ^3.13.0
+24 verbose stack HttpErrorGeneral: 404 Not Found - GET https://registry.npmjs.org/@gsap%2fshockingly - Not found
+24 verbose stack     at C:\Program Files\nodejs\node_modules\npm\node_modules\npm-registry-fetch\lib\check-response.js:103:15
+24 verbose stack     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+24 verbose stack     at async RegistryFetcher.packument (C:\Program Files\nodejs\node_modules\npm\node_modules\pacote\lib\registry.js:90:19)
+24 verbose stack     at async RegistryFetcher.manifest (C:\Program Files\nodejs\node_modules\npm\node_modules\pacote\lib\registry.js:128:23)
+24 verbose stack     at async #fetchManifest (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:1202:20)
+24 verbose stack     at async #nodeFromEdge (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:1040:19)
+24 verbose stack     at async #buildDepStep (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:904:11)
+24 verbose stack     at async Arborist.buildIdealTree (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\build-ideal-tree.js:181:7)
+24 verbose stack     at async Promise.all (index 1)
+24 verbose stack     at async Arborist.reify (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\arborist\reify.js:131:5)
+25 verbose statusCode 404
+26 verbose pkgid @gsap/shockingly@*
+27 error code E404
+28 error 404 Not Found - GET https://registry.npmjs.org/@gsap%2fshockingly - Not found
+29 error 404
+30 error 404  '@gsap/shockingly@*' is not in this registry.
+31 error 404
+32 error 404 Note that you can also install from a
+33 error 404 tarball, folder, http url, or git url.
+34 silly unfinished npm timer reify 1748595644825
+35 silly unfinished npm timer reify:loadTrees 1748595644827
+36 verbose cwd C:\project\SHOTDECK\frontend\shotdeck
+37 verbose os Windows_NT 10.0.26100
+38 verbose node v22.15.1
+39 verbose npm  v10.9.2
+40 verbose exit 1
+41 verbose code 1
+42 error A complete log of this run can be found in: C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-05-30T09_00_44_546Z-debug-0.log

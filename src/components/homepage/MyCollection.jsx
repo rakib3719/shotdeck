@@ -116,7 +116,7 @@ export default function MyCollection() {
     <div className='px-4 mt-16 overflow-hidden md:px-8'>
       <h1 className='text-xl font-semibold mt-8'>My Collected Shot</h1>
 
-      <div className={`${isDetails ? 'grid grid-cols-2 overflow-hidden md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]' : 'flex gap-4'}`}>
+      <div className={`grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2`}>
         {finalData?.map((item) => {
           // Determine the image source
           let imageSrc = item?.data?.imageUrl;
@@ -132,7 +132,7 @@ export default function MyCollection() {
           return (
             <div
               key={item._id}
-              className='mt-8 relative max-w-[200px] cursor-pointer group'
+              className='mt-8 relative  cursor-pointer group'
               onClick={() => {
                 setSelectedShot(item?.data);
                 setModalIsOpen(true);
@@ -145,7 +145,7 @@ export default function MyCollection() {
                   src={imageSrc}
                   height={300}
                   width={300}
-                  className='object-cover h-40 max-w-[200px] rounded-lg'
+                  className='object-cover h-40  rounded-lg'
                 />
               ) : (
                 <div className="bg-gray-800 h-40 w-full flex items-center justify-center rounded-lg">
