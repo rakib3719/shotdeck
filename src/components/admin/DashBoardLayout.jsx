@@ -12,8 +12,14 @@ export default function DashBoardLayout({ children }) {
   const [collapsed, setCollapsed] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const pathname = usePathname();
-  const { data } = useSession();
+  const { data, status } = useSession();
+  console.log(data, status, 'Hi I am Status')
   const router = useRouter();
+
+
+
+
+
 
   // Move all hooks to the top, before any conditional returns
   useEffect(() => {
@@ -36,12 +42,21 @@ export default function DashBoardLayout({ children }) {
         setCollapsed(true);
       }
     };
+    
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobile, collapsed]);
 
   // Now we can do the admin check after all hooks
+
+
+  if(status === 'loading'){
+    return    <div className="flex justify-center items-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  }
+
   if (data?.user?.role !== 'admin') {
     return (
       <div className="mt-28 p-4 max-w-7xl mx-auto bg-yellow-100 text-yellow-800 border border-yellow-300 rounded">
