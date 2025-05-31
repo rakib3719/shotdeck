@@ -110,7 +110,7 @@ body {
   animation-delay: .3s;
 }
 
-.shadow {
+/* .shadow {
   width: 20px;
   height: 4px;
   border-radius: 50%;
@@ -122,7 +122,7 @@ body {
   left: 15%;
   filter: blur(1px);
   animation: shadow046 .5s alternate infinite ease;
-}
+} */
 
 @keyframes shadow046 {
   0% {
@@ -298,4 +298,27 @@ body {
 	position: absolute;
 	bottom: 0;
 	left: 0;
+}
+.underline-spaced {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* For Webkit browsers */
+.scrollbar-hide::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scrollbar-hide::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 10px;
+}
+
+.scrollbar-hide::-webkit-scrollbar-thumb {
+  background: #4B5563;
+  border-radius: 10px;
+}
+
+.scrollbar-hide::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
 }

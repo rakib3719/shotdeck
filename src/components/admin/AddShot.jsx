@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FiUpload, FiFilm, FiYoutube, FiImage, FiClock, FiChevronDown } from 'react-icons/fi';
 import { FaPalette, FaCamera, FaLightbulb} from 'react-icons/fa';
@@ -9,22 +9,72 @@ import axios from 'axios';
 import { base_url } from '@/utils/utils';
 import Swal from 'sweetalert2';
 import { useSecureAxios } from '@/utils/Axios';
+import { IoClose } from 'react-icons/io5';
+import { IoIosColorPalette } from 'react-icons/io';
 
 
 export default function AddShot() {
-  const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm();
+const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm({
+  defaultValues: {
+    focalLength: [],
+    lightingConditions: [],
+    videoType: [],
+    referenceType: [],
+    videoSpeed: [],
+    videoQuality: [],
+    
+    
+  }
+});
+  
 
 
   const [showYoutubeOptions, setShowYoutubeOptions] = useState(false);
-    const [showVideoOptions, setShowVideoOptions] = useState(false);
+  const [showVideoOptions, setShowVideoOptions] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showSelect, setShowSelect] = useState(false)
+  const [tag, setTag] = useState('');
+
+
+
+const [allTags, setAllTags] = useState([]);
+// const sugetionItems =  localStorage.getItem('AllTags') ? JSON.parse(localStorage.getItem('AllTags')) : null
+const sugetionItems = typeof window !== 'undefined' && localStorage.getItem('AllTags') 
+  ? JSON.parse(localStorage.getItem('AllTags')) 
+  : null;
+console.log(sugetionItems, 'this is sugetion items')
+let a = 'er'
+
+
+
+//  localStorage.getItem("user")
+  // ? JSON.parse(localStorage.getItem("user"))
+  // : null;
+
+    
+const tagHandler = (e) => {
+  e.preventDefault();
+  if (e.key === 'Enter') {
+    const value = e.target.value.trim();
+    if (value) {
+      setAllTags(prevTags => [...prevTags, value]);
+      e.target.value = ''; 
+    }
+  }
+};
+   
+
+
+
 
 
   const axiosInstence = useSecureAxios();
   const onSubmit = async (data) => {
 
+localStorage.setItem('AllTags', JSON.stringify(allTags));
+ data.tags = allTags;
     console.log(data, 'Initial data')
     try {
       setIsUploading(true);
@@ -122,6 +172,7 @@ export default function AddShot() {
     setShowVideoOptions(false);
   };
 
+  // Tag Handler
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -173,17 +224,46 @@ export default function AddShot() {
     </div>
   );
 
+
+
+
   return (
-    <div className="min-h-screen text-gray-100 md:p-6">
+    <div  className="min-h-screen mt-16 text-gray-100 md:p-6">
       <div className="w-full mx-auto">
         <div className="flex items-center mb-8">
           <GiClapperboard className="text-2xl mr-2 text-blue-400" />
           <h1 className="text-2xl font-bold">Add New Shot</h1>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-gray-800 rounded-lg shadow-xl p-2 md:p-6">
+        <form  
+        
+        
+        // onKeyDown={(e)=> {
+        //   if(e.key === 'Enter'){
+        //     e.preventDefault();
+        //   }
+        // }}
+        onSubmit={handleSubmit(onSubmit)} className="bg-gray-800 rounded-lg shadow-xl p-2 md:p-6">
           {/* Basic Information Section */}
+        
+          {/* Media Section */}
+   
+
+          {/* Technical Details Section */}
           <div className="mb-10">
+         
+            
+
+
+{/* Checkbox detaisl */}
+
+
+
+
+<div className='xl:flex gap-8 '>
+<div className='xl:w-[60%] '>
+
+  <div className="mb-10">
             <div className="flex items-center mb-4">
               <FiFilm className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">Basic Information</h2>
@@ -209,7 +289,106 @@ export default function AddShot() {
                   placeholder="Brief description"
                 />
               </div>
+{/* Tag Section */}
+<div className="relative">
+  <label className="block text-sm font-medium mb-1 text-white">Tags</label>
 
+  {/* Input Box for Adding Tags */}
+  <input
+  onClick={()=>{
+    setShowSelect(true)
+  }}
+    onChange={(e) => setTag(e.target.value)}
+    value={tag}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+           setShowSelect(false)
+        const value = e.target.value.trim();
+        if (value && !allTags.includes(value)) {
+          setAllTags(prevTags => [...prevTags, value]);
+          setTag(''); 
+             setShowSelect(false)
+        }
+      }
+    }}
+    className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none text-white"
+    placeholder="Add Tag (press Enter to add)"
+  />
+
+  {/* Display Added Tags */}
+  <div className="mt-2 flex flex-wrap">
+    {allTags.map((item, idx) => (
+      <span
+        key={idx}
+        className="inline-flex items-center border border-gray-500 bg-gray-600 px-3 text-sm rounded text-gray-200 mr-2 mb-2"
+      >
+        {item}
+        <button
+          onClick={() => setAllTags(allTags.filter((_, i) => i !== idx))}
+        >
+          <IoClose className="w-4 h-4 ml-2 cursor-pointer text-gray-300 hover:text-white" />
+        </button>
+      </span>
+    ))}
+  </div>
+
+  {/* Hidden input for form submission */}
+  <input type="hidden" {...register("tags")} value={allTags.join(',')} />
+
+  {/* Suggestion Dropdown Styled Like ArtStation */}
+  {  showSelect && sugetionItems?.length > 0 && (
+    <select
+      onChange={(e) => {
+        const selected = e.target.value;
+        if (selected && !allTags.includes(selected)) {
+          setAllTags([...allTags, selected]);
+             setShowSelect(false)
+        }
+        setTag('');
+           setShowSelect(false)
+      }}
+      value=""
+      className="absolute top-full mt-2 w-full bg-gray-700  border border-gray-600 text-white rounded-md shadow-lg py-8 px-3 focus:outline-none z-10"
+      size={Math.min(6, sugetionItems.length)} 
+    >
+       <option className="py-2 px-4  text-white bg-blue-400">
+         Select A Option
+        </option>
+  
+
+      {sugetionItems.map((item, idx) => (
+        <option key={idx} value={item} className="py-2 px-4 bg-transparent text-white hover:bg-blue-400">
+          {item}
+        </option>
+      ))}
+    </select>
+  )}
+</div>
+
+
+
+
+              {/* Tag alert */}
+
+              <div>
+                <h4 className='underline underline-offset-4 text-red-600 mt-4'>
+                  
+                  
+                  <span className='mr-[10px]'>
+                    <input type="checkbox" name="" id="" />
+                  </span>
+                  <span className='font-semibold   text-2xl'>Mature Content</span> <span className=' text-lg'>(Please Note: Any Sexualy Explicit, Gore, or extremely violent content will not be accepted Keep submissions appropriate and respectful for all audiences)</span></h4>
+              </div>
+
+              <div>
+         
+
+              </div>
+
+<div>
+
+</div>
               <div>
                 <label className="block text-sm font-medium mb-1">Media Type *</label>
                 <select
@@ -238,8 +417,20 @@ export default function AddShot() {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block pb-2 text-xl mb-1">Genre</label>
+            </div>
+
+
+
+            
+          </div>
+
+
+
+              <div className="md:col-span-2 mb-8">
+           <div className='flex gap-2 items-center mb-4'>
+                               <FaCamera className="mr-2 text-blue-400" />
+                <label className="block  text-xl ">Genre</label>
+           </div>
                 <CheckboxGroup
                   name="genre"
                   register={register}
@@ -257,94 +448,168 @@ export default function AddShot() {
                   ]}
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Media Section */}
-       <div className="mb-10">
-            <div className="flex items-center mb-4">
-              <FiImage className="mr-2 text-blue-400" />
-              <h2 className="text-xl font-semibold">Media</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-1">Image </label>
-                <div className="flex">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    {...register("imageUrl")}
-                    className="flex-1 bg-gray-700 border border-gray-600  max-w-[250px] md:max-w-[300px] md:w-auto rounded-md py-2 px-3 focus:outline-none"
-                  /> 
-                </div>
-                {/* {errors.imageUrl && <p className="mt-1 text-sm text-red-400">Image is required</p>} */}
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Video</label>
-                <div className="flex flex-col">
-                  <div className="flex ">
-                    <input
-                      {...register("youtubeLink")}
-                      className="flex-1 bg-gray-700 border border-gray-600   rounded-l-md  py-2 px-3 focus:outline-none"
-                      placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube link"}
-             
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowVideoOptions(!showVideoOptions)}
-                      className="bg-red-600 hover:bg-red-700 px-4 rounded-r-md flex items-center transition-colors"
-                    >
-                      <FiYoutube className="mr-1" /> <FiChevronDown />
-                    </button>
-                  </div>
-                  
-                  {/* Video Options Dropdown */}
-                  {showVideoOptions && (
-                    <div className="mt-2 bg-gray-700 rounded-md p-2 border border-gray-600">
-                      <div className="flex flex-col space-y-2">
-                        <label className="flex items-center px-3 py-2 hover:bg-gray-600 rounded cursor-pointer">
-                          <input
-                            type="file"
-                            accept="video/*"
-                            className="hidden"
-                            onChange={handleVideoUpload}
-                          />
-                          <span className="flex items-center">
-                            <FiUpload className="mr-2" /> Upload Video
-                          </span>
-                        </label>
-                        {/* <div 
-                          className="px-3 py-2 hover:bg-gray-600 rounded cursor-pointer"
-                          onClick={() => {
-                            setSelectedVideo(null);
-                            setValue('youtubeLink', '');
-                            setShowVideoOptions(false);
-                          }}
-                        >
-                          <span className="flex items-center">
-                            <FiX className="mr-2" /> Clear
-                          </span>
-                        </div> */}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-        
-          </div>
-
-          {/* Technical Details Section */}
-          <div className="mb-10">
-            <div className="flex items-center mb-4">
+     <div className="flex items-center mb-4">
               <FaCamera className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">Technical Details</h2>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<section className='my-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-5 lg:grid-cols-5 gap-4 justify-between'>
+  {/* Focal Length */}
+  <div>
+    <h4>Focal Length</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "ultra-wide", value: "Ultra Wide", label: "Ultra Wide" },
+        { id: "wide", value: "Wide", label: "Wide" },
+        { id: "medium", value: "Medium", label: "Medium" },
+        { id: "long", value: "Long", label: "Long" },
+        { id: "telephoto", value: "Telephoto", label: "Telephoto" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("focalLength")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Lighting Conditions */}
+  <div>
+    <h4>Lighting Conditions</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "dawn", value: "Dawn", label: "Dawn" },
+        { id: "day", value: "Day", label: "Day" },
+        { id: "night", value: "Night", label: "Night" },
+        { id: "dusk", value: "Dusk", label: "Dusk" },
+        { id: "interior", value: "Interior", label: "Interior" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("lightingConditions")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Video Type */}
+  <div>
+    <h4>Video Type</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "reference", value: "Reference", label: "Reference" },
+        { id: "tuto", value: "Tuto", label: "Tuto" },
+        { id: "breakdown", value: "Breakdown", label: "Breakdown" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("videoType")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Reference Type */}
+  <div>
+    <h4>Reference Type</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "real-video", value: "Real Video", label: "Real Video" },
+        { id: "2d", value: "2D", label: "2D" },
+        { id: "3d", value: "3D", label: "3D" },
+        { id: "full-cgi", value: "Full CGI", label: "Full CGI" },
+        { id: "live-action", value: "Live Action", label: "Live Action" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("referenceType")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Video Speed */}
+  <div>
+    <h4>Video Speed</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "slow-motion", value: "Slow Motion", label: "Slow Motion" },
+        { id: "normal", value: "Normal", label: "Normal" },
+        { id: "accelerated", value: "Accelerated", label: "Accelerated" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("videoSpeed")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Video Quality */}
+  <div>
+    <h4>Video Quality</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "low", value: "Low", label: "Low" },
+        { id: "medium-quality", value: "Medium", label: "Medium" },
+        { id: "high", value: "High", label: "High" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("videoQuality")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+
+
+
+
+
+
+  
+</section>
+
+
+ <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-1">Aspect Ratio</label>
                 <select
@@ -434,19 +699,166 @@ export default function AddShot() {
                 />
               </div>
             </div>
-          </div>
+{/* Simulation */}
 
-          {/* Visual Style Section */}
-          <div className="mb-10">
-            <div className="flex items-center mb-4">
+
+<div className="flex items-center mb-4 mt-8">
+  <FiFilm className="mr-2 text-blue-400" />
+  <h2 className="text-xl font-semibold">Simulation</h2>
+</div>
+
+<section className='my-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-5 lg:grid-cols-5 gap-4 justify-between'>
+  {/* Simulation Size */}
+  <div>
+    <h4>Simulation Size</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "extra-small", value: "extra-small", label: "Extra Small (<10cm)" },
+        { id: "small", value: "small", label: "Small (10cm - 1m)" },
+        { id: "human", value: "human", label: "Human (10cm -1m)" },
+        { id: "structural", value: "structural", label: "Structural (10m - 1km)" },
+        { id: "massive", value: "massive", label: "Massive (>1km)" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("simulationSize")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Style */}
+  <div>
+    <h4>Style</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "realist", value: "realist", label: "Realist" },
+        { id: "semi-stylized", value: "semi-stylized", label: "Semi Stylized" },
+        { id: "stylized", value: "stylized", label: "Stylized" },
+        { id: "anime", value: "anime", label: "Anime" },
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("simulationStyle")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Motion Style */}
+  <div>
+    <h4>Motion Style</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "realist-motion", value: "realist", label: "Realist" },
+        { id: "stylized-motion", value: "stylized", label: "Stylized" },
+        { id: "anime-motion", value: "anime", label: "Anime" }
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("motionStyle")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Emitter Speed */}
+  <div>
+    <h4>Emitter Speed</h4>
+    <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
+      {[
+        { id: "static-emitter", value: "static", label: "Static" },
+        { id: "slow-emitter", value: "slow", label: "Slow" },
+        { id: "fast-emitter", value: "fast", label: "Fast" },
+      ].map((item) => (
+        <div key={item.id} className='flex items-center gap-2 cursor-pointer'>
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("emitterSpeed")}
+            className='cursor-pointer'
+          />
+          <label htmlFor={item.id} className='cursor-pointer'>{item.label}</label>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Software */}
+<div>
+  <h4 className="mb-2">Software</h4>
+  <div className="bg-gray-700 rounded-md p-4 text-white overflow-y-auto max-h-60">
+    <div className="space-y-2">
+      {[
+        { id: "houdini", value: "houdini", label: "Houdini" },
+        { id: "axiom", value: "axiom", label: "Axiom" },
+        { id: "blender", value: "blender", label: "Blender" },
+        { id: "embergen", value: "embergen", label: "EmberGen" },
+        { id: "real-flow", value: "real-flow", label: "RealFlow" },
+        { id: "phoenix-fd", value: "phoenix-fd", label: "Phoenix FD" },
+        { id: "fumefx", value: "fumefx", label: "FumeFX" },
+        { id: "x-particles", value: "x-particles", label: "X-Particles" },
+        { id: "krakatoa", value: "krakatoa", label: "Krakatoa" },
+        { id: "ncloth", value: "ncloth", label: "nCloth" },
+        { id: "yeti", value: "yeti", label: "Yeti" },
+        { id: "ornatrix", value: "ornatrix", label: "Ornatrix" },
+        { id: "marvelous-designer", value: "marvelous-designer", label: "Marvelous Designer" },
+        { id: "ue5-niagara", value: "ue5-niagara", label: "UE5 (Niagara)" }
+      ].map((item) => (
+        <div key={item.id} className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            id={item.id}
+            value={item.value}
+            {...register("simulationSoftware")}
+            className="cursor-pointer"
+          />
+          <label htmlFor={item.id} className="cursor-pointer">
+            {item.label}
+          </label>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+</section>
+
+
+<section>
+     <div className="mb-10">
+            <div className="flex  items-center mb-4">
               <FaPalette className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">Visual Style</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1  gap-6">
               <div className="md:col-span-2 lg:col-span-1">
-                <label className="block text-sm font-medium mb-1">Color Palette</label>
-                <CheckboxGroup
+                <div className='flex items-center gap-2'>
+                                 
+                <label className="block text-sm font-medium  text-2xl mb-1">Color Palette</label>
+                </div>
+
+             <div className='bg-gray-700 p-4 rounded-md'>
+                 <CheckboxGroup
                   name="color"
                   register={register}
                   options={[
@@ -469,6 +881,7 @@ export default function AddShot() {
                     { value: "Black & White", label: "Black & White" }
                   ]}
                 />
+             </div>
               </div>
 
               <div>
@@ -484,47 +897,13 @@ export default function AddShot() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Time Period</label>
-                <select
-                  {...register("timePeriod")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
-                >
-                  <option value="">Select time period</option>
-                  <option value="Future">Future</option>
-                  <option value="2020s">2020s</option>
-                  <option value="2010s">2010s</option>
-                  <option value="2000s">2000s</option>
-                  <option value="1900s">1900s</option>
-                  <option value="1800s">1800s</option>
-                  <option value="1700s">1700s</option>
-                  <option value="Renaissance: 1400–1700">Renaissance: 1400–1700</option>
-                  <option value="Medieval: 500–1499">Medieval: 500–1499</option>
-                  <option value="Ancient: 2000BC–500AD">Ancient: 2000BC–500AD</option>
-                  <option value="Stone Age: pre–2000BC">Stone Age: pre–2000BC</option>
-                </select>
-              </div>
+              
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Frame Size</label>
-                <select
-                  {...register("frameSize")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
-                >
-                  <option value="">Select frame size</option>
-                  <option value="Extreme Wide">Extreme Wide</option>
-                  <option value="Wide">Wide</option>
-                  <option value="Medium Wide">Medium Wide</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Medium Close-Up">Medium Close-Up</option>
-                  <option value="Close-Up">Close-Up</option>
-                  <option value="Extreme Close-Up">Extreme Close-Up</option>
-                </select>
-              </div>
 
-              <div>
+                   <div>
                 <label className="block text-sm font-medium mb-1">Shot Type</label>
-                <CheckboxGroup
+                <div className='bg-gray-700 rounded p-4'>
+                  <CheckboxGroup
                   name="shotType"
                   register={register}
                   options={[
@@ -542,52 +921,26 @@ export default function AddShot() {
                     { value: "Insert", label: "Insert" }
                   ]}
                 />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Lens Size</label>
-                <select
-                  {...register("lensSize")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
-                >
-                  <option value="">Select lens size</option>
-                  <option value="Ultra Wide / Fisheye">Ultra Wide / Fisheye</option>
-                  <option value="Wide">Wide</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Long Lens">Long Lens</option>
-                  <option value="Telephoto">Telephoto</option>
-                </select>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Composition</label>
-                <select
-                  {...register("composition")}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
-                >
-                  <option value="">Select composition</option>
-                  <option value="Center">Center</option>
-                  <option value="Left Heavy">Left Heavy</option>
-                  <option value="Right Heavy">Right Heavy</option>
-                  <option value="Balanced">Balanced</option>
-                  <option value="Symmetrical">Symmetrical</option>
-                  <option value="Short Side">Short Side</option>
-                </select>
-              </div>
+           
             </div>
           </div>
 
-          {/* Lighting Section */}
+
           <div className="mb-10">
             <div className="flex items-center mb-4">
               <FaLightbulb className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">Lighting</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1  gap-6">
               <div>
                 <label className="block text-sm font-medium mb-1">Lighting Style</label>
-                <CheckboxGroup
+               <div className='bg-gray-700 p-4 rounded-md'>
+                 <CheckboxGroup
                   name="lightingStyle"
                   register={register}
                   options={[
@@ -603,11 +956,13 @@ export default function AddShot() {
                     { value: "Edge Light", label: "Edge Light" }
                   ]}
                 />
+               </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Lighting Type</label>
-                <CheckboxGroup
+               <div className='bg-gray-700 p-4 rounded-md'>
+                 <CheckboxGroup
                   name="lightingType"
                   register={register}
                   options={[
@@ -622,11 +977,13 @@ export default function AddShot() {
                     { value: "Mixed Light", label: "Mixed Light" }
                   ]}
                 />
+               </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Time of Day</label>
-                <CheckboxGroup
+             <div className='bg-gray-700 rounded-md p-4'>
+                 <CheckboxGroup
                   name="timeOfDay"
                   register={register}
                   options={[
@@ -638,11 +995,13 @@ export default function AddShot() {
                     { value: "Sunset", label: "Sunset" }
                   ]}
                 />
+             </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Interior/Exterior</label>
-                <div className="flex space-x-4">
+              <div className='bg-gray-700 p-4 rounded-md'>
+                  <div className="flex space-x-4">
                   <label className="flex items-center space-x-2">
                     <input
                       type="radio"
@@ -663,11 +1022,22 @@ export default function AddShot() {
                   </label>
                 </div>
               </div>
+              </div>
             </div>
           </div>
+</section>
 
-          {/* People Section */}
-          <div className="mb-10">
+           
+</div>
+
+<div className='border-r border-gray-700 border-2'>
+  
+</div>
+<div>
+  {/* THis is media secaiton */}
+
+
+  <div className="mb-10">
             <div className="flex items-center mb-4">
               <MdPeople className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">People</h2>
@@ -739,8 +1109,172 @@ export default function AddShot() {
             </div>
           </div>
 
-          {/* Location & Time Section */}
-          <div className="mb-10">
+
+
+
+      <div className="mb-10">
+            <div className="flex items-center mb-4">
+              <FiImage className="mr-2 text-blue-400" />
+              <h2 className="text-xl font-semibold">Media</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-1">Image </label>
+                <div className="flex">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    {...register("imageUrl")}
+                    className="flex-1 bg-gray-700 border border-gray-600  max-w-[250px] md:max-w-[300px] md:w-auto rounded-md py-2 px-3 focus:outline-none"
+                  /> 
+                </div>
+                {/* {errors.imageUrl && <p className="mt-1 text-sm text-red-400">Image is required</p>} */}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Video</label>
+                <div className="flex flex-col">
+                  <div className="flex ">
+                    <input
+                      {...register("youtubeLink")}
+                      className="flex-1 bg-gray-700 border border-gray-600   rounded-l-md  py-2 px-3 focus:outline-none"
+                      placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube link"}
+             
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowVideoOptions(!showVideoOptions)}
+                      className="bg-red-600 hover:bg-red-700 px-4 rounded-r-md flex items-center transition-colors"
+                    >
+                      <FiYoutube className="mr-1" /> <FiChevronDown />
+                    </button>
+                  </div>
+                  
+                  {/* Video Options Dropdown */}
+                  {showVideoOptions && (
+                    <div className="mt-2 bg-gray-700 rounded-md p-2 border border-gray-600">
+                      <div className="flex flex-col space-y-2">
+                        <label className="flex items-center px-3 py-2 hover:bg-gray-600 rounded cursor-pointer">
+                          <input
+                            type="file"
+                            accept="video/*"
+                            className="hidden"
+                            onChange={handleVideoUpload}
+                          />
+                          <span className="flex items-center">
+                            <FiUpload className="mr-2" /> Upload Video
+                          </span>
+                        </label>
+                        {/* <div 
+                          className="px-3 py-2 hover:bg-gray-600 rounded cursor-pointer"
+                          onClick={() => {
+                            setSelectedVideo(null);
+                            setValue('youtubeLink', '');
+                            setShowVideoOptions(false);
+                          }}
+                        >
+                          <span className="flex items-center">
+                            <FiX className="mr-2" /> Clear
+                          </span>
+                        </div> */}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+        
+          </div>
+
+
+
+
+
+
+
+
+
+<section className='grid grid-cols-2 gap-6'>
+  <div>
+                <label className="block text-sm font-medium mb-1">Time Period</label>
+                <select
+                  {...register("timePeriod")}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
+                >
+                  <option value="">Select time period</option>
+                  <option value="Future">Future</option>
+                  <option value="2020s">2020s</option>
+                  <option value="2010s">2010s</option>
+                  <option value="2000s">2000s</option>
+                  <option value="1900s">1900s</option>
+                  <option value="1800s">1800s</option>
+                  <option value="1700s">1700s</option>
+                  <option value="Renaissance: 1400–1700">Renaissance: 1400–1700</option>
+                  <option value="Medieval: 500–1499">Medieval: 500–1499</option>
+                  <option value="Ancient: 2000BC–500AD">Ancient: 2000BC–500AD</option>
+                  <option value="Stone Age: pre–2000BC">Stone Age: pre–2000BC</option>
+                </select>
+              </div>
+
+                 <div>
+                <label className="block text-sm font-medium mb-1">Frame Size</label>
+                <select
+                  {...register("frameSize")}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
+                >
+                  <option value="">Select frame size</option>
+                  <option value="Extreme Wide">Extreme Wide</option>
+                  <option value="Wide">Wide</option>
+                  <option value="Medium Wide">Medium Wide</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Medium Close-Up">Medium Close-Up</option>
+                  <option value="Close-Up">Close-Up</option>
+                  <option value="Extreme Close-Up">Extreme Close-Up</option>
+                </select>
+              </div>
+
+         
+              <div>
+                <label className="block text-sm font-medium mb-1">Lens Size</label>
+                <select
+                  {...register("lensSize")}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
+                >
+                  <option value="">Select lens size</option>
+                  <option value="Ultra Wide / Fisheye">Ultra Wide / Fisheye</option>
+                  <option value="Wide">Wide</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Long Lens">Long Lens</option>
+                  <option value="Telephoto">Telephoto</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Composition</label>
+                <select
+                  {...register("composition")}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
+                >
+                  <option value="">Select composition</option>
+                  <option value="Center">Center</option>
+                  <option value="Left Heavy">Left Heavy</option>
+                  <option value="Right Heavy">Right Heavy</option>
+                  <option value="Balanced">Balanced</option>
+                  <option value="Symmetrical">Symmetrical</option>
+                  <option value="Short Side">Short Side</option>
+                </select>
+              </div>
+</section>
+
+
+
+{/* 
+ */}
+
+ <section className='mt-8'>
+    <div className="mb-10">
             <div className="flex items-center mb-4">
               <MdLocationOn className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">Location & Time</h2>
@@ -787,6 +1321,79 @@ export default function AddShot() {
               </div>
             </div>
           </div>
+ </section>
+          
+</div>
+
+</div>
+
+
+
+
+
+{/* OC Haron marka section------------>>>>>> */}
+<section className="mb-10">
+  <div className="flex items-center mb-4">
+    <FaLightbulb className="mr-2 text-blue-400" />
+    <h2 className="text-xl font-semibold">Simulator Type</h2>
+  </div>
+
+  <div className="relative">
+    {/* Shadow gradients for scroll indication */}
+    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-800 to-transparent z-10 pointer-events-none"></div>
+    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-800 to-transparent z-10 pointer-events-none"></div>
+    
+    <div className="bg-gray-700 rounded-md shadow-lg p-4 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-4 w-max">
+        {semuletorType.map((item, idx) => (
+          <div key={idx} className="bg-[#1E2A3A] rounded-lg p-4 w-64 flex-shrink-0 shadow-md border border-gray-600">
+            <h3 className="font-medium text-lg border-b border-gray-500 pb-2 mb-3">{item.heading}</h3>
+            <div className="space-y-2">
+              {item.item.map((p, i) => (
+                <div key={i} className="flex items-center group">
+                  <input
+                    type="checkbox"
+                    id={`${item.heading}-${i}`}
+                    value={p}
+                    {...register(`simulatorTypes.${item.heading.toLowerCase().replace(/ /g, '')}`)}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 group-hover:border-blue-300 transition-colors"
+                  />
+                  <label 
+                    htmlFor={`${item.heading}-${i}`} 
+                    className="ml-3 block text-sm text-gray-300 group-hover:text-white transition-colors"
+                  >
+                    {p}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+          </div>
+
+          {/* Visual Style Section */}
+       
+
+
+          
+
+          {/* Lighting Section */}
+          
+
+          {/* People Section */}
+        
+
+          {/* Location & Time Section */}
+        
 
     {/* Upload Progress */}
                    {isUploading && (
@@ -843,7 +1450,43 @@ export default function AddShot() {
 
 
 
+// Semuletor type
 
+
+const semuletorType = [
+  {
+    heading: 'particles',
+    item: ['Spearks', 'Debris', 'Rain', 'Snow', 'Ashes', 'Magic', 'Swarns']
+  },
+  {
+    heading: 'rigidBodies',
+    item: ['Destruction', 'Impact', 'Collisions', 'Breaking', 'Falling Objects']
+  },
+  {
+    heading: 'softBodies',
+    item: ['Muscles system', 'Anatomical deformation', 'Squishy Objects']
+  },
+  {
+    heading: 'clothGroom',
+    item: ['Cloth Setup', 'Cloth Dynamics', 'Groom Setup', 'Groom Dynamics']
+  },
+  {
+    heading: 'magicAbstract',
+    item: ['Energy FX', 'Plasma', 'Portals', 'Teleportation', 'Glitches', 'Hologram', 'Conceptual']
+  },
+  {
+    heading: 'crowd',
+    item: ['Agent Simulation', 'Crowd Dynamics', 'Battles', 'Swarns']
+  },
+  {
+    heading: 'mechanicsTech',
+    item: ['Vehicles Crash', 'Cables / Ropes', 'Mechanical Parts']
+  },
+  {
+    heading: 'compositing',
+    item: ['Volumetrics', 'Liquids / Fluids', 'Particles', 'Base of FX compositing']
+  }
+];
 
 
 
