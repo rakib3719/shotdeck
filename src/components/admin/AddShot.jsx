@@ -14,6 +14,8 @@ import { IoIosColorPalette } from 'react-icons/io';
 
 
 export default function AddShot() {
+
+  
 const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm({
   defaultValues: {
     focalLength: [],
@@ -22,8 +24,13 @@ const { register, handleSubmit, control, watch, reset, formState: { errors } } =
     referenceType: [],
     videoSpeed: [],
     videoQuality: [],
-    
-    
+    simulatorTypes: {
+      particles: [],
+      magicAbstract: [],
+      crowd: [],
+      mechanicsTech: [],
+      compositing: []
+    }
   }
 });
   
@@ -36,6 +43,31 @@ const { register, handleSubmit, control, watch, reset, formState: { errors } } =
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showSelect, setShowSelect] = useState(false)
   const [tag, setTag] = useState('');
+// video preview
+
+const [videoPreview, setVideoPreview] = useState(null);
+const [isYouTubeLink, setIsYouTubeLink] = useState(false);
+const [isVimeoLink, setIsVimeoLink] = useState(false);
+
+// time code
+
+const [timecodes, setTimecodes] = useState([]);
+const [currentDesc, setCurrentDesc] = useState('');
+const [currentTime, setCurrentTime] = useState('');
+
+// image preview
+const [imagePreview, setImagePreview] = useState(null);
+const [thumbnailTimecode, setThumbnailTimecode] = useState('');
+const [videoThumbnail, setVideoThumbnail] = useState(null);
+
+
+const handleAddTimecode = () => {
+  if (currentDesc && currentTime) {
+    setTimecodes(prev => [...prev, { label: currentDesc, time: currentTime }]);
+    setCurrentDesc('');
+    setCurrentTime('');
+  }
+};
 
 
 
@@ -54,6 +86,17 @@ let a = 'er'
   // : null;
 
     
+
+  const handleReorder = (fromIndex, toIndex) => {
+  if (fromIndex === toIndex) return;
+  
+  setTimecodes(prev => {
+    const newTimecodes = [...prev];
+    const [movedItem] = newTimecodes.splice(fromIndex, 1);
+    newTimecodes.splice(toIndex, 0, movedItem);
+    return newTimecodes;
+  });
+};
 const tagHandler = (e) => {
   e.preventDefault();
   if (e.key === 'Enter') {
@@ -65,10 +108,88 @@ const tagHandler = (e) => {
   }
 };
    
+const generateThumbnailFromTimecode = async () => {
+  const videoUrl = watch("youtubeLink"); // or vimeo
+  const time = thumbnailTimecode;
+
+  if (!videoUrl || !time) return;
+
+  const id = isYouTubeLink(videoUrl)
+    ? getYouTubeId(videoUrl)
+    : getVimeoId(videoUrl);
+
+  const seconds = convertTimeToSeconds(time);
+
+  if (isYouTubeLink(videoUrl)) {
+    // YouTube thumbnails aren't based on timecode, use default
+    setVideoThumbnail(`https://img.youtube.com/vi/${id}/hqdefault.jpg`);
+  } else if (isVimeoLink(videoUrl)) {
+    // For Vimeo you'll need to fetch the video thumbnail via Vimeo API
+    const response = await fetch(`/api/vimeo-thumbnail?id=${id}&time=${seconds}`);
+    const data = await response.json();
+    setVideoThumbnail(data.thumbnailUrl);
+  }
+};
 
 
 
+// video preview
 
+useEffect(() => {
+  const url = watch('youtubeLink');
+  if (!url) return;
+
+  // Check for YouTube URL
+  const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+  if (youtubeRegex.test(url)) {
+    setIsYouTubeLink(true);
+    setIsVimeoLink(false);
+    setVideoPreview(null);
+    return;
+  }
+
+  // Check for Vimeo URL
+  const vimeoRegex = /^(https?:\/\/)?(www\.)?vimeo\.com\/.+/;
+  if (vimeoRegex.test(url)) {
+    setIsVimeoLink(true);
+    setIsYouTubeLink(false);
+    setVideoPreview(null);
+    return;
+  }
+
+  // If not a recognized video URL
+  setIsYouTubeLink(false);
+  setIsVimeoLink(false);
+  setVideoPreview(null);
+}, [watch('youtubeLink')]);
+
+// Helper function to extract YouTube ID
+const getYouTubeId = (url) => {
+  try {
+    // Handle YouTube Shorts URLs (e.g., https://youtube.com/shorts/NU44H49f7I8)
+    if (url.includes('/shorts/')) {
+      const shortsId = url.split('/shorts/')[1]?.split('?')[0]?.split('/')[0];
+      if (shortsId?.length === 11) return shortsId;
+    }
+
+    // Handle standard YouTube URLs
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/|\/v\/|e\/|watch\?.*v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    
+    // Return ID only if it's exactly 11 characters (standard YouTube ID length)
+    return (match && match[2]?.length === 11) ? match[2] : null;
+  } catch (err) {
+    console.error('Error parsing YouTube URL:', err);
+    return null;
+  }
+};
+
+// Helper function to extract Vimeo ID
+const getVimeoId = (url) => {
+  const regExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/;
+  const match = url.match(regExp);
+  return match ? match[5] : null;
+};
 
   const axiosInstence = useSecureAxios();
   const onSubmit = async (data) => {
@@ -103,6 +224,8 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
       // Set a default image or handle the case where no image is provided
       data.imageUrl = null;
     }
+    data.timecodes = timecodes
+    data.thumbnailTimecode = thumbnailTimecode
 
       // Upload video if exists
       if (selectedVideo) {
@@ -168,6 +291,16 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
     const file = event.target.files[0];
     if (!file) return;
 
+
+  setSelectedVideo(file);
+  setShowVideoOptions(false);
+  
+  // Create preview for uploaded video
+  const videoURL = URL.createObjectURL(file);
+  setVideoPreview(videoURL);
+  setIsYouTubeLink(false);
+  setIsVimeoLink(false);
+
     setSelectedVideo(file);
     setShowVideoOptions(false);
   };
@@ -177,7 +310,8 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
+   setVideoThumbnail(null); // Reset video thumbnail if uploading image
+    setImagePreview(URL.createObjectURL(file));
     setIsUploading(true);
     setUploadProgress(0);
 
@@ -710,7 +844,7 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
 <section className='my-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-5 lg:grid-cols-5 gap-4 justify-between'>
   {/* Simulation Size */}
   <div>
-    <h4>Simulation Size</h4>
+    <h4>Simulation Scale</h4>
     <div className='bg-gray-700 space-y-4 rounded-md p-4 text-white'>
       {[
         { id: "extra-small", value: "extra-small", label: "Extra Small (<10cm)" },
@@ -1118,71 +1252,203 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
               <h2 className="text-xl font-semibold">Media</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-1">Image </label>
-                <div className="flex">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    {...register("imageUrl")}
-                    className="flex-1 bg-gray-700 border border-gray-600  max-w-[250px] md:max-w-[300px] md:w-auto rounded-md py-2 px-3 focus:outline-none"
-                  /> 
-                </div>
-                {/* {errors.imageUrl && <p className="mt-1 text-sm text-red-400">Image is required</p>} */}
-              </div>
+            <div className="grid grid-cols-1  gap-6">
+        <div className="mt-6">
+  <label className="block text-sm font-medium mb-2 text-white">Thumbnail</label>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Video</label>
-                <div className="flex flex-col">
-                  <div className="flex ">
-                    <input
-                      {...register("youtubeLink")}
-                      className="flex-1 bg-gray-700 border border-gray-600   rounded-l-md  py-2 px-3 focus:outline-none"
-                      placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube link"}
-             
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowVideoOptions(!showVideoOptions)}
-                      className="bg-red-600 hover:bg-red-700 px-4 rounded-r-md flex items-center transition-colors"
-                    >
-                      <FiYoutube className="mr-1" /> <FiChevronDown />
-                    </button>
-                  </div>
-                  
-                  {/* Video Options Dropdown */}
-                  {showVideoOptions && (
-                    <div className="mt-2 bg-gray-700 rounded-md p-2 border border-gray-600">
-                      <div className="flex flex-col space-y-2">
-                        <label className="flex items-center px-3 py-2 hover:bg-gray-600 rounded cursor-pointer">
-                          <input
-                            type="file"
-                            accept="video/*"
-                            className="hidden"
-                            onChange={handleVideoUpload}
-                          />
-                          <span className="flex items-center">
-                            <FiUpload className="mr-2" /> Upload Video
-                          </span>
-                        </label>
-                        {/* <div 
-                          className="px-3 py-2 hover:bg-gray-600 rounded cursor-pointer"
-                          onClick={() => {
-                            setSelectedVideo(null);
-                            setValue('youtubeLink', '');
-                            setShowVideoOptions(false);
-                          }}
-                        >
-                          <span className="flex items-center">
-                            <FiX className="mr-2" /> Clear
-                          </span>
-                        </div> */}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+  <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+    {/* Upload Image */}
+    <div className="flex flex-col">
+      <input
+        type="file"
+        accept="image/*"
+        {...register("imageUrl")}
+        onChange={handleFileUpload} // You need to handle and preview this
+        className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none w-[250px]"
+      />
+      {imagePreview && (
+        <img
+          src={imagePreview}
+          alt="Thumbnail Preview"
+          className="mt-2 w-[250px] h-auto rounded-md border border-gray-600"
+        />
+      )}
+    </div>
+
+    <div className="flex flex-col">
+      <label className="text-sm text-white mb-1">Or choose from video (Timecode)</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="e.g. 2:15"
+          className="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
+          value={thumbnailTimecode}
+          onChange={(e) => setThumbnailTimecode(e.target.value)}
+        />
+        <button
+          type="button"
+          onClick={generateThumbnailFromTimecode}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
+        >
+          Capture
+        </button>
+      </div>
+
+      {/* Timecode Thumbnail Preview */}
+      {videoThumbnail && (
+        <img
+          src={videoThumbnail}
+          alt="Video Timecode Thumbnail"
+          className="mt-2 w-[250px] h-auto rounded-md border border-gray-600"
+        />
+      )}
+    </div>
+  </div>
+</div>
+
+
+             <div>
+  <label className="block text-sm font-medium mb-1">Video</label>
+  <div className="flex flex-col">
+    <div className="flex">
+      <input
+        {...register("youtubeLink")}
+        className="flex-1 bg-gray-700 border border-gray-600 rounded-l-md py-2 px-3 focus:outline-none"
+        placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube/Vimeo link"}
+        onChange={(e) => {
+          // setValue('youtubeLink', e.target.value);
+          setSelectedVideo(null); // Clear selected file if pasting a link
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => setShowVideoOptions(!showVideoOptions)}
+        className="bg-red-600 hover:bg-red-700 px-4 rounded-r-md flex items-center transition-colors"
+      >
+        <FiYoutube className="mr-1" /> <FiChevronDown />
+      </button>
+    </div>
+    
+    {/* Video Options Dropdown */}
+    {showVideoOptions && (
+      <div className="mt-2 bg-gray-700 rounded-md p-2 border border-gray-600">
+        <div className="flex flex-col space-y-2">
+          <label className="flex items-center px-3 py-2 hover:bg-gray-600 rounded cursor-pointer">
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoUpload}
+            />
+            <span className="flex items-center">
+              <FiUpload className="mr-2" /> Upload Video
+            </span>
+          </label>
+        </div>
+      </div>
+    )}
+    
+    {/* Video Preview Section */}
+    {(videoPreview || isYouTubeLink || isVimeoLink) && (
+      <div className="mt-4">
+        <h4 className="text-sm font-medium mb-2">Video Preview</h4>
+        <div className="aspect-w-16 aspect-h-9 bg-black rounded-md overflow-hidden">
+          {videoPreview && (
+            <video 
+              src={videoPreview} 
+              controls 
+              className="w-full h-full object-contain"
+            />
+          )}
+          
+          {isYouTubeLink && (
+            <iframe
+              src={`https://www.youtube.com/embed/${getYouTubeId(watch('youtubeLink'))}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          )}
+          
+          {isVimeoLink && (
+            <iframe
+              src={`https://player.vimeo.com/video/${getVimeoId(watch('youtubeLink'))}`}
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+
+<div className="mt-4">
+  <label className="block text-sm font-medium mb-2 text-white">Interest Point</label>
+
+  {/* Input Row */}
+  <div className="flex items-center gap-2 mb-3">
+    <input
+      type="text"
+      className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
+      placeholder="Short Description"
+      value={currentDesc}
+      onChange={(e) => setCurrentDesc(e.target.value)}
+    />
+    <input
+      type="text"
+      className="w-32 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
+      placeholder="Choose Timecode"
+      value={currentTime}
+      onChange={(e) => setCurrentTime(e.target.value)}
+    />
+    <button
+    type='button'
+      onClick={handleAddTimecode}
+      className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded"
+    >
+      ADD
+    </button>
+  </div>
+
+  {/* List of Timecodes */}
+  <ul className="divide-y divide-gray-600 border border-gray-600 rounded text-sm text-white overflow-hidden">
+    {timecodes.map((tc, idx) => (
+      <li 
+        key={idx} 
+        className="flex items-center justify-between px-3 py-2 bg-gray-700 hover:bg-gray-600 transition cursor-move"
+        draggable
+        onDragStart={(e) => e.dataTransfer.setData("text/plain", idx)}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.backgroundColor = "#4B5563"; // Change bg on drag over
+        }}
+        onDragLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "#374151"; // Revert bg when leaves
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.currentTarget.style.backgroundColor = "#374151"; // Revert bg after drop
+          const draggedIdx = parseInt(e.dataTransfer.getData("text/plain"));
+          handleReorder(draggedIdx, idx);
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-4 h-4 bg-gray-400 rounded-sm"></div> {/* Dummy icon */}
+          <span>{tc.label}</span>
+        </div>
+        <span>{tc.time}</span>
+      </li>
+    ))}
+  </ul>
+</div>
+
+</div>
+
+
+
             </div>
 
         
@@ -1239,7 +1505,7 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
               <div>
                 <label className="block text-sm font-medium mb-1">Lens Size</label>
                 <select
-                  {...register("lensSize")}
+                  {...register("lensType")}
                   className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none "
                 >
                   <option value="">Select lens size</option>
@@ -1268,13 +1534,30 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
               </div>
 </section>
 
+{/* Gender section */}
+
 
 
 {/* 
  */}
 
- <section className='mt-8'>
-    <div className="mb-10">
+ <section className='my-8 mb-8'>
+<div>
+  <label className="block text-sm font-medium mb-4">Gender</label>
+  <div className='bg-gray-700 rounded p-4'>
+    <CheckboxGroup
+      name="gender"
+      register={register}
+      options={[
+        { value: "male", label: "Male" },
+        { value: "female", label: "Female" },
+        { value: "trans", label: "Trans" },
+        { value: "any", label: "Any" }
+      ]}
+    />
+  </div>
+</div>
+    <div className="mb-10 mt-8">
             <div className="flex items-center mb-4">
               <MdLocationOn className="mr-2 text-blue-400" />
               <h2 className="text-xl font-semibold">Location & Time</h2>
@@ -1331,6 +1614,7 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
 
 
 
+
 {/* OC Haron marka section------------>>>>>> */}
 <section className="mb-10">
   <div className="flex items-center mb-4">
@@ -1338,40 +1622,60 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
     <h2 className="text-xl font-semibold">Simulator Type</h2>
   </div>
 
-  <div className="relative">
-    {/* Shadow gradients for scroll indication */}
-    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-800 to-transparent z-10 pointer-events-none"></div>
-    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-800 to-transparent z-10 pointer-events-none"></div>
-    
-    <div className="bg-gray-700 rounded-md shadow-lg p-4 overflow-x-auto scrollbar-hide">
-      <div className="flex gap-4 w-max">
-        {semuletorType.map((item, idx) => (
-          <div key={idx} className="bg-[#1E2A3A] rounded-lg p-4 w-64 flex-shrink-0 shadow-md border border-gray-600">
-            <h3 className="font-medium text-lg border-b border-gray-500 pb-2 mb-3">{item.heading}</h3>
+ <div className="relative">
+  {/* Shadow gradients for scroll indication */}
+  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-800 to-transparent z-10 pointer-events-none"></div>
+  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-800 to-transparent z-10 pointer-events-none"></div>
+  
+  <div className="bg-gray-700 rounded-md shadow-lg p-4 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-4 w-max">
+      {simulatorType.map((category, idx) => {
+        const categoryValue = watch(`simulatorTypes.${category.name}`);
+        const isCategorySelected = Array.isArray(categoryValue) && categoryValue.length > 0;
+        
+        return (
+          <div 
+            key={idx} 
+            className={`rounded-lg p-4 w-64 flex-shrink-0 shadow-md border transition-all ${
+              isCategorySelected 
+                ? "bg-[#2a3a4a] border-blue-400" 
+                : "bg-[#1E2A3A] border-gray-600"
+            }`}
+          >
+            <h3 className={`font-medium text-lg border-b pb-2 mb-3 ${
+              isCategorySelected ? "border-blue-400" : "border-gray-500"
+            }`}>
+              {category.heading}
+            </h3>
             <div className="space-y-2">
-              {item.item.map((p, i) => (
+              {category.items.map((item, i) => (
                 <div key={i} className="flex items-center group">
                   <input
                     type="checkbox"
-                    id={`${item.heading}-${i}`}
-                    value={p}
-                    {...register(`simulatorTypes.${item.heading.toLowerCase().replace(/ /g, '')}`)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 group-hover:border-blue-300 transition-colors"
+                    id={`${category.name}-${i}`}
+                    value={item}
+                    {...register(`simulatorTypes.${category.name}`)}
+                    className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                   />
                   <label 
-                    htmlFor={`${item.heading}-${i}`} 
-                    className="ml-3 block text-sm text-gray-300 group-hover:text-white transition-colors"
+                    htmlFor={`${category.name}-${i}`} 
+                    className={`ml-3 block text-sm ${
+                      isCategorySelected 
+                        ? "text-gray-300 group-hover:text-white" 
+                        : "text-gray-300"
+                    } transition-colors cursor-pointer`}
                   >
-                    {p}
+                    {item}
                   </label>
                 </div>
               ))}
             </div>
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
   </div>
+</div>
 </section>
 
 
@@ -1453,41 +1757,48 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
 // Semuletor type
 
 
-const semuletorType = [
+const simulatorType = [
   {
-    heading: 'particles',
-    item: ['Spearks', 'Debris', 'Rain', 'Snow', 'Ashes', 'Magic', 'Swarns']
+    heading: 'Particles',
+    name: 'particles', // lowercase for form field name
+    items: ['Sparks', 'Debris', 'Rain', 'Snow', 'Ashes', 'Magic', 'Swarms'] // Fixed typos
   },
   {
-    heading: 'rigidBodies',
-    item: ['Destruction', 'Impact', 'Collisions', 'Breaking', 'Falling Objects']
+    heading: 'Rigid Bodies',
+    name: 'rigidbodies',
+    items: ['Destruction', 'Impact', 'Collisions', 'Breaking', 'Falling Objects']
   },
   {
-    heading: 'softBodies',
-    item: ['Muscles system', 'Anatomical deformation', 'Squishy Objects']
+    heading: 'Soft Bodies',
+    name: 'softBodies', // Note camelCase to match backend
+    items: ['Muscles system', 'Anatomical deformation', 'Squishy Objects']
   },
   {
-    heading: 'clothGroom',
-    item: ['Cloth Setup', 'Cloth Dynamics', 'Groom Setup', 'Groom Dynamics']
+    heading: 'Cloth & Groom',
+    name: 'clothgroom',
+    items: ['Cloth Setup', 'Cloth Dynamics', 'Groom Setup', 'Groom Dynamics']
   },
   {
-    heading: 'magicAbstract',
-    item: ['Energy FX', 'Plasma', 'Portals', 'Teleportation', 'Glitches', 'Hologram', 'Conceptual']
+    heading: 'Magic & Abstract',
+    name: 'magicAbstract', // Note camelCase to match backend
+    items: ['Energy FX', 'Plasma', 'Portals', 'Teleportation', 'Glitches', 'Hologram', 'Conceptual']
   },
   {
-    heading: 'crowd',
-    item: ['Agent Simulation', 'Crowd Dynamics', 'Battles', 'Swarns']
+    heading: 'Crowd',
+    name: 'crowd',
+    items: ['Agent Simulation', 'Crowd Dynamics', 'Battles', 'Swarms'] // Fixed typo
   },
   {
-    heading: 'mechanicsTech',
-    item: ['Vehicles Crash', 'Cables / Ropes', 'Mechanical Parts']
+    heading: 'Mechanics & Tech',
+    name: 'mechanicsTech', // Note camelCase to match backend
+    items: ['Vehicles Crash', 'Cables / Ropes', 'Mechanical Parts']
   },
   {
-    heading: 'compositing',
-    item: ['Volumetrics', 'Liquids / Fluids', 'Particles', 'Base of FX compositing']
+    heading: 'Compositing',
+    name: 'compositing',
+    items: ['Volumetrics', 'Liquids / Fluids', 'Particles', 'Base of FX compositing']
   }
 ];
-
 
 
 

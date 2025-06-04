@@ -55,7 +55,7 @@ getShotById:builder.query({
 getMyShot:builder.query({
   query:(id)=>({
 
-    url:`/shot/collection/${id}`
+    url:`collection/single/${id}`
 
   })
 }),

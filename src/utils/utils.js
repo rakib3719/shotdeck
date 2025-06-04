@@ -1,5 +1,5 @@
-// export const base_url = 'https://shotdeck-backend.vercel.app/api';
-export const base_url = 'http://localhost:5000/api';
+export const base_url = 'https://shotdeck-backend.vercel.app/api';
+// export const base_url = 'http://localhost:5000/api';
 
 export const upload_preset = 'e-paper';
 export const cloud_name = 'djf8l2ahy'
@@ -98,9 +98,13 @@ export const filters = [
       '3D',
     ],
   },
+
+
+
+  
   {
     id: 7,
-    name: 'labProcess',
+    name: 'labProcesssss',
     title: 'Lab Process',
     item: ['Bleach Bypass', 'Cross Process', 'Flashing'],
   },
@@ -132,46 +136,189 @@ export const filters = [
     item: ['Day', 'Night', 'Dusk', 'Dawn', 'Sunrise', 'Sunset'],
   },
   {
-    id: 11,
-    name: 'numberOfPeople',
-    title: 'Number Of People',
-    item: ['None', '1', '2', '3', '4', '5', '6+'],
+    id: 21,
+    name: 'particles',
+    title: 'Particles',
+    item: [
+      "Sparks",
+      "Debris",
+      "Rain",
+      "Snow",
+      "Ashes",
+      "Magic",
+      "Swarms"
+    ],
+  },
+  {
+    id: 22,
+    name: 'rigidbodies',
+    title: 'Rigid Bodies',
+    item: [
+      "Destruction",
+      "Impact",
+      "Collisions",
+      "Breaking",
+      "Falling Objects"
+    ],
+  },
+  {
+    id: 23,
+    name: 'softBodies',
+    title: 'Soft Bodies',
+    item: [
+      "Muscles system",
+      "Anatomical deformation",
+      "Squishy Objects"
+    ],
+  },
+  {
+    id: 24,
+    name: 'clothgroom',
+    title: 'Cloth & Groom',
+    item: [
+      "Cloth Setup",
+      "Cloth Dynamics",
+      "Groom Setup",
+      "Groom Dynamics"
+    ],
+  },
+  {
+    id: 25,
+    name: 'magicAbstract',
+    title: 'Magic & Abstract',
+    item: [
+      "Energy FX",
+      "Plasma",
+      "Portals",
+      "Teleportation",
+      "Glitches",
+      "Hologram",
+      "Conceptual"
+    ],
+  },
+  {
+    id: 26,
+    name: 'crowd',
+    title: 'Crowd',
+    item: [
+      "Agent Simulation",
+      "Crowd Dynamics",
+      "Battles",
+      "Swarms"
+    ],
+  },
+  {
+    id: 27,
+    name: 'mechanicsTech',
+    title: 'Mechanics & Tech',
+    item: [
+      "Vehicles Crash",
+      "Cables / Ropes",
+      "Mechanical Parts"
+    ],
+  },
+  {
+    id: 28,
+    name: 'compositing',
+    title: 'Compositing',
+    item: [
+      "Volumetrics",
+      "Liquids / Fluids",
+      "Particles",
+      "Base of FX compositing"
+    ],
+  },
+
+   {
+    id: 29, 
+    name: 'simulationSize',
+    title: 'Size Scale',
+    item: [
+         "extra-small",
+        "small",
+        "structural",
+        "massive",
+        "human"
+    ]
+  },
+   {
+    id: 30, 
+    name: 'simulationStyle',
+    title: 'Style',
+    item: [
+   "realist", 
+    "semi-stylized", 
+    "stylized",
+    "anime"]
+  },
+   {
+    id: 31, 
+    name: 'motionStyle',
+    title: 'Motion Style',
+    item: [
+   "realist", 
+    "stylized",
+    "anime"]
+  },
+   {
+    id: 32, 
+    name: 'emitterSpeed',
+    title: 'Emitter Speed',
+    item: [
+   "static",
+        "slow",
+        "fast"]
+  },
+   {
+    id: 33, 
+    name: 'simulationSoftware',
+    title: 'Software',
+    item: [
+  "houdini",
+        "blender",
+        "embergen",
+        "real-flow",
+        "phoenix-fd",
+        "x-particles",
+        "krakatoa",
+        "ncloth",
+        "ornatrix"]
   },
   {
     id: 12,
     name: 'gender',
     title: 'Gender',
-    item: ['Male', 'Female', 'Trans'],
+    item: ['male', 'female', 'trans'],
   },
-  {
-    id: 13,
-    name: 'age',
-    title: 'Age',
-    item: [
-      'Baby',
-      'Toddler',
-      'Child',
-      'Teenager',
-      'Young Adult',
-      'Middle Age',
-      'Senior',
-    ],
-  },
-  {
-    id: 14,
-    name: 'ethnicity',
-    title: 'Ethnicity',
-    item: [
-      'Black',
-      'White',
-      'Latinx',
-      'Middle Eastern',
-      'South-East Asian',
-      'East Asian',
-      'Indigenous Peoples',
-      'Mixed-race',
-    ],
-  },
+  // {
+  //   id: 13,
+  //   name: 'age',
+  //   title: 'Age',
+  //   item: [
+  //     'Baby',
+  //     'Toddler',
+  //     'Child',
+  //     'Teenager',
+  //     'Young Adult',
+  //     'Middle Age',
+  //     'Senior',
+  //   ],
+  // },
+  // {
+  //   id: 14,
+  //   name: 'ethnicity',
+  //   title: 'Ethnicity',
+  //   item: [
+  //     'Black',
+  //     'White',
+  //     'Latinx',
+  //     'Middle Eastern',
+  //     'South-East Asian',
+  //     'East Asian',
+  //     'Indigenous Peoples',
+  //     'Mixed-race',
+  //   ],
+  // },
   {
     id: 15,
     name: 'frameSize',
@@ -262,5 +409,8 @@ export const filters = [
       'Firelight',
       'Mixed Light',
     ],
-  }
+  },
+
+
+ 
 ];

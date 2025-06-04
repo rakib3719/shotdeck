@@ -46,6 +46,7 @@ export default function Nav() {
     { name: 'RENDOM SHOTS', link: '/random' },
     { name: 'MY COLLECTION', link: '/my-collection' },
     { name: 'MY SHOT', link: '/my-shot' },
+    { name: 'DONATION', link: '/donation' },
 
   ];
 
