@@ -8,11 +8,12 @@ import { base_url } from '@/utils/utils';
 import { useGetMyShotQuery } from '@/redux/api/shot';
 import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaPlus } from 'react-icons/fa';
 import { useSecureAxios } from '@/utils/Axios';
 import Link from 'next/link';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Swal from 'sweetalert2';
 
 export default function MyCollection() {
   const user = useSession();
@@ -24,6 +25,8 @@ export default function MyCollection() {
   const [selectedCollection, setSelectedCollection] = useState('All');
   const pathname = usePathname();
   const axiosInstance = useSecureAxios();
+  const [showCreateCollection, setShowCreateCollection] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
 
   useEffect(() => {
     AOS.init({ duration: 1000, once: true });
@@ -164,6 +167,42 @@ export default function MyCollection() {
     refetch();
   };
 
+  const createNewCollection = async () => {
+    if (!newCollectionName.trim()) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please enter a collection name',
+        icon: 'error',
+      });
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post(`/collection/save-collection`, {
+        userId: id,
+        name: newCollectionName
+      });
+
+      if (response.status === 201) {
+        Swal.fire({
+          title: 'Success',
+          text: 'Collection created successfully',
+          icon: 'success',
+        });
+        refetch();
+        setNewCollectionName('');
+        setShowCreateCollection(false);
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to create collection',
+        icon: 'error',
+      });
+    }
+  };
+
   // Group shots by collectionName
   const collections = data?.data?.reduce((acc, item) => {
     const collectionName = item.collectionName || 'Uncategorized';
@@ -198,6 +237,7 @@ export default function MyCollection() {
 
   return (
     <div className="px-4 md:px-8 py-16 bg-gradient-to-b from-gray-900 to-black min-h-screen">
+      <Image src={'/api/frames?url=https://youtu.be/_Nd2i4OpbdU&timestamp=00:00:50'} width={400} height={400} alt='astase wait'/>
       <h1 className="text-3xl font-bold text-white mb-8 text-center" data-aos="fade-up">My Cinematic Collection</h1>
 
       {/* Collection Tabs */}
@@ -217,7 +257,61 @@ export default function MyCollection() {
             {name}
           </motion.button>
         ))}
+        
+        {/* Add Collection Button */}
+        <motion.button
+          onClick={() => setShowCreateCollection(true)}
+          className="px-4 py-2 rounded-full text-sm font-semibold bg-green-500 text-white hover:bg-green-600 flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaPlus /> New
+        </motion.button>
       </div>
+
+      {/* Create Collection Modal */}
+      <AnimatePresence>
+        {showCreateCollection && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowCreateCollection(false)}
+          >
+            <motion.div
+              className="bg-gray-800 rounded-lg p-6 w-full max-w-md"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-white mb-4">Create New Collection</h3>
+              <input
+                type="text"
+                value={newCollectionName}
+                onChange={(e) => setNewCollectionName(e.target.value)}
+                placeholder="Collection name"
+                className="w-full px-4 py-2 bg-gray-700 text-white rounded mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowCreateCollection(false)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={createNewCollection}
+                  className="px-4 py-2 bg-yellow-500 text-black rounded hover:bg-yellow-600"
+                >
+                  Create
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Shot Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -282,7 +376,7 @@ export default function MyCollection() {
         </Link>
       )}
 
-      {/* Modal */}
+      {/* Shot Details Modal */}
       <AnimatePresence>
         {modalIsOpen && selectedShot && (
           <motion.div

@@ -357,31 +357,47 @@ function getCloudinaryThumbnailWithTime(url, seconds) {
 }
 
 // YouTube implementation (no timecode support)
-function getYouTubeThumbnail(url) {
-  try {
-    const yt = new URL(url);
-    let videoId;
+// async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
+//   try {
+//     const yt = new URL(url);
+//     let videoId;
 
-    if (yt.hostname.includes('youtu.be')) {
-      videoId = yt.pathname.slice(1);
-    } else {
-      videoId = yt.searchParams.get('v');
-    }
+//     if (yt.hostname.includes('youtu.be')) {
+//       videoId = yt.pathname.slice(1);
+//     } else {
+//       videoId = yt.searchParams.get('v');
+//     }
 
-    if (videoId) {
-      // Try different quality levels in order
-      const qualities = ['maxresdefault', 'hqdefault', 'mqdefault', 'default'];
-      for (const quality of qualities) {
-        const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
-        // In a real app, you might want to verify the image exists
-        return thumbnailUrl;
-      }
-    }
-  } catch (err) {
-    console.error('Error parsing YouTube URL:', err);
-  }
-  return null;
-}
+//     if (!videoId) return null;
+
+//     // Try backend API for frame at specific timestamp
+//     try {
+//       const res = await fetch(`/api/frame?url=${encodeURIComponent(url)}&timestamp=${timestamp}`);
+//       if (res.ok) {
+//         const blob = await res.blob();
+//         const objectUrl = URL.createObjectURL(blob);
+//         return objectUrl;
+//       } else {
+//         console.warn("Backend API failed, status:", res.status);
+//       }
+//     } catch (err) {
+//       console.warn("Error calling backend API:", err);
+//     }
+
+//     // Fallback to standard YouTube thumbnails
+//     const qualities = ['maxresdefault', 'hqdefault', 'mqdefault', 'default'];
+//     for (const quality of qualities) {
+//       const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
+//       // Optionally: You can ping the URL with HEAD to check if it exists
+//       return thumbnailUrl; // Just return the first one that likely exists
+//     }
+//   } catch (err) {
+//     console.error('Error parsing YouTube URL:', err);
+//   }
+
+//   return null;
+// }
+
 
 // Vimeo implementation (no timecode support without API)
 function getVimeoThumbnail(url) {
@@ -405,28 +421,70 @@ function getVimeoThumbnail(url) {
 // getVideoThumbnail('https://youtu.be/dQw4w9WgXcQ', '1:23');
 // getVideoThumbnail('https://vimeo.com/123456789', '0:45');
 
-  function getYouTubeThumbnail(url) {
-    try {
-      const yt = new URL(url);
-      let videoId;
+function getYouTubeThumbnail(url, timecodeInSeconds) {
+  // YouTube thumbnails URL doesn't support timecode thumbnails
+  // So ignore timecode parameter
+  try {
+    const yt = new URL(url);
+    let videoId;
 
-      if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
-        videoId = yt.pathname.split('/')[2];
-      } else if (yt.hostname.includes('youtu.be')) {
-        videoId = yt.pathname.split('/')[1];
-      } else if (yt.hostname.includes('youtube.com')) {
-        videoId = yt.searchParams.get('v');
-      }
-
-      if (videoId) {
-        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      }
-    } catch (err) {
-      console.error('Error parsing YouTube URL:', err);
+    if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
+      videoId = yt.pathname.split('/')[2];
+    } else if (yt.hostname.includes('youtu.be')) {
+      videoId = yt.pathname.split('/')[1];
+    } else if (yt.hostname.includes('youtube.com')) {
+      videoId = yt.searchParams.get('v');
     }
-    return null;
-  }
 
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+  } catch (err) {
+    console.error('Error parsing YouTube URL:', err);
+  }
+  return null;
+}
+
+//  async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
+//   try {
+
+    
+//     const yt = new URL(url);
+//     let videoId;
+
+//     if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
+//       videoId = yt.pathname.split('/')[2]; // YouTube Shorts
+//     } else if (yt.hostname.includes('youtu.be')) {
+//       videoId = yt.pathname.split('/')[1]; // Shortened URL
+//     } else if (yt.hostname.includes('youtube.com')) {
+//       videoId = yt.searchParams.get('v'); // Standard YouTube
+//     }
+
+//     if (!videoId) return null;
+
+//     // Try to get custom frame from backend
+//     try {
+//       const apiUrl = `/api/frame?url=${encodeURIComponent(url)}&timestamp=${timestamp}`;
+//       const res = await fetch(apiUrl);
+
+//       if (res.ok) {
+//         const blob = await res.blob();
+//         const objectUrl = URL.createObjectURL(blob);
+//         return objectUrl;
+//       } else {
+//         console.warn('API fallback: failed to get frame, status:', res.status);
+//       }
+//     } catch (err) {
+//       console.warn('API fallback: exception while fetching frame:', err);
+//     }
+
+//     // Fallback to default YouTube thumbnail
+//     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+//   } catch (err) {
+//     console.error('Error parsing YouTube URL:', err);
+//     return null;
+//   }
+// }
 
 
 
@@ -839,7 +897,7 @@ const buildQuery = useCallback((page = 1) => {
         if (data.youtubeLink.includes('cloudinary.com')) {
           imageSrc = getCloudinaryThumbnail(data.youtubeLink);
         } else if (data.youtubeLink.includes('youtu')) {
-          imageSrc = getYouTubeThumbnail(data.youtubeLink);
+          imageSrc = getYouTubeThumbnail(data.youtubeLink, data?.thumbnailTimecode);
         } else if (data.youtubeLink.includes('vimeo.com')) {
           imageSrc = getVimeoThumbnail(data.youtubeLink);
         }
