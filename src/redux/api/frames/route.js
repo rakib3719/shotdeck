@@ -1,5 +1,3 @@
-// app/api/frames/route.js
-
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -46,6 +44,9 @@ export async function GET(request) {
             status: 200,
             headers: {
               'Content-Type': 'image/jpeg',
+              'Content-Length': imageBuffer.length.toString(),
+              'Cache-Control': 'no-store',
+              'Access-Control-Allow-Origin': '*'
             },
           })
         );
