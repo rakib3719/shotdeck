@@ -5,13 +5,13 @@
 4 silly config load:file:C:\project\SHOTDECK\frontend\shotdeck\.npmrc
 5 silly config load:file:C:\Users\rakib\.npmrc
 6 silly config load:file:C:\Program Files\nodejs\npm-global\etc\npmrc
-7 verbose title npm run dewv
-8 verbose argv "run" "dewv"
-9 verbose logfile logs-max:10 dir:C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-05T05_37_34_440Z-
-10 verbose logfile C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-05T05_37_34_440Z-debug-0.log
+7 verbose title npm run deav
+8 verbose argv "run" "deav"
+9 verbose logfile logs-max:10 dir:C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-10T04_14_02_349Z-
+10 verbose logfile C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-10T04_14_02_349Z-debug-0.log
 11 silly logfile start cleaning logs, removing 1 files
 12 silly logfile done cleaning log files
-13 verbose stack Error: Missing script: "dewv"
+13 verbose stack Error: Missing script: "deav"
 13 verbose stack
 13 verbose stack Did you mean this?
 13 verbose stack   npm run dev # run the "dev" package script
@@ -22,7 +22,7 @@
 13 verbose stack     at async RunScript.exec (C:\Program Files\nodejs\node_modules\npm\lib\commands\run-script.js:40:7)
 13 verbose stack     at async Npm.exec (C:\Program Files\nodejs\node_modules\npm\lib\npm.js:207:9)
 13 verbose stack     at async module.exports (C:\Program Files\nodejs\node_modules\npm\lib\cli\entry.js:74:5)
-14 error Missing script: "dewv"
+14 error Missing script: "deav"
 14 error
 14 error Did you mean this?
 14 error   npm run dev # run the "dev" package script
@@ -35,4 +35,4 @@
 18 verbose npm  v10.9.2
 19 verbose exit 1
 20 verbose code 1
-21 error A complete log of this run can be found in: C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-05T05_37_34_440Z-debug-0.log
+21 error A complete log of this run can be found in: C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-10T04_14_02_349Z-debug-0.log

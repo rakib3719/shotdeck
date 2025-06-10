@@ -887,11 +887,20 @@ const buildQuery = useCallback((page = 1) => {
 
   <AnimatePresence>
     {shots?.map((data, idx) => {
-      let imageSrc = data?.imageUrl;
+         let imageSrc;
 
-      if (data.thumbnailTimecode) {
-        imageSrc = getVideoThumbnail(data?.youtubeLink, data?.thumbnailTimecode[0]);
-      }
+
+if(data.imageUrlThubnail){
+  imageSrc = data.imageUrlThubnail[0]
+}
+
+if(data.imageUrl){
+         imageSrc = data?.imageUrl;
+}
+
+      // if (data.imageUrlThubnail) {
+      //   imageSrc = getVideoThumbnail(data?.youtubeLink, data?.thumbnailTimecode[0]);
+      // }
 
       if (!imageSrc && data?.youtubeLink) {
         if (data.youtubeLink.includes('cloudinary.com')) {

@@ -1467,13 +1467,13 @@ async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
           value={thumbnailTimecode}
           onChange={(e) => setThumbnailTimecode(e.target.value)}
         />
-        <button
+        {/* <button
           type="button"
           onClick={generateThumbnailFromTimecode}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
         >
           Capture
-        </button>
+        </button> */}
       </div>
 
       {/* Timecode Thumbnail Preview */}
@@ -1496,7 +1496,7 @@ async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
       <input
         {...register("youtubeLink")}
         className="flex-1 bg-gray-700 border border-gray-600 rounded-l-md py-2 px-3 focus:outline-none"
-        placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube/Vimeo link"}
+        placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube link"}
         onChange={(e) => {
           // setValue('youtubeLink', e.target.value);
           setSelectedVideo(null); // Clear selected file if pasting a link
