@@ -20,7 +20,7 @@ WORKDIR /app
 # Install Node.js dependencies
 COPY package*.json ./
 RUN npm install --production
-
+RUN npm install --production=false && npm run build
 # Copy rest of the app
 COPY . .
 
