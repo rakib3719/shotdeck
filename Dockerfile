@@ -8,10 +8,11 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     && ln -sf /usr/bin/python3 /usr/bin/python \
-    && pip3 install --no-cache-dir --upgrade yt-dlp \
+    && pip3 install --break-system-packages --no-cache-dir --upgrade yt-dlp \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Set working directory
 WORKDIR /app
