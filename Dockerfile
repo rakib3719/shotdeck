@@ -7,11 +7,8 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
-    # Symlink python3 → python
     && ln -sf /usr/bin/python3 /usr/bin/python \
-    # Install yt-dlp with pip (no cache to reduce size)
     && pip3 install --no-cache-dir --upgrade yt-dlp \
-    # Clean up apt cache
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
@@ -19,23 +16,23 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Install Node.js dependencies (layer caching optimization)
+# Install Node.js dependencies
 COPY package*.json ./
 RUN npm install --production
 
-# Copy application files
+# Copy rest of the app
 COPY . .
 
 # Build step (if needed)
 RUN npm run build
 
-# Environment variables
+# Environment
 ENV NODE_ENV=production
 ENV YTDLP_NO_CHECK_CERTIFICATE=1  
 
-# Health check (optional but recommended)
+# Health check for internal container port
 HEALTHCHECK --interval=30s --timeout=10s \
-  CMD node -e "require('http').get('http://localhost:${PORT||3000}', (r) => {if(r.statusCode!==200)throw new Error()})" || exit 1
+  CMD curl --fail http://localhost:3000 || exit 1
 
-# Run the application
+# Run app
 CMD ["npm", "start"]
