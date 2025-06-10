@@ -41,7 +41,8 @@ const { register, handleSubmit, control, watch, reset, formState: { errors } } =
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [showSelect, setShowSelect] = useState(false)
+  const [showSelect, setShowSelect] = useState(false);
+  const [staticImage, setStaticImage]= useState(null)
   const [tag, setTag] = useState('');
 // video preview
 
@@ -192,93 +193,271 @@ const getVimeoId = (url) => {
 };
 
   const axiosInstence = useSecureAxios();
-  const onSubmit = async (data) => {
 
-localStorage.setItem('AllTags', JSON.stringify(allTags));
- data.tags = allTags;
-    console.log(data, 'Initial data')
-    try {
-      setIsUploading(true);
+
+
+//   const onSubmit = async (data) => {
+
+// localStorage.setItem('AllTags', JSON.stringify(allTags));
+//  data.tags = allTags;
+//     console.log(data, 'Initial data')
+//     try {
+//       setIsUploading(true);
     
-    // Upload image if exists
-    if (data.imageUrl && data.imageUrl[0]) {
-      const img = data.imageUrl[0];
-      const formDataImage = new FormData();
-      formDataImage.append('file', img);
-      formDataImage.append('upload_preset', 'e-paper');
-      formDataImage.append('cloud_name', 'djf8l2ahy');
+//     // Upload image if exists
+//     if (data.imageUrl && data.imageUrl[0]) {
+//       const img = data.imageUrl[0];
+//       const formDataImage = new FormData();
+//       formDataImage.append('file', img);
+//       formDataImage.append('upload_preset', 'e-paper');
+//       formDataImage.append('cloud_name', 'djf8l2ahy');
       
-      const imgResp = await axios.post(
-        'https://api.cloudinary.com/v1_1/djf8l2ahy/image/upload', 
-        formDataImage,
+//       const imgResp = await axios.post(
+//         'https://api.cloudinary.com/v1_1/djf8l2ahy/image/upload', 
+//         formDataImage,
+//         {
+//           onUploadProgress: (progressEvent) => {
+//             const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
+//             setUploadProgress(progress);
+//           }
+//         }
+//       );
+      
+//       data.imageUrl = imgResp.data.secure_url;
+//     } else {
+//       // Set a default image or handle the case where no image is provided
+//       data.imageUrl = null;
+//     }
+//     data.timecodes = timecodes
+//     data.thumbnailTimecode = thumbnailTimecode
+
+//       // Upload video if exists
+//       if (selectedVideo) {
+//         const formDataVideo = new FormData();
+//         formDataVideo.append('file', selectedVideo);
+//         formDataVideo.append('upload_preset', 'e-paper');
+//         formDataVideo.append('cloud_name', 'djf8l2ahy');
+        
+//         const videoResp = await axios.post(
+//           'https://api.cloudinary.com/v1_1/djf8l2ahy/video/upload', 
+//           formDataVideo,
+//           {
+//             onUploadProgress: (progressEvent) => {
+//               const progress = 50 + Math.round((progressEvent.loaded * 50) / progressEvent.total);
+//               setUploadProgress(progress);
+//             }
+//           }
+//         );
+        
+//         data.youtubeLink = videoResp.data.secure_url;
+//       }
+   
+
+//       console.log('Final data with uploaded URLs:', data);
+//       const resp =await axiosInstence.post(`${base_url}/shot/create`, data);
+//       if(data.status){
+//         await  Swal.fire({
+//           title: "Sucess",
+//           text: "Shot Added Sucessfully!",
+//           icon: "success"})
+//       }
+//       console.log(resp, 'done')
+//       // Here you would typically send the data to your API
+//       // await axios.post('/api/shots', data);
+      
+//      Swal.fire({
+//          title: 'Shot added successfully',
+//          text: 'Shot Saved Sucessfully waitn for aproval',
+//          icon: 'success'
+//        });
+//       resetForm();
+
+//     } catch (error) {
+//       console.error('Upload error:', error);
+//  Swal.fire({
+//         title: 'Error',
+//         text: error.response?.data?.message || error.message || 'Failed add shot',
+//         icon: 'error'
+//       });
+//     } finally {
+//       setIsUploading(false);
+//     }
+//   };
+
+
+const onSubmit = async (data) => {
+  localStorage.setItem('AllTags', JSON.stringify(allTags));
+  data.tags = allTags;
+  console.log(data, 'Initial data');
+  console.log(staticImage, 'this is image url')
+  console.log(thumbnailTimecode, data.youtubeLink, 'asco tom ra')
+  
+  if(staticImage){
+    data.imageUrl = staticImage
+  }
+
+  try {
+    setIsUploading(true);
+    
+    // Upload video first if exists (since we need its URL for thumbnail generation)
+    if (selectedVideo) {
+      const formDataVideo = new FormData();
+      formDataVideo.append('file', selectedVideo);
+      formDataVideo.append('upload_preset', 'e-paper');
+      formDataVideo.append('cloud_name', 'djf8l2ahy');
+      
+      const videoResp = await axios.post(
+        'https://api.cloudinary.com/v1_1/djf8l2ahy/video/upload', 
+        formDataVideo,
         {
           onUploadProgress: (progressEvent) => {
-            const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
+            const progress = 50 + Math.round((progressEvent.loaded * 50) / progressEvent.total);
             setUploadProgress(progress);
           }
         }
       );
       
-      data.imageUrl = imgResp.data.secure_url;
-    } else {
-      // Set a default image or handle the case where no image is provided
-      data.imageUrl = null;
+      data.youtubeLink = videoResp.data.secure_url;
     }
-    data.timecodes = timecodes
-    data.thumbnailTimecode = thumbnailTimecode
 
-      // Upload video if exists
-      if (selectedVideo) {
-        const formDataVideo = new FormData();
-        formDataVideo.append('file', selectedVideo);
-        formDataVideo.append('upload_preset', 'e-paper');
-        formDataVideo.append('cloud_name', 'djf8l2ahy');
-        
-        const videoResp = await axios.post(
-          'https://api.cloudinary.com/v1_1/djf8l2ahy/video/upload', 
-          formDataVideo,
-          {
-            onUploadProgress: (progressEvent) => {
-              const progress = 50 + Math.round((progressEvent.loaded * 50) / progressEvent.total);
-              setUploadProgress(progress);
-            }
-          }
-        );
-        
-        data.youtubeLink = videoResp.data.secure_url;
-      }
-   
+    // Handle thumbnail generation if timecode exists
+    if (thumbnailTimecode && data.youtubeLink) {
+      try {
+        console.log(thumbnailTimecode, 'This is thumbnail time code');
+        const apiUrl = `/api/frames?url=${encodeURIComponent(data.youtubeLink)}&timestamp=${thumbnailTimecode}`;
+        console.log(apiUrl, 'API response for thumbnail generation');
+                const response = await fetch(apiUrl);
+                          const blob = await response.blob();
 
-      console.log('Final data with uploaded URLs:', data);
-      const resp =await axiosInstence.post(`${base_url}/shot/create`, data);
-      if(data.status){
-        await  Swal.fire({
-          title: "Sucess",
-          text: "Shot Added Sucessfully!",
-          icon: "success"})
+                   const formDataThumbnail = new FormData();
+          formDataThumbnail.append('file', blob);
+          formDataThumbnail.append('upload_preset', 'e-paper');
+          formDataThumbnail.append('cloud_name', 'djf8l2ahy');
+          
+          const thumbnailResp = await axios.post(
+            'https://api.cloudinary.com/v1_1/djf8l2ahy/image/upload',
+            formDataThumbnail
+          );
+          
+
+          console.log(thumbnailResp, 'ho vai ho tor paye dhori')
+          data.imageUrlThubnail = thumbnailResp.data.secure_url;
+          // const blob = await response.blob();
+          console.log(blob, 'this i sblob re blob')
+        
+        if (apiUrl.data) {
+          // Convert the thumbnail URL to a blob
+          // const response = await fetch(apiUrl.data);
+          // const blob = await response.blob();
+          
+          // Upload to Cloudinary
+       
+        }
+      } catch (error) {
+        console.error('Error generating thumbnail:', error);
+        // Continue with manual image upload if thumbnail generation fails
       }
-      console.log(resp, 'done')
-      // Here you would typically send the data to your API
-      // await axios.post('/api/shots', data);
+    }
+
+    // Upload manual image if exists (only if we didn't get a thumbnail from YouTube)
+    // if (staticImage) {
+    //   console.log('first')
+    //   // const img = staticImage;
+    //   // const formDataImage = new FormData();
+    //   // formDataImage.append('file', img);
+    //   // formDataImage.append('upload_preset', 'e-paper');
+    //   // formDataImage.append('cloud_name', 'djf8l2ahy');
       
-     Swal.fire({
-         title: 'Shot added successfully',
-         text: 'Shot Saved Sucessfully waitn for aproval',
-         icon: 'success'
-       });
-      resetForm();
+    //   // const imgResp = await axios.post(
+    //   //   'https://api.cloudinary.com/v1_1/djf8l2ahy/image/upload', 
+    //   //   formDataImage,
+    //   //   {
+    //   //     onUploadProgress: (progressEvent) => {
+    //   //       const progress = Math.round((progressEvent.loaded * 50) / progressEvent.total);
+    //   //       setUploadProgress(progress);
+    //   //     }
+    //   //   }
+    //   // );
+      
+    //   // data.imageUrl = imgResp.data.secure_url;
+    // } else if (!data.imageUrl) {
+    //   data.imageUrl = null;
+    // }
+    
+    data.timecodes = timecodes;
+    data.thumbnailTimecode = thumbnailTimecode;
 
-    } catch (error) {
-      console.error('Upload error:', error);
- Swal.fire({
-        title: 'Error',
-        text: error.response?.data?.message || error.message || 'Failed add shot',
-        icon: 'error'
+    console.log('Final data with uploaded URLs:', data);
+    const resp = await axiosInstence.post(`${base_url}/shot/create`, data);
+    
+    if (data.status) {
+      await Swal.fire({
+        title: "Success",
+        text: "Shot Added Successfully!",
+        icon: "success"
       });
-    } finally {
-      setIsUploading(false);
     }
-  };
+    
+    Swal.fire({
+      title: 'Shot added successfully',
+      text: 'Shot Saved Successfully wait for approval',
+      icon: 'success'
+    });
+    
+    resetForm();
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    Swal.fire({
+      title: 'Error',
+      text: error.response?.data?.message || error.message || 'Failed to add shot',
+      icon: 'error'
+    });
+  } finally {
+    setIsUploading(false);
+  }
+};
+
+async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
+  try {
+    const yt = new URL(url);
+    let videoId;
+
+    if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
+      videoId = yt.pathname.split('/')[2]; // YouTube Shorts
+    } else if (yt.hostname.includes('youtu.be')) {
+      videoId = yt.pathname.split('/')[1]; // Shortened URL
+    } else if (yt.hostname.includes('youtube.com')) {
+      videoId = yt.searchParams.get('v'); // Standard YouTube
+    }
+
+    if (!videoId) return null;
+
+    // Try to get custom frame from backend
+    try {
+      const apiUrl = `/api/frame?url=${encodeURIComponent(url)}&timestamp=${timestamp}`;
+      const res = await fetch(apiUrl);
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        return objectUrl;
+      } else {
+        console.warn('API fallback: failed to get frame, status:', res.status);
+      }
+    } catch (err) {
+      console.warn('API fallback: exception while fetching frame:', err);
+    }
+
+    // Fallback to default YouTube thumbnail
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  } catch (err) {
+    console.error('Error parsing YouTube URL:', err);
+    return null;
+  }
+}
+
+
     const resetForm = () => {
     reset();
     setSelectedVideo(null);
@@ -309,6 +488,8 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
+
+    console.log(file[0], 'ami image.')
     if (!file) return;
    setVideoThumbnail(null); // Reset video thumbnail if uploading image
     setImagePreview(URL.createObjectURL(file));
@@ -333,7 +514,8 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
 
       const data = await response.json();
       // Set the YouTube link field with the Cloudinary URL
-      reset({ ...watch(), youtubeLink: data.secure_url });
+      reset({ ...watch(), imageUrl: data.secure_url });
+      setStaticImage(data.secure_url)
     } catch (error) {
       console.error('Upload error:', error);
     } finally {
@@ -1262,7 +1444,7 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
       <input
         type="file"
         accept="image/*"
-        {...register("imageUrl")}
+        // {...register("imageUrl")}
         onChange={handleFileUpload} // You need to handle and preview this
         className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none w-[250px]"
       />
@@ -1285,13 +1467,13 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
           value={thumbnailTimecode}
           onChange={(e) => setThumbnailTimecode(e.target.value)}
         />
-        <button
+        {/* <button
           type="button"
           onClick={generateThumbnailFromTimecode}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
         >
           Capture
-        </button>
+        </button> */}
       </div>
 
       {/* Timecode Thumbnail Preview */}
@@ -1314,7 +1496,7 @@ localStorage.setItem('AllTags', JSON.stringify(allTags));
       <input
         {...register("youtubeLink")}
         className="flex-1 bg-gray-700 border border-gray-600 rounded-l-md py-2 px-3 focus:outline-none"
-        placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube/Vimeo link"}
+        placeholder={selectedVideo ? selectedVideo.name : "Upload a video or paste YouTube link"}
         onChange={(e) => {
           // setValue('youtubeLink', e.target.value);
           setSelectedVideo(null); // Clear selected file if pasting a link
