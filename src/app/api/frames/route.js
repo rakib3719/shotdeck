@@ -1,5 +1,3 @@
-// app/api/frames/route.js
-
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -18,13 +16,15 @@ export async function GET(request) {
     );
   }
 
-  const cleanUrl = url.split('?')[0]; // Remove ?si=... or other query strings
+  const cleanUrl = url.split('?')[0];
   const tempDir = tmp.dirSync({ unsafeCleanup: true });
   const outputImage = path.join(tempDir.name, 'frame.jpg');
 
-  // Step 1: Get direct stream URL using yt-dlp
-const ytdlCmd = `yt-dlp -f best[ext=mp4] -g "${cleanUrl}"`;
+  // Use full path for yt-dlp and ffmpeg binaries
+  const ytdlpPath = '/usr/local/bin/yt-dlp';
+  const ffmpegPath = '/usr/bin/ffmpeg';
 
+  const ytdlCmd = `${ytdlpPath} -f best[ext=mp4] -g "${cleanUrl}"`;
 
   return new Promise((resolve) => {
     exec(ytdlCmd, (err, stdout, stderr) => {
@@ -47,8 +47,7 @@ const ytdlCmd = `yt-dlp -f best[ext=mp4] -g "${cleanUrl}"`;
         );
       }
 
-      // Step 2: Extract frame using ffmpeg
-      const ffmpegCmd = `ffmpeg -ss ${timestamp} -i "${videoStreamURL}" -frames:v 1 -q:v 2 "${outputImage}" -y`;
+      const ffmpegCmd = `${ffmpegPath} -ss ${timestamp} -i "${videoStreamURL}" -frames:v 1 -q:v 2 "${outputImage}" -y`;
 
       exec(ffmpegCmd, (err, _stdout, ffmpegErr) => {
         if (err || !fs.existsSync(outputImage)) {
@@ -62,7 +61,6 @@ const ytdlCmd = `yt-dlp -f best[ext=mp4] -g "${cleanUrl}"`;
           );
         }
 
-        // Step 3: Send the JPEG response
         const imageBuffer = fs.readFileSync(outputImage);
         tempDir.removeCallback();
 

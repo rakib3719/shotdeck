@@ -5,6 +5,9 @@ RUN apt-get update && apt-get install -y ffmpeg curl \
  && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
  && chmod a+rx /usr/local/bin/yt-dlp
 
+# Add /usr/local/bin to PATH explicitly
+ENV PATH="/usr/local/bin:${PATH}"
+
 # Set working directory
 WORKDIR /app
 
@@ -12,7 +15,7 @@ WORKDIR /app
 COPY . .
 RUN npm install
 
-# Build Next.js
+# Build Next.js app
 RUN npm run build
 
 # Expose port
