@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:22
 
 # Install ffmpeg and yt-dlp
 RUN apt-get update && apt-get install -y ffmpeg curl \
@@ -12,7 +12,7 @@ WORKDIR /app
 COPY . .
 RUN npm install
 
-# Build Next.js (if using build)
+# Build Next.js
 RUN npm run build
 
 # Expose port
