@@ -4,10 +4,38 @@ import { motion } from 'framer-motion';
 import { FaHeart, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 import { GiFilmProjector } from 'react-icons/gi';
 
+
 const Donation = () => {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
+  const [email, setEmail]  = useState('')
+  const [isSending, setIsSending] = useState(false);
+  const [isSent, setIsSent] = useState(false);
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSending(true);
+
+  try {
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, message, email }),
+    });
+
+    const data = await response.json();
+    if (!data.success) throw new Error('Failed to send email');
+    
+    setIsSent(true);
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Failed to send email. Please try again later.');
+  } finally {
+    setIsSending(false);
+  }
+};
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -56,7 +84,7 @@ const Donation = () => {
             </p>
             <div className="flex flex-wrap gap-3 mt-2">
               <a 
-                href="mailto:support@shotdeck.com" 
+                href="mailto:rakib.fbinternational@gmail.com" 
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-colors text-sm sm:text-base"
               >
                 <FaEnvelope /> Email Us
@@ -108,7 +136,7 @@ const Donation = () => {
                   <h3 className="text-md sm:text-lg font-semibold mb-2 sm:mb-3">Other Ways to Support</h3>
                   <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <a
-                      href="mailto:support@shotdeck.com"
+                      href="mailto:rakib.fbinternational@gmail.com"
                       className="bg-gray-700 hover:bg-gray-600 p-2 sm:p-3 rounded-lg flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                     >
                       <FaEnvelope className="text-blue-400" /> Email
@@ -134,7 +162,7 @@ const Donation = () => {
                   <FaHeart className="text-yellow-400" /> Get in Touch
                 </h2>
                 
-                <form>
+                <form onSubmit={handleSubmit}>
                   <div className="mb-4 sm:mb-6">
                     <label className="block text-gray-300 mb-1 sm:mb-2">Your Name</label>
                     <input
@@ -156,14 +184,32 @@ const Donation = () => {
                       placeholder="Tell us how we can improve Shotdeck"
                     />
                   </div>
+                  <div className="mb-4 sm:mb-6">
+                    <label className="block text-gray-300 mb-1 sm:mb-2">Email</label>
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-gray-700 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 h-16 sm:h-20 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      placeholder="Your Email"
+                    />
+                  </div>
 
-                  <a
-                    href={`mailto:support@shotdeck.com?subject=Donation Inquiry&body=Name: ${encodeURIComponent(name)}%0D%0AMessage: ${encodeURIComponent(message)}`}
-                    className="w-full py-2 sm:py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-yellow-500 to-orange-500 text-black hover:opacity-90"
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    className="w-full py-2 sm:py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-yellow-500 to-orange-500 text-black hover:opacity-90 disabled:opacity-50"
                   >
-                    <FaEnvelope className="animate-pulse" /> 
-                    Contact Us to Donate
-                  </a>
+                    {isSending ? (
+                      'Sending...'
+                    ) : isSent ? (
+                      'Sent Successfully!'
+                    ) : (
+                      <>
+                        <FaEnvelope className="animate-pulse" /> 
+                        Contact Us to Donate
+                      </>
+                    )}
+                  </button>
                 </form>
               </motion.div>
             </div>
@@ -184,8 +230,8 @@ const Donation = () => {
                 <FaEnvelope className="text-blue-400" /> Email Us
               </h4>
               <p className="text-gray-300 mb-1 sm:mb-2 text-sm sm:text-base">For questions or donations:</p>
-              <a href="mailto:support@shotdeck.com" className="text-yellow-400 hover:underline text-sm sm:text-base">
-                support@shotdeck.com
+              <a href="mailto:rakib.fbinternational@gmail.com" className="text-yellow-400 hover:underline text-sm sm:text-base">
+                rakib.fbinternational@gmail.com
               </a>
             </div>
             <div>

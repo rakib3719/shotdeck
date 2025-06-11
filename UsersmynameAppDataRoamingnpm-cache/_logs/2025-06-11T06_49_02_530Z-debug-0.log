@@ -5,19 +5,19 @@
 4 silly config load:file:C:\project\SHOTDECK\frontend\shotdeck\.npmrc
 5 silly config load:file:C:\Users\rakib\.npmrc
 6 silly config load:file:C:\Program Files\nodejs\npm-global\etc\npmrc
-7 verbose title npm install tmp-promise
-8 verbose argv "install" "tmp-promise"
-9 verbose logfile logs-max:10 dir:C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-10T12_15_34_151Z-
-10 verbose logfile C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-10T12_15_34_151Z-debug-0.log
+7 verbose title npm i nodemailer
+8 verbose argv "i" "nodemailer"
+9 verbose logfile logs-max:10 dir:C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-11T06_49_02_530Z-
+10 verbose logfile C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-11T06_49_02_530Z-debug-0.log
 11 silly logfile start cleaning logs, removing 1 files
 12 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
 13 silly logfile done cleaning log files
 14 silly idealTree buildDeps
-15 silly fetch manifest tmp-promise@*
-16 silly packumentCache full:https://registry.npmjs.org/tmp-promise cache-miss
-17 http fetch GET 200 https://registry.npmjs.org/tmp-promise 385ms (cache miss)
-18 silly packumentCache full:https://registry.npmjs.org/tmp-promise set size:undefined disposed:false
-19 silly placeDep ROOT tmp-promise@3.0.3 OK for: shotdeck@0.1.0 want: *
+15 silly fetch manifest nodemailer@^6.10.1
+16 silly packumentCache full:https://registry.npmjs.org/nodemailer cache-miss
+17 http cache https://registry.npmjs.org/nodemailer 63ms (cache hit)
+18 silly packumentCache full:https://registry.npmjs.org/nodemailer set size:537692 disposed:false
+19 silly placeDep ROOT nodemailer@6.10.1 REPLACE for: shotdeck@0.1.0 want: ^6.10.1
 20 silly reify moves {}
 21 verbose reify failed optional dependency C:\project\SHOTDECK\frontend\shotdeck\node_modules\@tailwindcss\oxide-wasm32-wasi
 22 silly reify mark deleted [
@@ -263,6 +263,7 @@
 23 silly audit   'css-to-react-native': [ '3.2.0' ],
 23 silly audit   csstype: [ '3.1.3' ],
 23 silly audit   'damerau-levenshtein': [ '1.0.8' ],
+23 silly audit   dargs: [ '7.0.0' ],
 23 silly audit   'data-view-buffer': [ '1.0.2' ],
 23 silly audit   'data-view-byte-length': [ '1.0.2' ],
 23 silly audit   'data-view-byte-offset': [ '1.0.1' ],
@@ -309,6 +310,7 @@
 23 silly audit   esrecurse: [ '4.3.0' ],
 23 silly audit   estraverse: [ '5.3.0' ],
 23 silly audit   esutils: [ '2.0.3' ],
+23 silly audit   execa: [ '5.1.1' ],
 23 silly audit   'fast-deep-equal': [ '3.1.3' ],
 23 silly audit   'fast-json-stable-stringify': [ '2.1.0' ],
 23 silly audit   'fast-levenshtein': [ '2.0.6' ],
@@ -332,6 +334,7 @@
 23 silly audit   'functions-have-names': [ '1.2.3' ],
 23 silly audit   'get-intrinsic': [ '1.3.0' ],
 23 silly audit   'get-proto': [ '1.0.1' ],
+23 silly audit   'get-stream': [ '6.0.1' ],
 23 silly audit   'get-symbol-description': [ '1.1.0' ],
 23 silly audit   'get-tsconfig': [ '4.10.0' ],
 23 silly audit   globalthis: [ '1.0.4' ],
@@ -349,6 +352,7 @@
 23 silly audit   'hoist-non-react-statics': [ '3.3.2' ],
 23 silly audit   'http-response-object': [ '3.0.2' ],
 23 silly audit   'https-proxy-agent': [ '5.0.1' ],
+23 silly audit   'human-signals': [ '2.1.0' ],
 23 silly audit   immer: [ '10.1.1' ],
 23 silly audit   'import-fresh': [ '3.3.1' ],
 23 silly audit   imurmurhash: [ '0.1.4' ],
@@ -373,9 +377,11 @@
 23 silly audit   'is-regex': [ '1.2.1' ],
 23 silly audit   'is-set': [ '2.0.3' ],
 23 silly audit   'is-shared-array-buffer': [ '1.0.4' ],
+23 silly audit   'is-stream': [ '2.0.1' ],
 23 silly audit   'is-string': [ '1.1.1' ],
 23 silly audit   'is-symbol': [ '1.1.1' ],
 23 silly audit   'is-typed-array': [ '1.1.15' ],
+23 silly audit   'is-unix': [ '2.0.10' ],
 23 silly audit   'is-weakmap': [ '2.0.2' ],
 23 silly audit   'is-weakref': [ '1.1.1' ],
 23 silly audit   'is-weakset': [ '2.0.4' ],
@@ -418,14 +424,16 @@
 23 silly audit   yallist: [ '4.0.0', '5.0.0' ],
 23 silly audit   'magic-string': [ '0.30.17' ],
 23 silly audit   'math-intrinsics': [ '1.1.0' ],
+23 silly audit   'merge-stream': [ '2.0.0' ],
 23 silly audit   merge2: [ '1.4.1' ],
 23 silly audit   micromatch: [ '4.0.8' ],
 23 silly audit   'mime-db': [ '1.52.0' ],
 23 silly audit   'mime-types': [ '2.1.35' ],
+23 silly audit   'mimic-fn': [ '2.1.0' ],
 23 silly audit   minimist: [ '1.2.8' ],
 23 silly audit   minipass: [ '7.1.2' ],
 23 silly audit   minizlib: [ '3.0.2' ],
-23 silly audit   mkdirp: [ '3.0.1' ],
+23 silly audit   mkdirp: [ '3.0.1', '1.0.4' ],
 23 silly audit   'motion-dom': [ '12.12.1' ],
 23 silly audit   'motion-utils': [ '12.12.1' ],
 23 silly audit   ms: [ '2.1.3' ],
@@ -435,8 +443,10 @@
 23 silly audit   next: [ '15.3.2' ],
 23 silly audit   'next-auth': [ '4.24.11' ],
 23 silly audit   postcss: [ '8.4.31', '8.5.4', '8.4.49' ],
+23 silly audit   'node-fetch': [ '2.6.13' ],
 23 silly audit   'node-releases': [ '2.0.19' ],
 23 silly audit   'normalize-range': [ '0.1.2' ],
+23 silly audit   'npm-run-path': [ '4.0.1' ],
 23 silly audit   oauth: [ '0.9.15' ],
 23 silly audit   'object-assign': [ '4.1.1' ],
 23 silly audit   'object-hash': [ '2.2.0' ],
@@ -448,6 +458,7 @@
 23 silly audit   'object.groupby': [ '1.0.3' ],
 23 silly audit   'object.values': [ '1.2.1' ],
 23 silly audit   'oidc-token-hash': [ '5.1.0' ],
+23 silly audit   onetime: [ '5.1.2' ],
 23 silly audit   'openid-client': [ '5.7.1' ],
 23 silly audit   optionator: [ '0.9.4' ],
 23 silly audit   'otp-timer': [ '2.1.1' ],
@@ -508,6 +519,7 @@
 23 silly audit   'side-channel-list': [ '1.0.0' ],
 23 silly audit   'side-channel-map': [ '1.0.1' ],
 23 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+23 silly audit   'signal-exit': [ '3.0.7' ],
 23 silly audit   'simple-swizzle': [ '0.2.2' ],
 23 silly audit   'source-map': [ '0.5.7' ],
 23 silly audit   'source-map-js': [ '1.2.1' ],
@@ -521,6 +533,7 @@
 23 silly audit   'string.prototype.trimend': [ '1.0.9' ],
 23 silly audit   'string.prototype.trimstart': [ '1.0.8' ],
 23 silly audit   'strip-bom': [ '3.0.0' ],
+23 silly audit   'strip-final-newline': [ '2.0.0' ],
 23 silly audit   'strip-json-comments': [ '3.1.1' ],
 23 silly audit   stripe: [ '18.2.1' ],
 23 silly audit   'styled-components': [ '6.1.18' ],
@@ -536,7 +549,9 @@
 23 silly audit   tinyglobby: [ '0.2.13' ],
 23 silly audit   fdir: [ '6.4.4' ],
 23 silly audit   tmp: [ '0.2.3' ],
+23 silly audit   'tmp-promise': [ '3.0.3' ],
 23 silly audit   'to-regex-range': [ '5.0.1' ],
+23 silly audit   tr46: [ '0.0.3' ],
 23 silly audit   'ts-api-utils': [ '2.1.0' ],
 23 silly audit   'tsconfig-paths': [ '3.15.0' ],
 23 silly audit   'type-check': [ '0.4.0' ],
@@ -554,6 +569,8 @@
 23 silly audit   'use-sync-external-store': [ '1.5.0' ],
 23 silly audit   'util-deprecate': [ '1.0.2' ],
 23 silly audit   uuid: [ '8.3.2' ],
+23 silly audit   'webidl-conversions': [ '3.0.1' ],
+23 silly audit   'whatwg-url': [ '5.0.0' ],
 23 silly audit   'which-boxed-primitive': [ '1.1.1' ],
 23 silly audit   'which-builtin-type': [ '1.2.1' ],
 23 silly audit   'which-collection': [ '1.0.2' ],
@@ -561,8 +578,9 @@
 23 silly audit   'word-wrap': [ '1.2.5' ],
 23 silly audit   yaml: [ '1.10.2' ],
 23 silly audit   'yocto-queue': [ '0.1.0' ],
+23 silly audit   'yt-dlp-exec': [ '1.0.2' ],
 23 silly audit   'yt-dlp-wrap': [ '2.3.12' ],
-23 silly audit   'tmp-promise': [ '3.0.3' ],
+23 silly audit   nodemailer: [ '6.10.1' ],
 23 silly audit   '@tailwindcss/oxide-wasm32-wasi': [ '4.1.7' ]
 23 silly audit }
 24 verbose reify failed optional dependency C:\project\SHOTDECK\frontend\shotdeck\node_modules\lightningcss-win32-arm64-msvc
@@ -865,47 +883,58 @@
 173 silly reify mark deleted [
 173 silly reify   'C:\\project\\SHOTDECK\\frontend\\shotdeck\\node_modules\\@ffmpeg-installer\\darwin-arm64'
 173 silly reify ]
-174 http cache tmp-promise@https://registry.npmjs.org/tmp-promise/-/tmp-promise-3.0.3.tgz 0ms (cache hit)
-175 silly tarball no local data for tmp-promise@https://registry.npmjs.org/tmp-promise/-/tmp-promise-3.0.3.tgz. Extracting by manifest.
-176 http fetch GET 200 https://registry.npmjs.org/tmp-promise/-/tmp-promise-3.0.3.tgz 66ms (cache miss)
-177 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 313ms
-178 silly audit report {
-178 silly audit report   sweetalert2: [
-178 silly audit report     {
-178 silly audit report       id: 1094698,
-178 silly audit report       url: 'https://github.com/advisories/GHSA-mrr8-v49w-3333',
-178 silly audit report       title: 'sweetalert2 v11.6.14 and above contains potentially undesirable behavior',
-178 silly audit report       severity: 'low',
-178 silly audit report       vulnerable_versions: '>=11.6.14',
-178 silly audit report       cwe: [Array],
-178 silly audit report       cvss: [Object]
-178 silly audit report     }
-178 silly audit report   ]
-178 silly audit report }
-179 silly packumentCache corgi:https://registry.npmjs.org/sweetalert2 cache-miss
-180 http fetch GET 200 https://registry.npmjs.org/sweetalert2 224ms (cache revalidated)
+174 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 604ms
+175 silly audit report {
+175 silly audit report   'brace-expansion': [
+175 silly audit report     {
+175 silly audit report       id: 1105422,
+175 silly audit report       url: 'https://github.com/advisories/GHSA-v6h2-p8h4-qcjw',
+175 silly audit report       title: 'brace-expansion Regular Expression Denial of Service vulnerability',
+175 silly audit report       severity: 'low',
+175 silly audit report       vulnerable_versions: '>=2.0.1 <=4.0.0',
+175 silly audit report       cwe: [Array],
+175 silly audit report       cvss: [Object]
+175 silly audit report     }
+175 silly audit report   ],
+175 silly audit report   sweetalert2: [
+175 silly audit report     {
+175 silly audit report       id: 1094698,
+175 silly audit report       url: 'https://github.com/advisories/GHSA-mrr8-v49w-3333',
+175 silly audit report       title: 'sweetalert2 v11.6.14 and above contains potentially undesirable behavior',
+175 silly audit report       severity: 'low',
+175 silly audit report       vulnerable_versions: '>=11.6.14',
+175 silly audit report       cwe: [Array],
+175 silly audit report       cvss: [Object]
+175 silly audit report     }
+175 silly audit report   ]
+175 silly audit report }
+176 silly packumentCache corgi:https://registry.npmjs.org/brace-expansion cache-miss
+177 silly packumentCache corgi:https://registry.npmjs.org/sweetalert2 cache-miss
+178 http cache https://registry.npmjs.org/brace-expansion 6ms (cache hit)
+179 silly packumentCache corgi:https://registry.npmjs.org/brace-expansion set size:13552 disposed:false
+180 http cache https://registry.npmjs.org/sweetalert2 9ms (cache hit)
 181 silly packumentCache corgi:https://registry.npmjs.org/sweetalert2 set size:1477287 disposed:false
-182 silly ADD node_modules/tmp-promise
-183 silly ADD
-184 silly ADD
-185 silly ADD
-186 silly ADD
-187 silly ADD
-188 silly ADD
-189 silly ADD
-190 silly ADD
-191 silly ADD
-192 silly ADD
-193 silly ADD
-194 silly ADD
-195 silly ADD
-196 silly ADD
-197 silly ADD
-198 silly ADD
-199 silly ADD
-200 silly ADD
-201 silly ADD
-202 silly ADD
+182 silly packumentCache corgi:https://registry.npmjs.org/minimatch cache-miss
+183 http cache https://registry.npmjs.org/minimatch 4ms (cache hit)
+184 silly packumentCache corgi:https://registry.npmjs.org/minimatch set size:142111 disposed:false
+185 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2ftypescript-estree cache-miss
+186 http cache https://registry.npmjs.org/@typescript-eslint%2ftypescript-estree 18ms (cache hit)
+187 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2ftypescript-estree set size:8039437 disposed:false
+188 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2fparser cache-miss
+189 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2ftype-utils cache-miss
+190 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2futils cache-miss
+191 http cache https://registry.npmjs.org/@typescript-eslint%2futils 15ms (cache hit)
+192 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2futils set size:4115837 disposed:false
+193 http cache https://registry.npmjs.org/@typescript-eslint%2ftype-utils 54ms (cache hit)
+194 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2ftype-utils set size:4083624 disposed:false
+195 http cache https://registry.npmjs.org/@typescript-eslint%2fparser 87ms (cache hit)
+196 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2fparser set size:7478702 disposed:false
+197 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2feslint-plugin cache-miss
+198 http cache https://registry.npmjs.org/@typescript-eslint%2feslint-plugin 31ms (cache hit)
+199 silly packumentCache corgi:https://registry.npmjs.org/@typescript-eslint%2feslint-plugin set size:8743543 disposed:false
+200 silly packumentCache corgi:https://registry.npmjs.org/eslint-config-next cache-miss
+201 http cache https://registry.npmjs.org/eslint-config-next 38ms (cache hit)
+202 silly packumentCache corgi:https://registry.npmjs.org/eslint-config-next set size:3098806 disposed:false
 203 silly ADD
 204 silly ADD
 205 silly ADD
@@ -962,9 +991,29 @@
 256 silly ADD
 257 silly ADD
 258 silly ADD
-259 verbose cwd C:\project\SHOTDECK\frontend\shotdeck
-260 verbose os Windows_NT 10.0.26100
-261 verbose node v22.15.1
-262 verbose npm  v10.9.2
-263 verbose exit 0
-264 info ok
+259 silly ADD
+260 silly ADD
+261 silly ADD
+262 silly ADD
+263 silly ADD
+264 silly ADD
+265 silly ADD
+266 silly ADD
+267 silly ADD
+268 silly ADD
+269 silly ADD
+270 silly ADD
+271 silly ADD
+272 silly ADD
+273 silly ADD
+274 silly ADD
+275 silly ADD
+276 silly ADD
+277 silly ADD
+278 silly ADD
+279 verbose cwd C:\project\SHOTDECK\frontend\shotdeck
+280 verbose os Windows_NT 10.0.26100
+281 verbose node v22.15.1
+282 verbose npm  v10.9.2
+283 verbose exit 0
+284 info ok
