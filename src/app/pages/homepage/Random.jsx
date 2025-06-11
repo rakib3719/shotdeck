@@ -792,7 +792,7 @@ function Random() {
           </motion.div>
         )}
       </AnimatePresence>
-
+d==
       {/* Hide Scrollbar */}
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {
@@ -806,6 +806,7 @@ function Random() {
     </div>
   );
 }
+
 
 // Helper component for detail items
 function DetailItem({ label, value }) {
@@ -824,3 +825,4 @@ export default function RandomWithSuspense() {
     </Suspense>
   );
 }
+
