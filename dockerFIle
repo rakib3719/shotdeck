@@ -1,0 +1,22 @@
+FROM node:20
+
+# Install ffmpeg and yt-dlp
+RUN apt-get update && apt-get install -y ffmpeg curl \
+ && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
+ && chmod a+rx /usr/local/bin/yt-dlp
+
+# Set working directory
+WORKDIR /app
+
+# Copy files and install dependencies
+COPY . .
+RUN npm install
+
+# Build Next.js (if using build)
+RUN npm run build
+
+# Expose port
+EXPOSE 3000
+
+# Start the app
+CMD ["npm", "start"]
