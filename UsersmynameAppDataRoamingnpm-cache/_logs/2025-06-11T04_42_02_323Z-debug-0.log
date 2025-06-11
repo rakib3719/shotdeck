@@ -1,0 +1,113 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.9.2
+2 info using node@v22.15.1
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\project\SHOTDECK\frontend\shotdeck\node_modules\yt-dlp-exec\.npmrc
+5 silly config load:file:C:\Users\rakib\.npmrc
+6 silly config load:file:C:\Program Files\nodejs\npm-global\etc\npmrc
+7 verbose title npm exec bin-version-check-cli python >=2
+8 verbose argv "exec" "--" "bin-version-check-cli" "python" ">=2"
+9 verbose logfile logs-max:10 dir:C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-11T04_42_02_323Z-
+10 verbose logfile C:\project\SHOTDECK\frontend\shotdeck\UsersmynameAppDataRoamingnpm-cache\_logs\2025-06-11T04_42_02_323Z-debug-0.log
+11 silly logfile start cleaning logs, removing 1 files
+12 silly logfile done cleaning log files
+13 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+14 http fetch GET 200 https://registry.npmjs.org/bin-version-check-cli 1077ms (cache miss)
+15 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+16 verbose Could not read global path C:\Program Files\nodejs\npm-global, ignoring
+17 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+18 verbose shrinkwrap failed to load node_modules/.package-lock.json out of date, updated: node_modules
+19 warn exec The following package was not found and will be installed: bin-version-check-cli@3.0.0
+20 silly idealTree buildDeps
+21 silly fetch manifest bin-version-check-cli@3.0.0
+22 silly packumentCache full:https://registry.npmjs.org/bin-version-check-cli cache-miss
+23 http fetch GET 200 https://registry.npmjs.org/bin-version-check-cli 1009ms (cache revalidated)
+24 silly packumentCache full:https://registry.npmjs.org/bin-version-check-cli set size:11049 disposed:false
+25 silly placeDep ROOT bin-version-check-cli@3.0.0 REPLACE for:  want: 3.0.0
+26 silly reify moves {}
+27 silly audit bulk request {
+27 silly audit   '@babel/code-frame': [ '7.27.1' ],
+27 silly audit   '@babel/helper-validator-identifier': [ '7.27.1' ],
+27 silly audit   '@types/minimist': [ '1.2.5' ],
+27 silly audit   '@types/normalize-package-data': [ '2.4.4' ],
+27 silly audit   arrify: [ '3.0.0', '1.0.1' ],
+27 silly audit   'bin-version': [ '6.0.0' ],
+27 silly audit   'bin-version-check': [ '5.1.0' ],
+27 silly audit   camelcase: [ '5.3.1' ],
+27 silly audit   'camelcase-keys': [ '6.2.2' ],
+27 silly audit   'cross-spawn': [ '7.0.6' ],
+27 silly audit   decamelize: [ '1.2.0' ],
+27 silly audit   'decamelize-keys': [ '1.1.1' ],
+27 silly audit   'map-obj': [ '1.0.1', '4.3.0' ],
+27 silly audit   'error-ex': [ '1.3.2' ],
+27 silly audit   execa: [ '5.1.1' ],
+27 silly audit   'find-up': [ '4.1.0' ],
+27 silly audit   'find-versions': [ '5.1.0' ],
+27 silly audit   'function-bind': [ '1.1.2' ],
+27 silly audit   'get-stream': [ '6.0.1' ],
+27 silly audit   'hard-rejection': [ '2.1.0' ],
+27 silly audit   hasown: [ '2.0.2' ],
+27 silly audit   'hosted-git-info': [ '4.1.0', '2.8.9' ],
+27 silly audit   'human-signals': [ '2.1.0' ],
+27 silly audit   'indent-string': [ '4.0.0' ],
+27 silly audit   'is-arrayish': [ '0.2.1' ],
+27 silly audit   'is-core-module': [ '2.16.1' ],
+27 silly audit   'is-plain-obj': [ '1.1.0' ],
+27 silly audit   'is-stream': [ '2.0.1' ],
+27 silly audit   isexe: [ '2.0.0' ],
+27 silly audit   'js-tokens': [ '4.0.0' ],
+27 silly audit   'json-parse-even-better-errors': [ '2.3.1' ],
+27 silly audit   'kind-of': [ '6.0.3' ],
+27 silly audit   'lines-and-columns': [ '1.2.4' ],
+27 silly audit   'locate-path': [ '5.0.0' ],
+27 silly audit   'lru-cache': [ '6.0.0' ],
+27 silly audit   meow: [ '9.0.0' ],
+27 silly audit   'merge-stream': [ '2.0.0' ],
+27 silly audit   'mimic-fn': [ '2.1.0' ],
+27 silly audit   'min-indent': [ '1.0.1' ],
+27 silly audit   'minimist-options': [ '4.1.0' ],
+27 silly audit   'normalize-package-data': [ '3.0.3', '2.5.0' ],
+27 silly audit   'npm-run-path': [ '4.0.1' ],
+27 silly audit   onetime: [ '5.1.2' ],
+27 silly audit   'p-limit': [ '2.3.0' ],
+27 silly audit   'p-locate': [ '4.1.0' ],
+27 silly audit   'p-try': [ '2.2.0' ],
+27 silly audit   'parse-json': [ '5.2.0' ],
+27 silly audit   'path-exists': [ '4.0.0' ],
+27 silly audit   'path-key': [ '3.1.1' ],
+27 silly audit   'path-parse': [ '1.0.7' ],
+27 silly audit   picocolors: [ '1.1.1' ],
+27 silly audit   'quick-lru': [ '4.0.1' ],
+27 silly audit   'read-pkg': [ '5.2.0' ],
+27 silly audit   'read-pkg-up': [ '7.0.1' ],
+27 silly audit   'type-fest': [ '0.8.1', '0.6.0', '0.18.1' ],
+27 silly audit   semver: [ '5.7.2', '7.7.2' ],
+27 silly audit   redent: [ '3.0.0' ],
+27 silly audit   resolve: [ '1.22.10' ],
+27 silly audit   'semver-regex': [ '4.0.5' ],
+27 silly audit   'semver-truncate': [ '3.0.0' ],
+27 silly audit   'shebang-command': [ '2.0.0' ],
+27 silly audit   'shebang-regex': [ '3.0.0' ],
+27 silly audit   'signal-exit': [ '3.0.7' ],
+27 silly audit   'spdx-correct': [ '3.2.0' ],
+27 silly audit   'spdx-exceptions': [ '2.5.0' ],
+27 silly audit   'spdx-expression-parse': [ '3.0.1' ],
+27 silly audit   'spdx-license-ids': [ '3.0.21' ],
+27 silly audit   'strip-final-newline': [ '2.0.0' ],
+27 silly audit   'strip-indent': [ '3.0.0' ],
+27 silly audit   'supports-preserve-symlinks-flag': [ '1.0.0' ],
+27 silly audit   'trim-newlines': [ '3.0.1' ],
+27 silly audit   'validate-npm-package-license': [ '3.0.4' ],
+27 silly audit   which: [ '2.0.2' ],
+27 silly audit   yallist: [ '4.0.0' ],
+27 silly audit   'yargs-parser': [ '20.2.9' ],
+27 silly audit   'bin-version-check-cli': [ '3.0.0' ]
+27 silly audit }
+28 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 322ms
+29 silly audit report {}
+30 verbose cwd C:\project\SHOTDECK\frontend\shotdeck\node_modules\yt-dlp-exec
+31 verbose os Windows_NT 10.0.26100
+32 verbose node v22.15.1
+33 verbose npm  v10.9.2
+34 verbose exit 0
+35 info ok
