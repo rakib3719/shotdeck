@@ -1,5 +1,3 @@
-// app/api/frames/route.js
-
 import { exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -15,11 +13,10 @@ export async function GET(request) {
     return NextResponse.json({ error: 'url and timestamp are required' }, { status: 400 });
   }
 
-  const cleanUrl = url.split('?')[0]; // Remove ?si=...
+  const cleanUrl = url.split('?')[0];
   const tempDir = tmp.dirSync({ unsafeCleanup: true });
   const outputImage = path.join(tempDir.name, 'thumb.jpg');
 
-  // Use yt-dlp instead of youtube-dl here
   const ytdlCmd = `yt-dlp -f worst -g "${cleanUrl}"`;
 
   return new Promise((resolve) => {
@@ -55,4 +52,3 @@ export async function GET(request) {
     });
   });
 }
-
