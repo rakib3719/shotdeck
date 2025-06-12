@@ -35,6 +35,17 @@ export default function MyCollection() {
     }
   }, [pathname]);
 
+  // Debug API response
+  useEffect(() => {
+    if (data?.data) {
+      console.log('API Response:', data.data);
+      console.log('Total Shots:', data.data.length);
+      const uniqueCollections = [...new Set(data.data.map(item => item.collectionName || 'Uncategorized'))];
+      console.log('Unique Collections:', uniqueCollections);
+      console.log('Total Unique Collections:', uniqueCollections.length);
+    }
+  }, [data]);
+
   // Helper functions for video thumbnails
   function getYouTubeThumbnail(url) {
     try {
@@ -214,7 +225,12 @@ export default function MyCollection() {
   }, {});
 
   // Create an array of collection names including "All"
-  const collectionNames = ['All', ...Object.keys(collections || {}).sort()];
+  const collectionNames = ['All', ...new Set(Object.keys(collections || {}).sort((a, b) => {
+    // Sort alphabetically but keep "Uncategorized" at the end if it exists
+    if (a === 'Uncategorized') return 1;
+    if (b === 'Uncategorized') return -1;
+    return a.localeCompare(b);
+  }))];
 
   // Filter shots based on selected collection
   const finalData = isDetails
@@ -237,14 +253,11 @@ export default function MyCollection() {
 
   return (
     <div className="px-4 md:px-8 py-16 bg-gradient-to-b from-gray-900 to-black min-h-screen">
-      <Image src={'/api/frames?url=https://youtu.be/_Nd2i4OpbdU&timestamp=00:00:50'} width={400} height={400} alt='astase wait'/>
-      <h1 className="text-3xl font-bold text-white mb-8 text-center" data-aos="fade-up">My Cinematic Collection</h1>
-
       {/* Collection Tabs */}
       <div className="flex flex-wrap justify-center gap-4 mb-8" data-aos="fade-up" data-aos-delay="100">
-        {collectionNames.map((name) => (
+        {collectionNames.map((name, index) => (
           <motion.button
-            key={name}
+            key={`${name}-${index}`}
             onClick={() => setSelectedCollection(name)}
             className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
               selectedCollection === name
