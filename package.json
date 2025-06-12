@@ -42,7 +42,6 @@
     "swiper": "^11.2.8",
     "tmp": "^0.2.3",
     "tmp-promise": "^3.0.3",
-    "yt-dlp-exec": "^1.0.2",
     "yt-dlp-wrap": "^2.3.12"
   },
   "devDependencies": {
