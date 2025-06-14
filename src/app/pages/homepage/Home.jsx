@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <div>
      <Cover/>
-     <Treanding/>
+     {/* <Treanding/> */}
      <TrendingShots/>
      <About/>
      <FAQ/>
