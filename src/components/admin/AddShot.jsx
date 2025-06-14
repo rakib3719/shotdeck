@@ -546,7 +546,7 @@ async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
   return (
     <div  className="min-h-screen mt-16 text-gray-100 md:p-6">
       <div className="w-full mx-auto">
-        <div className="flex items-center mb-8">
+        <div className="flex px-4 items-center mb-8">
           <GiClapperboard className="text-2xl mr-2 text-blue-400" />
           <h1 className="text-2xl font-bold">Add New Shot</h1>
         </div>
@@ -559,7 +559,7 @@ async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
         //     e.preventDefault();
         //   }
         // }}
-        onSubmit={handleSubmit(onSubmit)} className="bg-gray-800 rounded-lg shadow-xl p-2 md:p-6">
+        onSubmit={handleSubmit(onSubmit)} className="bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
           {/* Basic Information Section */}
         
           {/* Media Section */}
@@ -1571,7 +1571,7 @@ async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
   <label className="block text-sm font-medium mb-2 text-white">Interest Point</label>
 
   {/* Input Row */}
-  <div className="flex items-center gap-2 mb-3">
+  <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-3">
     <input
       type="text"
       className="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
@@ -1581,7 +1581,7 @@ async function getYouTubeThumbnail(url, timestamp = '00:00:10') {
     />
     <input
       type="text"
-      className="w-32 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
+      className="sm:w-32 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
       placeholder="Choose Timecode"
       value={currentTime}
       onChange={(e) => setCurrentTime(e.target.value)}

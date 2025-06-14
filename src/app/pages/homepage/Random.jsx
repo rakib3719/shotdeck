@@ -1,3 +1,4 @@
+
 'use client';
 import { useGetMyShotQuery, useGetShotCountQuery, useGetShotsQuery } from '@/redux/api/shot';
 import { useSecureAxios } from '@/utils/Axios';
@@ -32,7 +33,6 @@ function Random() {
   const Userid = user?.data?.user?.id;
   const swiperRef = useRef(null);
   const videoRefs = useRef({});
-  const youtubeIframeAPIRef = useRef(null);
 
   const { refetch } = useGetMyShotQuery(Userid);
 
@@ -45,64 +45,366 @@ function Random() {
     { label: 'Alphabetically by Title', value: 'alphabetical' },
   ];
 
-  // Load YouTube IFrame API
-  useEffect(() => {
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  // Video Player Component
+  const VideoPlayer = ({ shot }) => {
+    const videoRef = useRef(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
-    window.onYouTubeIframeAPIReady = () => {
-      youtubeIframeAPIRef.current = true;
+    useEffect(() => {
+      videoRefs.current[shot._id] = {
+        element: videoRef.current,
+        isPlaying: false,
+      };
+
+      const handlePlay = () => {
+        setIsPlaying(true);
+        setPlayingVideoId(shot._id);
+      };
+
+      const handlePause = () => {
+        setIsPlaying(false);
+        if (playingVideoId === shot._id) {
+          setPlayingVideoId(null);
+        }
+      };
+
+      const videoElement = videoRef.current;
+      if (videoElement && shot.youtubeLink.includes('cloudinary.com')) {
+        videoElement.addEventListener('play', handlePlay);
+        videoElement.addEventListener('pause', handlePause);
+      }
+
+      return () => {
+        if (videoElement && shot.youtubeLink.includes('cloudinary.com')) {
+          videoElement.removeEventListener('play', handlePlay);
+          videoElement.removeEventListener('pause', handlePause);
+        }
+        delete videoRefs.current[shot._id];
+      };
+    }, [shot._id, shot.youtubeLink]);
+
+    const getVideoThumbnail = (url, timecode = '0:00') => {
+      try {
+        const seconds = convertTimecodeToSeconds(timecode);
+        const videoUrl = new URL(url);
+
+        if (videoUrl.hostname.includes('cloudinary.com') && url.includes('/video/')) {
+          const cloudinaryUrl = new URL(url);
+          const pathParts = cloudinaryUrl.pathname.split('/');
+          const uploadIndex = pathParts.findIndex((part) => part === 'upload');
+          if (uploadIndex !== -1) {
+            pathParts.splice(uploadIndex + 1, 0, `c_thumb,w_400,h_400,g_auto,so_${seconds}`);
+            const fileNameParts = pathParts[pathParts.length - 1].split('.');
+            if (fileNameParts.length > 1) {
+              fileNameParts[fileNameParts.length - 1] = 'jpg';
+              pathParts[pathParts.length - 1] = fileNameParts.join('.');
+            }
+            return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
+          }
+        } else if (videoUrl.hostname.includes('youtube.com') || videoUrl.hostname.includes('youtu.be')) {
+          const yt = new URL(url);
+          let videoId;
+          if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
+            videoId = yt.pathname.split('/')[2];
+          } else if (yt.hostname.includes('youtu.be')) {
+            videoId = yt.pathname.split('/')[1];
+          } else if (yt.hostname.includes('youtube.com')) {
+            videoId = yt.searchParams.get('v');
+          }
+          return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+        } else if (videoUrl.hostname.includes('vimeo.com')) {
+          const videoId = videoUrl.pathname.split('/').pop();
+          return videoId ? `https://vumbnail.com/${videoId}.jpg` : null;
+        }
+        return null;
+      } catch (err) {
+        console.error('Error generating thumbnail:', err);
+        return null;
+      }
     };
 
-    return () => {
-      window.onYouTubeIframeAPIReady = null;
+    const convertTimecodeToSeconds = (timecode) => {
+      const parts = timecode.split(':').reverse();
+      return parts.reduce((total, part, index) => {
+        return total + (parseInt(part) || 0) * Math.pow(60, index);
+      }, 0);
     };
-  }, []);
 
-  function handleTimecodeClick(timeString, videoUrl, shotId) {
+    const getYouTubeEmbedUrl = (url) => {
+      try {
+        const yt = new URL(url);
+        if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
+          const videoId = yt.pathname.split('/')[2];
+          return `https://www.youtube.com/embed/${videoId}`;
+        } else if (yt.hostname.includes('youtu.be')) {
+          return `https://www.youtube.com/embed/${yt.pathname.split('/')[1]}`;
+        } else if (yt.hostname.includes('youtube.com')) {
+          return `https://www.youtube.com/embed/${yt.searchParams.get('v')}`;
+        }
+      } catch (err) {
+        console.error('Error parsing YouTube URL:', err);
+        return null;
+      }
+      return null;
+    };
+
+    const getVimeoEmbedUrl = (url) => {
+      try {
+        const vimeo = new URL(url);
+        if (vimeo.hostname.includes('vimeo.com')) {
+          const videoId = vimeo.pathname.split('/').filter(segment => segment)[0];
+          if (videoId) {
+            return `https://player.vimeo.com/video/${videoId}`;
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing Vimeo URL:', err);
+      }
+      return null;
+    };
+
+    const getCloudinaryVideoUrl = (url) => {
+      try {
+        const cloudinaryUrl = new URL(url);
+        if (cloudinaryUrl.hostname.includes('cloudinary.com') && url.includes('/video/')) {
+          const pathParts = cloudinaryUrl.pathname.split('/');
+          const fileName = pathParts[pathParts.length - 1];
+          if (fileName.endsWith('.mp4') || fileName.endsWith('.webm')) {
+            return url;
+          }
+          // Append .mp4 if no valid extension
+          pathParts[pathParts.length - 1] = fileName.split('.')[0] + '.mp4';
+          return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
+        }
+      } catch (err) {
+        console.error('Error parsing Cloudinary URL:', err);
+      }
+      return null;
+    };
+
+    return (
+      <div className="relative w-full h-full">
+        {shot.youtubeLink.includes('youtu') ? (
+          <iframe
+            ref={videoRef}
+            width="100%"
+            height="100%"
+            src={`${getYouTubeEmbedUrl(shot.youtubeLink)}${isPlaying ? '?autoplay=1' : ''}`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          ></iframe>
+        ) : shot.youtubeLink.includes('vimeo.com') ? (
+          <div className="relative pb-[56.25%] h-0 overflow-hidden">
+            <iframe
+              ref={videoRef}
+              src={`${getVimeoEmbedUrl(shot.youtubeLink)}${isPlaying ? '?autoplay=1' : ''}`}
+              className="absolute top-0 left-0 w-full h-full"
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        ) : shot.youtubeLink.includes('cloudinary.com') ? (
+          <video
+            ref={videoRef}
+            width="100%"
+            height="100%"
+            controls
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-contain bg-black"
+            poster={shot.imageUrl || getVideoThumbnail(shot.youtubeLink, shot.thumbnailTimecode?.[0] || '0:00')}
+          >
+            <source src={getCloudinaryVideoUrl(shot.youtubeLink)} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-800">
+            <span className="text-white">Invalid video URL</span>
+          </div>
+        )}
+
+        {!isPlaying && (
+          <div
+            className="absolute inset-0 flex items-center justify-center cursor-pointer"
+            onClick={() => {
+              if (videoRef.current) {
+                if (shot.youtubeLink.includes('youtu') || shot.youtubeLink.includes('vimeo.com')) {
+                  setIsPlaying(true);
+                  setPlayingVideoId(shot._id);
+                } else if (shot.youtubeLink.includes('cloudinary.com')) {
+                  videoRef.current.play().catch((err) => {
+                    console.error('Play failed, trying muted:', err);
+                    videoRef.current.muted = true;
+                    videoRef.current.play().catch((e) => console.error('Muted play failed:', e));
+                  });
+                }
+              }
+            }}
+          >
+            <div className="w-16 h-16 bg-black bg-opacity-60 rounded-full flex items-center justify-center hover:bg-opacity-80 transition-all">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+              </svg>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Toggle video play
+  const toggleVideoPlay = (shotId, videoUrl) => {
+    const videoElement = videoRefs.current[shotId]?.element;
+
+    if (!videoElement) return;
+
+    if (playingVideoId === shotId) {
+      if (videoUrl.includes('cloudinary.com')) {
+        videoElement.pause();
+      }
+      setPlayingVideoId(null);
+      videoRefs.current[shotId].isPlaying = false;
+    } else {
+      if (playingVideoId) {
+        const currentVideo = videoRefs.current[playingVideoId]?.element;
+        if (currentVideo && videoRefs.current[playingVideoId]?.isPlaying) {
+          if (videoRefs.current[playingVideoId]?.element.src.includes('cloudinary.com')) {
+            currentVideo.pause();
+          }
+          videoRefs.current[playingVideoId].isPlaying = false;
+        }
+      }
+
+      if (videoUrl.includes('youtu') || videoUrl.includes('vimeo.com')) {
+        setPlayingVideoId(shotId);
+        videoRefs.current[shotId].isPlaying = true;
+      } else if (videoUrl.includes('cloudinary.com')) {
+        videoElement.play().catch((err) => {
+          console.error('Video play error:', err);
+          videoElement.muted = true;
+          videoElement.play().catch((e) => console.error('Muted play failed:', e));
+        });
+        setPlayingVideoId(shotId);
+        videoRefs.current[shotId].isPlaying = true;
+      }
+      handleClick(shotId);
+    }
+  };
+
+  // Handle timecode clicks
+  const handleTimecodeClick = (timeString, videoUrl, shotId) => {
     const timeParts = timeString.split(':');
     const seconds = (+timeParts[0]) * 60 + (+timeParts[1]);
-    
-    const videoPlayer = videoRefs.current[shotId];
-    if (!videoPlayer) return;
+    const videoElement = videoRefs.current[shotId]?.element;
+
+    if (!videoElement) return;
 
     if (videoUrl.includes('youtu')) {
-      // For YouTube videos
-      if (videoPlayer.player) {
-        videoPlayer.player.seekTo(seconds, true);
-        videoPlayer.player.playVideo();
-      } else {
-        // Fallback if player not initialized
-        videoPlayer.contentWindow.postMessage(
-          JSON.stringify({
-            event: 'command',
-            func: 'seekTo',
-            args: [seconds, true],
-          }),
-          '*'
-        );
-      }
+      videoElement.src = `${getYouTubeEmbedUrl(videoUrl)}?start=${seconds}&autoplay=1`;
+      setPlayingVideoId(shotId);
+      videoRefs.current[shotId].isPlaying = true;
     } else if (videoUrl.includes('vimeo.com')) {
-      videoPlayer.contentWindow.postMessage(
-        {
-          method: 'setCurrentTime',
-          value: seconds,
-        },
-        'https://player.vimeo.com'
-      );
-    } else {
-      // For direct video files
-      videoPlayer.currentTime = seconds;
-      videoPlayer.play().catch((err) => console.error('Video play error:', err));
+      const embedUrl = getVimeoEmbedUrl(videoUrl);
+      videoElement.src = `${embedUrl}?autoplay=1#t=${seconds}s`;
+      setTimeout(() => {
+        if (videoElement.contentWindow) {
+          videoElement.contentWindow.postMessage(
+            { method: 'seekTo', value: seconds },
+            'https://player.vimeo.com'
+          );
+        }
+      }, 500); // Delay to ensure iframe is loaded
+      setPlayingVideoId(shotId);
+      videoRefs.current[shotId].isPlaying = true;
+    } else if (videoUrl.includes('cloudinary.com')) {
+      videoElement.currentTime = seconds;
+      if (!videoRefs.current[shotId]?.isPlaying) {
+        toggleVideoPlay(shotId, videoUrl);
+      } else {
+        videoElement.play().catch((err) => {
+          console.error('Play failed:', err);
+          videoElement.muted = true;
+          videoElement.play().catch((e) => console.error('Muted play failed:', e));
+        });
+      }
     }
-    
-    if (playingVideoId !== shotId) {
-      toggleVideoPlay(shotId, videoUrl);
-    }
-  }
+  };
 
+  // Get YouTube thumbnail URL
+  const getYouTubeThumbnail = (url, timecode = '0:00') => {
+    try {
+      const yt = new URL(url);
+      let videoId;
+      if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
+        videoId = yt.pathname.split('/')[2];
+      } else if (yt.hostname.includes('youtu.be')) {
+        videoId = yt.pathname.split('/')[1];
+      } else if (yt.hostname.includes('youtube.com')) {
+        videoId = yt.searchParams.get('v');
+      }
+      return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+    } catch (err) {
+      console.error('Error parsing YouTube URL:', err);
+      return null;
+    }
+  };
+
+  // Get Cloudinary thumbnail URL
+  const getCloudinaryThumbnail = (url, timecode = '0:00') => {
+    try {
+      const seconds = convertTimecodeToSeconds(timecode);
+      const cloudinaryUrl = new URL(url);
+      if (cloudinaryUrl.hostname.includes('cloudinary.com') && url.includes('/video/')) {
+        const pathParts = cloudinaryUrl.pathname.split('/');
+        const uploadIndex = pathParts.findIndex((part) => part === 'upload');
+        if (uploadIndex !== -1) {
+          pathParts.splice(uploadIndex + 1, 0, `c_thumb,w_400,h_400,g_auto,so_${seconds}`);
+          const fileNameParts = pathParts[pathParts.length - 1].split('.');
+          if (fileNameParts.length > 1) {
+            fileNameParts[fileNameParts.length - 1] = 'jpg';
+            pathParts[pathParts.length - 1] = fileNameParts.join('.');
+          }
+          return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
+        }
+      }
+    } catch (err) {
+      console.error('Error parsing Cloudinary URL:', err);
+    }
+    return null;
+  };
+
+  // Get Vimeo thumbnail URL
+  const getVimeoThumbnail = (url) => {
+    try {
+      const vimeoUrl = new URL(url);
+      const videoId = vimeoUrl.pathname.split('/').filter(segment => segment)[0];
+      return videoId ? `https://vumbnail.com/${videoId}.jpg` : null;
+    } catch (err) {
+      console.error('Error parsing Vimeo URL:', err);
+      return null;
+    }
+  };
+
+  const convertTimecodeToSeconds = (timecode) => {
+    const parts = timecode.split(':').reverse();
+    return parts.reduce((total, part, index) => {
+      return total + (parseInt(part) || 0) * Math.pow(60, index);
+    }, 0);
+  };
+
+  // Track video clicks
+  const handleClick = async (id) => {
+    try {
+      await axios.patch(`${base_url}/shot/click/${id}`);
+    } catch (error) {
+      console.error('Error handling click:', error);
+    }
+  };
+
+  // Initialize filters from URL params
   useEffect(() => {
     if (!searchParams) return;
     const params = new URLSearchParams(searchParams);
@@ -127,6 +429,7 @@ function Random() {
     setAllShots([]);
   }, [searchParams]);
 
+  // Build query for fetching shots
   const query = {
     ...Object.fromEntries(
       Object.entries(selectedFilters).filter(([_, values]) => values.length > 0)
@@ -139,6 +442,7 @@ function Random() {
   const { data, isLoading, error } = useGetShotsQuery(query);
   const { data: count } = useGetShotCountQuery();
 
+  // Shuffle and select 3 random shots
   useEffect(() => {
     if (data?.data?.length) {
       const shuffled = [...data.data].sort(() => 0.5 - Math.random());
@@ -146,103 +450,7 @@ function Random() {
     }
   }, [data]);
 
-  function getYouTubeThumbnail(url) {
-    try {
-      const yt = new URL(url);
-      let videoId;
-      if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
-        videoId = yt.pathname.split('/')[2];
-      } else if (yt.hostname.includes('youtu.be')) {
-        videoId = yt.pathname.split('/')[1];
-      } else if (yt.hostname.includes('youtube.com')) {
-        videoId = yt.searchParams.get('v');
-      }
-      if (videoId) {
-        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      }
-    } catch (err) {
-      console.error('Error parsing YouTube URL:', err);
-    }
-    return null;
-  }
-
-  function getCloudinaryThumbnail(url) {
-    try {
-      const cloudinaryUrl = new URL(url);
-      if (cloudinaryUrl.hostname.includes('cloudinary.com') && url.includes('/video/')) {
-        const pathParts = cloudinaryUrl.pathname.split('/');
-        const uploadIndex = pathParts.findIndex((part) => part === 'upload');
-        if (uploadIndex !== -1) {
-          pathParts.splice(uploadIndex + 1, 0, 'c_thumb,w_400,h_400,g_auto,so_10');
-          const fileNameParts = pathParts[pathParts.length - 1].split('.');
-          if (fileNameParts.length > 1) {
-            fileNameParts[fileNameParts.length - 1] = 'jpg';
-            pathParts[pathParts.length - 1] = fileNameParts.join('.');
-          }
-          return `${cloudinaryUrl.origin}${pathParts.join('/')}`;
-        }
-      }
-    } catch (err) {
-      console.error('Error parsing Cloudinary URL:', err);
-    }
-    return null;
-  }
-
-  function getYouTubeEmbedUrl(url) {
-    try {
-      const yt = new URL(url);
-      let videoId;
-      if (yt.hostname.includes('youtube.com') && yt.pathname.includes('/shorts/')) {
-        videoId = yt.pathname.split('/')[2];
-      } else if (yt.hostname.includes('youtu.be')) {
-        videoId = yt.pathname.split('/')[1];
-      } else if (yt.hostname.includes('youtube.com')) {
-        videoId = yt.searchParams.get('v');
-      }
-      return `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0&modestbranding=1`;
-    } catch (err) {
-      console.error('Error parsing YouTube URL:', err);
-      return null;
-    }
-  }
-
-  function getVimeoEmbedUrl(url) {
-    try {
-      const vimeo = new URL(url);
-      if (vimeo.hostname.includes('vimeo.com')) {
-        return `https://player.vimeo.com/video${vimeo.pathname}?autoplay=1&title=0&byline=0&portrait=0`;
-      }
-    } catch (err) {
-      console.error('Error parsing Vimeo URL:', err);
-      return null;
-    }
-    return null;
-  }
-
-  const handleClick = async (id) => {
-    try {
-      await axios.patch(`${base_url}/shot/click/${id}`);
-    } catch (error) {
-      console.error('Error handling click:', error);
-    }
-  };
-
-  const addCollection = async (id, data) => {
-    const response = await axiosInstance.post(`/shot/collection/`, {
-      userId: Userid,
-      shotId: id,
-      data,
-    });
-    if (response.status === 201) {
-      Swal.fire({
-        title: 'Success',
-        text: 'Shot added to your collection',
-        icon: 'success',
-      });
-      refetch();
-    }
-  };
-
+  // Filter handlers
   const dropDownHandler = (id) => {
     setOpenDropdowns((prev) => ({
       ...prev,
@@ -289,111 +497,7 @@ function Random() {
     setAllShots([]);
   };
 
-  const toggleVideoPlay = (shotId, videoUrl) => {
-    if (playingVideoId === shotId) {
-      // Pause the current video
-      const videoElement = videoRefs.current[shotId];
-      if (videoElement) {
-        if (videoUrl.includes('youtu')) {
-          if (videoElement.player) {
-            videoElement.player.pauseVideo();
-          } else {
-            videoElement.contentWindow.postMessage(
-              JSON.stringify({
-                event: 'command',
-                func: 'pauseVideo',
-                args: [],
-              }),
-              '*'
-            );
-          }
-        } else if (videoUrl.includes('vimeo.com')) {
-          videoElement.contentWindow.postMessage(
-            {
-              method: 'pause',
-            },
-            'https://player.vimeo.com'
-          );
-        } else {
-          videoElement.pause();
-        }
-      }
-      setPlayingVideoId(null);
-    } else {
-      // Pause any currently playing video
-      if (playingVideoId) {
-        const currentVideo = allShots.find(shot => shot._id === playingVideoId);
-        if (currentVideo) {
-          const currentVideoElement = videoRefs.current[playingVideoId];
-          if (currentVideoElement) {
-            if (currentVideo.youtubeLink.includes('youtu')) {
-              if (currentVideoElement.player) {
-                currentVideoElement.player.pauseVideo();
-              } else {
-                currentVideoElement.contentWindow.postMessage(
-                  JSON.stringify({
-                    event: 'command',
-                    func: 'pauseVideo',
-                    args: [],
-                  }),
-                  '*'
-                );
-              }
-            } else if (currentVideo.youtubeLink.includes('vimeo.com')) {
-              currentVideoElement.contentWindow.postMessage(
-                {
-                  method: 'pause',
-                },
-                'https://player.vimeo.com'
-              );
-            } else {
-              currentVideoElement.pause();
-            }
-          }
-        }
-      }
-
-      // Play the new video
-      setPlayingVideoId(shotId);
-      const videoElement = videoRefs.current[shotId];
-      if (videoElement) {
-        if (videoUrl.includes('youtu')) {
-          if (videoElement.player) {
-            videoElement.player.playVideo();
-          } else {
-            videoElement.contentWindow.postMessage(
-              JSON.stringify({
-                event: 'command',
-                func: 'playVideo',
-                args: [],
-              }),
-              '*'
-            );
-          }
-        } else if (videoUrl.includes('vimeo.com')) {
-          videoElement.contentWindow.postMessage(
-            {
-              method: 'play',
-            },
-            'https://player.vimeo.com'
-          );
-        } else {
-          videoElement.play().catch((err) => console.error('Video play error:', err));
-        }
-      }
-      handleClick(shotId);
-    }
-  };
-
-  const onYouTubeIframeReady = (event, shotId) => {
-    if (event.target && !videoRefs.current[shotId]?.player) {
-      videoRefs.current[shotId] = {
-        ...videoRefs.current[shotId],
-        player: event.target
-      };
-    }
-  };
-
+  // Loading state
   if (isLoading && allShots.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen bg-black">
@@ -402,6 +506,7 @@ function Random() {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
@@ -476,11 +581,17 @@ function Random() {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-8 border-t border-gray-600 pt-4">
             <Link href="/donate" className="text-blue-500 hover:text-blue-400 text-sm">
               Support Us with a Donation
             </Link>
+            <button
+              onClick={clearAllFilters}
+              className="mt-4 text-red-500 hover:text-red-400 text-sm w-full text-left"
+            >
+              Clear All Filters
+            </button>
           </div>
         </section>
 
@@ -493,12 +604,25 @@ function Random() {
             Random Shots
           </h1>
 
-          <div className="flex justify-end absolute top-20 right-0 p-4 space-x-4">
+          {/* Mobile filter toggle */}
+          <div className="flex justify-end absolute top-20 right-0 p-4 space-x-4 md:hidden">
             <button onClick={toggleSidebar} className="text-white focus:outline-none">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+          </div>
+
+          {/* Search input */}
+          <div className="mb-6 max-w-md mx-auto">
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              placeholder="Search shots..."
+              className="w-full px-4 py-2 rounded-md bg-[#333333] text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
           {/* Carousel Slider */}
@@ -524,38 +648,13 @@ function Random() {
               }}
               onSwiper={(swiper) => (swiperRef.current = swiper)}
               onSlideChange={() => {
-                // Pause any playing video when slide changes
                 if (playingVideoId) {
-                  const currentVideo = allShots.find(shot => shot._id === playingVideoId);
-                  if (currentVideo) {
-                    const videoElement = videoRefs.current[playingVideoId];
-                    if (videoElement) {
-                      if (currentVideo.youtubeLink.includes('youtu')) {
-                        if (videoElement.player) {
-                          videoElement.player.pauseVideo();
-                        } else {
-                          videoElement.contentWindow.postMessage(
-                            JSON.stringify({
-                              event: 'command',
-                              func: 'pauseVideo',
-                              args: [],
-                            }),
-                            '*'
-                          );
-                        }
-                      } else if (currentVideo.youtubeLink.includes('vimeo.com')) {
-                        videoElement.contentWindow.postMessage(
-                          {
-                            method: 'pause',
-                          },
-                          'https://player.vimeo.com'
-                        );
-                      } else {
-                        videoElement.pause();
-                      }
-                    }
+                  const videoElement = videoRefs.current[playingVideoId]?.element;
+                  if (videoElement && videoRefs.current[playingVideoId]?.element.src.includes('cloudinary.com')) {
+                    videoElement.pause();
                   }
                   setPlayingVideoId(null);
+                  videoRefs.current[playingVideoId].isPlaying = false;
                 }
               }}
             >
@@ -563,10 +662,12 @@ function Random() {
                 {allShots.map((shot) => {
                   let imageSrc = shot?.imageUrl;
                   if (!imageSrc && shot?.youtubeLink) {
-                    if (shot.youtubeLink.includes('youtu')) {
-                      imageSrc = getYouTubeThumbnail(shot.youtubeLink);
-                    } else if (shot.youtubeLink.includes('cloudinary.com')) {
-                      imageSrc = getCloudinaryThumbnail(shot.youtubeLink);
+                    if (shot.youtubeLink.includes('cloudinary.com')) {
+                      imageSrc = getCloudinaryThumbnail(shot.youtubeLink, shot.thumbnailTimecode?.[0] || '0:00');
+                    } else if (shot.youtubeLink.includes('youtu')) {
+                      imageSrc = getYouTubeThumbnail(shot.youtubeLink, shot.thumbnailTimecode?.[0] || '0:00');
+                    } else if (shot.youtubeLink.includes('vimeo.com')) {
+                      imageSrc = getVimeoThumbnail(shot.youtubeLink);
                     }
                   }
 
@@ -579,90 +680,24 @@ function Random() {
                         transition={{ duration: 0.3 }}
                         className="relative h-full w-full rounded-xl overflow-hidden cursor-pointer transition-transform duration-300 shadow-lg bg-[#1a1a1a]"
                       >
-                        {/* Video or Image Container */}
+                        {/* Video Container */}
                         <div className="h-1/2 w-full relative">
-                          {playingVideoId === shot._id ? (
-                            <div className="h-full w-full bg-black">
-                              {shot.youtubeLink.includes('youtu') ? (
-                                <iframe
-                                  id={`youtube-${shot._id}`}
-                                  ref={(el) => (videoRefs.current[shot._id] = el)}
-                                  width="100%"
-                                  height="100%"
-                                  src={getYouTubeEmbedUrl(shot.youtubeLink)}
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                  onLoad={(e) => onYouTubeIframeReady(e, shot._id)}
-                                ></iframe>
-                              ) : shot.youtubeLink.includes('vimeo.com') ? (
-                                <iframe
-                                  id={`vimeo-${shot._id}`}
-                                  ref={(el) => (videoRefs.current[shot._id] = el)}
-                                  src={getVimeoEmbedUrl(shot.youtubeLink)}
-                                  width="100%"
-                                  height="100%"
-                                  frameBorder="0"
-                                  allow="autoplay; fullscreen; picture-in-picture"
-                                  allowFullScreen
-                                ></iframe>
-                              ) : (
-                                <video
-                                  id={`video-${shot._id}`}
-                                  ref={(el) => (videoRefs.current[shot._id] = el)}
-                                  width="100%"
-                                  height="100%"
-                                  controls
-                                  muted
-                                  autoPlay
-                                >
-                                  <source src={shot.youtubeLink} type="video/mp4" />
-                                  <source src={shot.youtubeLink} type="video/webm" />
-                                  Your browser does not support the video tag.
-                                </video>
-                              )}
-                            </div>
-                          ) : imageSrc ? (
-                            <>
-                              <Image
-                                src={imageSrc}
-                                alt={shot.title}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              />
-                              <div 
-                                className="absolute inset-0 flex items-center justify-center cursor-pointer"
-                                onClick={() => toggleVideoPlay(shot._id, shot.youtubeLink)}
-                              >
-                                <div className="w-16 h-16 bg-black bg-opacity-60 rounded-full flex items-center justify-center hover:bg-opacity-80 transition-all">
-                                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                                  </svg>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="bg-gray-800 h-full w-full flex items-center justify-center">
-                              <span className="text-gray-500 text-sm">No thumbnail available</span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                          <VideoPlayer shot={shot} />
                         </div>
-                        
+
                         {/* Shot Info */}
                         <div className="h-1/2 p-4 overflow-y-auto">
                           <h2 className="text-lg md:text-xl font-bold mb-2 text-white">{shot.title}</h2>
                           <p className="text-sm text-gray-300 mb-4">{shot.description}</p>
-                          
+
                           {/* Timecodes section */}
                           {shot.timecodes && shot.timecodes.length > 0 && (
                             <div className="mb-4 bg-[#2a2a2a] p-3 rounded-lg">
                               <h3 className="font-semibold mb-2 text-sm">Timecodes</h3>
                               <div className="space-y-2">
                                 {shot.timecodes.map((tc, idx) => (
-                                  <div 
-                                    key={idx} 
+                                  <div
+                                    key={idx}
                                     className="flex items-center hover:bg-[#3a3a3a] p-2 rounded cursor-pointer transition-colors"
                                     onClick={() => handleTimecodeClick(tc.time, shot.youtubeLink, shot._id)}
                                   >
@@ -721,6 +756,12 @@ function Random() {
           {allShots.length === 0 && !isLoading && (
             <div className="text-center my-8 text-white">
               <p>No shots found matching your criteria.</p>
+              <button
+                onClick={clearAllFilters}
+                className="mt-4 px-4 py-2 bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Clear Filters
+              </button>
             </div>
           )}
         </div>
@@ -747,3 +788,4 @@ export default function RandomWithSuspense() {
     </Suspense>
   );
 }
+
