@@ -322,3 +322,19 @@ body {
 .scrollbar-hide::-webkit-scrollbar-thumb:hover {
   background: #6B7280;
 }
+
+
+
+
+.scrollbar-thin-gray::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin-gray::-webkit-scrollbar-thumb {
+  background-color: #9ca3af; /* gray-400 */
+  border-radius: 9999px;
+}
+
+.scrollbar-thin-gray::-webkit-scrollbar-track {
+  background: transparent;
+}
