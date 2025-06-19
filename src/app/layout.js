@@ -30,18 +30,31 @@ export default function RootLayout({ children }) {
      <ReduxProvider>
     <ToastContainer/>
          <Navbar/>\
+         
 {/*          
 <SmonthScrollingProvider> */}
-         <div className="min-h-screen">
+         <div className="min-h-screen bg-gray-900">
                   {children}
          </div>
      
 {/* </SmonthScrollingProvider> */}
-        <Footer/>\
+        <Footer/>
+
      
    </ReduxProvider>
   
 </SessionProviders>
+
+
+
+
+
+
+
+
+
+
+
 
 
 

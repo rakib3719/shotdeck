@@ -535,10 +535,8 @@ function getVimeoThumbnail(url) {
 
 
 
-
-
   
-  function getCloudinaryThumbnail(url, timecode) {
+  function getCloudinaryThumbnail(url) {
     try {
       const cloudinaryUrl = new URL(url);
       if (cloudinaryUrl.hostname.includes('cloudinary.com') && url.includes('/video/')) {
@@ -566,7 +564,7 @@ function getVimeoThumbnail(url) {
 
 
 
-function handleTimecodeClick(timeString, videoUrl, time) {
+function handleTimecodeClick(timeString, videoUrl) {
   const timeParts = timeString.split(':');
   const seconds = (+timeParts[0]) * 60 + (+timeParts[1]);
   
@@ -588,11 +586,9 @@ function handleTimecodeClick(timeString, videoUrl, time) {
     }
   } else {
     // Cloudinary or direct video
-    const timePartsForCLoudinary = time.split(':');
-    const secondsForCloudinary = (+timePartsForCLoudinary[0]) * 60 + (+timePartsForCLoudinary[1]);
     const videoPlayer = document.getElementById('cloudinary-video');
     if (videoPlayer) {
-      videoPlayer.currentTime = secondsForCloudinary;
+      videoPlayer.currentTime = seconds;
       videoPlayer.play();
     }
   }
@@ -764,7 +760,7 @@ const buildQuery = useCallback((page = 1) => {
   return (
     <div>
 
-               <div className="flex flex-wrap gap-2 pt-28 ml-96">
+               <div className="flex flex-wrap gap-2 mt-28 ml-96">
   {searchTag.map((tag, idx) => (
     <div
       key={idx}
@@ -839,46 +835,38 @@ const buildQuery = useCallback((page = 1) => {
             </div>
           </div>
 
-       <div className="mt-8 max-h-[calc(100vh-150px)] overflow-y-auto no-scrollbar">
-  {filters.map((filterGroup, idx) => (
-    !filterGroup?.item ? (
-      <div key={idx} className="px-2 py-2 bg-[#1f2937] text-white rounded-md mb-2 mt-3 flex items-center gap-2 shadow-sm">
-        <span className="text-xl text-blue-400">{filterGroup.icon}</span>
-        <p className="text-lg font-semibold text-white">{filterGroup?.title}</p>
-      </div>
-    ) : (
-      <div
-        key={idx}
-        onClick={() => dropDownHandler(filterGroup?.id)}
-        className="border-b border-gray-600 text-sm py-1 cursor-pointer"
-      >
-        <p className="px-1 capitalize p-1 text-white hover:bg-[#171717]">{filterGroup?.title}</p>
-        <div
-          className={`overflow-hidden transition-all duration-500 ease-in-out mt-2 ${
-            openDropdowns[filterGroup.id] ? 'max-h-[500px]' : 'max-h-0'
-          }`}
-        >
-          {filterGroup?.item?.map((item, index) => {
-            const key = filterGroup.name;
-            const checked = selectedFilters[key]?.includes(item) ?? false;
-            return (
-              <label key={index} className="flex gap-2 px-2 cursor-pointer space-y-3">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={(e) => filterHandler(e, key, item)}
-                  className="mt-1"
-                />
-                <p className="capitalize">{item}</p>
-              </label>
-            );
-          })}
-        </div>
-      </div>
-    )
-  ))}
-</div>
-
+          <div className="mt-8 max-h-[calc(100vh-150px)] overflow-y-auto no-scrollbar">
+            {filters.map((filterGroup, idx) => (
+              <div
+                key={idx}
+                onClick={() => dropDownHandler(filterGroup?.id)}
+                className="border-b border-gray-600 text-sm py-1 cursor-pointer"
+              >
+                <p className="px-1 capitalize p-1 hover:bg-[#171717]">{filterGroup?.title}</p>
+                <div
+                  className={`overflow-hidden transition-all duration-500 ease-in-out mt-2 ${
+                    openDropdowns[filterGroup.id] ? 'max-h-[500px]' : 'max-h-0'
+                  }`}
+                >
+                  {filterGroup?.item.map((item, index) => {
+                    const key = filterGroup.name;
+                    const checked = selectedFilters[key]?.includes(item) ?? false;
+                    return (
+                      <label key={index} className="flex gap-2 px-2 cursor-pointer space-y-3">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => filterHandler(e, key, item)}
+                          className="mt-1"
+                        />
+                        <p className="capitalize">{item}</p>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Spacer for layout */}
@@ -917,7 +905,7 @@ if(data.imageUrl){
 
       if (!imageSrc && data?.youtubeLink) {
         if (data.youtubeLink.includes('cloudinary.com')) {
-          imageSrc = getCloudinaryThumbnail(data.youtubeLink, data.thumbnailTimecode);
+          imageSrc = getCloudinaryThumbnail(data.youtubeLink);
         } else if (data.youtubeLink.includes('youtu')) {
           imageSrc = getYouTubeThumbnail(data.youtubeLink, data?.thumbnailTimecode);
         } else if (data.youtubeLink.includes('vimeo.com')) {
@@ -940,7 +928,7 @@ if(data.imageUrl){
             setModalIsOpen(true);
             handleClick(data._id);
           }}
-          className="p-2  cursor-pointer relative group"
+          className="p-2 cursor-pointer relative group"
         >
           <div className="relative aspect-video"> {/* Set aspect ratio to 16:9 */}
 
@@ -1031,19 +1019,14 @@ if(data.imageUrl){
       onClick={() => setModalIsOpen(false)}
     >
       <motion.div
-        className="bg-[#1a1a1a] text-white rounded-xl lg:flex justify-between shadow-2xl w-[90%] lg:w-[60%] scrollbar-thin-gray lg:ml-20 mt-16 overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
+        className="bg-[#1a1a1a] text-white rounded-xl shadow-2xl w-[90%] lg:w-[60%] lg:ml-20 mt-16 overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.8, opacity: 0 }}
         transition={{ duration: 0.3 }}
         onClick={(e) => e.stopPropagation()}
       >
-
-
-
-        <section className='flex-1'>
-
-  <button
+        <button
           className="absolute top-2 cursor-pointer right-2 text-white text-xl font-bold hover:text-red-500"
           onClick={() => setModalIsOpen(false)}
         >
@@ -1051,25 +1034,6 @@ if(data.imageUrl){
         </button>
 {selectedShot.youtubeLink ? (
   <div>
-
-
-    <div className='py-4'>
-             <h2 className="text-xl  font-semibold">{selectedShot.title || 'Shot Title'}</h2>
-
-
-             {/* tag */}
-
-             <div className='flex flex-wrap gap-4'>
-
-              {
-                selectedShot?.tags?.map((item, idx)=> (
-                  <div className='bg-gray-800 py-2 px-4 rounded'>
-                    <h1>{item}</h1>
-                  </div>
-                ))
-              }
-             </div>
-    </div>
     {/* Video Player */}
     {selectedShot.youtubeLink.includes('youtu') ? (
       <iframe
@@ -1099,82 +1063,51 @@ if(data.imageUrl){
       </video>
     )}
 
- 
-  </div>
-) : (
-  <p>No valid video link found.</p>
-)}
+    {/* Timecodes section */}
     {selectedShot.timecodes && selectedShot.timecodes.length > 0 && (
-
-      
-      <div className="mt-4  lg:hidden max-h-full overflow-y-scroll lg:p-3 lg:ml-2 rounded-lg">
-              <h3 className="font-semibold text-2xl mb-2">Interest Points</h3>
-
-        <div className="space-y-2 bg-[#2a2a2a] lg:p-3 p-2 rounded-3xl ">
-          {selectedShot.timecodes.map((tc, idx) => ( 
+      <div className="mt-4 bg-[#2a2a2a] p-3 rounded-lg">
+        <h3 className="font-semibold mb-2">Timecodes</h3>
+        <div className="space-y-2">
+          {selectedShot.timecodes.map((tc, idx) => (
             <div 
               key={idx} 
-              className={`flex gap-3  items-center hover:bg-[#3a3a3a] p-2  pb-2  cursor-pointer transition-colors ${idx+1 === selectedShot.timecodes.length ? '' : 'border-b'}`}
-              onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink , tc.time)}
-
-
-
+              className="flex items-center hover:bg-[#3a3a3a] p-2 rounded cursor-pointer transition-colors"
+              onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink)}
             >
-              <Image alt='img' src={tc.image} width={150} height={200}/>
-
-
-            <div className=''>
-                <p className=" font-semibold font-mono mr-3">{tc.time}</p>
-              <p className="text-gray-300">{tc.label}</p>
-            </div>
+              <span className="text-blue-400 font-mono mr-3">{tc.time}</span>
+              <span className="text-gray-300">{tc.label}</span>
             </div>
           ))}
         </div>
       </div>
     )}
+  </div>
+) : (
+  <p>No valid video link found.</p>
+)}
+
         {/* Rest of your existing modal content */}
-        <div className="text-left  pace-y-2">
-   
+        <div className="text-left space-y-2">
+          <h2 className="text-xl font-semibold">{selectedShot.title || 'Shot Title'}</h2>
           <p className="text-sm text-gray-300">{selectedShot.description || 'No description available.'}</p>
 
           <div className="border-t border-gray-400">
-            <section className="lg:flex space-y-4 justify-between gap-8">
+            <section className="lg:flex justify-between gap-8">
               {/* Left Side */}
-              <div className="space-y-4 mt-4">
+              <div className="space-y-1 mt-4">
                 <h4 className="font-semibold text-white text-xs">
-                  Focal Length:
-                  {selectedShot?.focalLength?.map((g, idx) => (
+                  Genre:
+                  {selectedShot?.genre?.map((g, idx) => (
                     <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
                       {g}
                     </span>
                   ))}
                 </h4>
-                <h4 className="font-semibold text-white text-xs">
-                  Lighting Conditons:
-                  {selectedShot?.lightingConditions?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-                <h4 className="font-semibold text-white text-xs">
-                 Video Type:
-                  {selectedShot?.videoType?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-                <h4 className="font-semibold text-white text-xs">
-                 Reference Type:
-                  {selectedShot?.referenceType?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-     
-                      {/* <h4 className="font-semibold text-white text-xs">
+      <h4 className="font-semibold text-white text-xs">
+                        Director:
+                        <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.director}</span>
+                      </h4>
+                      <h4 className="font-semibold text-white text-xs">
                         Cinematographer:
                         <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.cinematographer}</span>
                       </h4>
@@ -1205,86 +1138,21 @@ if(data.imageUrl){
                       <h4 className="font-semibold text-white text-xs">
                         Time Period:
                         <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.timePeriod}</span>
-                      </h4> */}
+                      </h4>
                     </div>
 
                     {/* Middle */}
-
-
-                    
-                    <div className="space-y-4 mt-4">
-                               <h4 className="font-semibold text-white text-xs">
-                 Video Quality:
-                  {selectedShot?.videoQuality?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-                               <h4 className="font-semibold text-white text-xs">
-                 Video Speed:
-                  {selectedShot?.videoSpeed?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-                               <h4 className="font-semibold grid grid-cols-3 text-white text-xs">
-                 Simulation Type:
-                  {  selectedShot?.simulatorTypes?.particles &&  selectedShot?.simulatorTypes?.particles?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                  {   selectedShot?.simulatorTypes?.rigidbodies &&  selectedShot?.simulatorTypes?.rigidbodies?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                  {  selectedShot?.simulatorTypes?.softBodies &&  selectedShot?.simulatorTypes?.softBodies?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                  {   selectedShot?.simulatorTypes?.clothgroom &&  selectedShot?.simulatorTypes?.clothgroom?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                  {selectedShot?.simulatorTypes?.magicAbstract &&  selectedShot?.simulatorTypes?.magicAbstract?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                     {  selectedShot?.simulatorTypes?.crowd &&   selectedShot?.simulatorTypes?.crowd?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                  {   selectedShot?.simulatorTypes?.mechanicsTech &&  selectedShot?.simulatorTypes?.mechanicsTech?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                  {   selectedShot?.simulatorTypes?.ompositing &&  selectedShot?.simulatorTypes?.compositing?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-
-
-
-                  <h4 className="font-semibold text-white text-xs">
-                 Simulation Scale:
-                  {selectedShot?.simulationSize?.map((g, idx) => (
-                    <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                      {g}
-                    </span>
-                  ))}
-                </h4>
-                      {/* <h4 className="font-semibold text-white text-xs"> */}
-                        {/* Aspect Ratio:
+                    <div className="space-y-1 mt-4">
+                      <h4 className="font-semibold text-white text-xs">
+                        Color:
+                        {selectedShot?.color?.map((g, idx) => (
+                          <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                            {g}
+                          </span>
+                        ))}
+                      </h4>
+                      <h4 className="font-semibold text-white text-xs">
+                        Aspect Ratio:
                         <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.aspectRatio}</span>
                       </h4>
                       <h4 className="font-semibold text-white text-xs">
@@ -1322,44 +1190,20 @@ if(data.imageUrl){
                             {l}
                           </span>
                         ))}
-                      </h4> */}
+                      </h4>
                     </div>
 
                     {/* Right Side */}
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-1 mt-4">
                       <h4 className="font-semibold text-white text-xs">
-                        Style:
-                        {selectedShot?.simulationStyle?.map((t, idx) => (
+                        Time of Day:
+                        {selectedShot?.timeOfDay?.map((t, idx) => (
                           <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
                             {t}
                           </span>
                         ))}
                       </h4>
                       <h4 className="font-semibold text-white text-xs">
-                        Motion Style:
-                        {selectedShot?.motionStyle?.map((t, idx) => (
-                          <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                            {t}
-                          </span>
-                        ))}
-                      </h4>
-                      <h4 className="font-semibold text-white text-xs">
-                        Emitter Speed:
-                        {selectedShot?.emitterSpeed?.map((t, idx) => (
-                          <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                            {t}
-                          </span>
-                        ))}
-                      </h4>
-                      <h4 className="font-semibold text-white text-xs">
-                        Software:
-                        {selectedShot?.simulationSoftware?.map((t, idx) => (
-                          <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
-                            {t}
-                          </span>
-                        ))}
-                      </h4>
-                      {/* <h4 className="font-semibold text-white text-xs">
                         Interior/Exterior:
                         <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.interiorExterior}</span>
                       </h4>
@@ -1386,86 +1230,12 @@ if(data.imageUrl){
                       <h4 className="font-semibold text-white text-xs">
                         Film Stock / Resolution:
                         <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.filmStockResolution}</span>
-                      </h4> */}
+                      </h4>
               </div>
             </section>
           </div>
         </div>
-
-        </section>
-
-
-{/* devider */}
-
-<section>
-  <h4 className='border-r h-full w-2 ml-2 border-gray-400'></h4>
-</section>
-
-        <section className='h-svh hidden flex-1 lg:blcok border-gray-400 w-2 px-4 border-r'>
-
-
-</section>
-        <section>
-
-
-          
-   {/* Timecodes section */}
-     {selectedShot.timecodes && selectedShot.timecodes.length > 0 && (
-
-      
-      <div className="mt-4 hidden lg:block max-h-full overflow-y-scroll scrollbar-thin-gray  lg:p-3 lg:ml-2 rounded-lg">
-              <h3 className="font-semibold text-2xl mb-2">Interest Points</h3>
-
-        <div className="space-y-2 bg-[#2a2a2a] lg:p-3 p-2 rounded-3xl ">
-          {selectedShot.timecodes.map((tc, idx) => ( 
-            <div 
-              key={idx} 
-              className={`flex gap-3  items-center hover:bg-[#3a3a3a] p-2  pb-2  cursor-pointer transition-colors ${idx+1 === selectedShot.timecodes.length ? '' : 'border-b'}`}
-              onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink , tc.time)}
-
-
-
-            >
-              <Image alt='img' src={tc.image} width={150} height={200}/>
-
-
-            <div className=''>
-                <p className=" font-semibold font-mono mr-3">{tc.time}</p>
-              <p className="text-gray-300">{tc.label}</p>
-            </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )} 
-        </section>
-      
       </motion.div>
-
-
-<motion.div>
-
-
-     {/* Timecodes section */}
-    {/* {selectedShot.timecodes && selectedShot.timecodes.length > 0 && (
-      <div className="mt-4 bg-[#2a2a2a] p-3 rounded-lg">
-        <h3 className="font-semibold mb-2">Timecodes</h3>
-        <div className="space-y-2">
-          {selectedShot.timecodes.map((tc, idx) => (
-            <div 
-              key={idx} 
-              className="flex items-center hover:bg-[#3a3a3a] p-2 rounded cursor-pointer transition-colors"
-              onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink)}
-            >
-              <span className="text-blue-400 font-mono mr-3">{tc.time}</span>
-              <span className="text-gray-300">{tc.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    )} */}
-</motion.div>
-
     </motion.div>
   )}
 </AnimatePresence>
@@ -1476,7 +1246,7 @@ if(data.imageUrl){
   <AnimatePresence>
     {showCollectionModal && currentShotForCollections && (
       <motion.div
-        className="fixed inset-0   bg-opacity-50 flex justify-center items-center z-[1000]"
+        className="fixed inset-0  bg-opacity-50 flex justify-center items-center z-[1000]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -1494,7 +1264,7 @@ if(data.imageUrl){
           <div className="mb-4">
             <h4 className="font-medium mb-2">Add to existing collections:</h4>
             {collectonNames.length > 0 ? (
-          <div className="space-y-2 max-h-60 overflow-y-auto ">
+          <div className="space-y-2 max-h-60 overflow-y-auto">
   {collectonNames.map(collection => (
     <label key={collection._id} className="flex items-center space-x-2">
       <input

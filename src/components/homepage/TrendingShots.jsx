@@ -133,130 +133,453 @@ export default function TrendingShots() {
 
       {/* Modal for showing shot details */}
       <AnimatePresence>
-        {modalIsOpen && selectedShot && (
-          <motion.div
-            className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+    {modalIsOpen && selectedShot && (
+      <motion.div
+        className="fixed inset-0 no-scrollbar flex justify-center items-center z-[999]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={() => setModalIsOpen(false)}
+      >
+        <motion.div
+          className="bg-[#1a1a1a] text-white rounded-xl lg:flex justify-between shadow-2xl w-[90%] lg:w-[60%] scrollbar-thin-gray lg:ml-20 mt-16 overflow-y-scroll no-scrollbar max-h-[90vh] p-4 relative"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+  
+  
+  
+          <section className='flex-1'>
+  
+    <button
+            className="absolute top-2 cursor-pointer right-2 text-white text-xl font-bold hover:text-red-500"
             onClick={() => setModalIsOpen(false)}
           >
-            <motion.div
-              className="bg-[#1a1a1a] text-white rounded-xl shadow-2xl w-full md:w-[80%] lg:w-[60%] max-h-[90vh] overflow-y-auto no-scrollbar p-4 relative"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="absolute top-2 right-2 text-white text-xl font-bold hover:text-red-500"
-                onClick={() => setModalIsOpen(false)}
+            ×
+          </button>
+  {selectedShot.youtubeLink ? (
+    <div>
+  
+  
+      <div className='py-4'>
+               <h2 className="text-xl  font-semibold">{selectedShot.title || 'Shot Title'}</h2>
+  
+  
+               {/* tag */}
+  
+               <div className='flex flex-wrap gap-4'>
+  
+                {
+                  selectedShot?.tags?.map((item, idx)=> (
+                    <div className='bg-gray-800 py-2 px-4 rounded'>
+                      <h1>{item}</h1>
+                    </div>
+                  ))
+                }
+               </div>
+      </div>
+      {/* Video Player */}
+      {selectedShot.youtubeLink.includes('youtu') ? (
+        <iframe
+          id="video-player"
+          width="100%"
+          height="460"
+          src={getYouTubeEmbedUrl(selectedShot.youtubeLink)}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      ) : selectedShot.youtubeLink.includes('vimeo.com') ? (
+        <div className="relative pb-[56.25%] h-0 overflow-hidden">
+          <iframe
+            id="video-player"
+            src={getVimeoEmbedUrl(selectedShot.youtubeLink)}
+            className="absolute top-0 left-0 w-full h-full"
+            frameBorder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+      ) : (
+        <video id="cloudinary-video" width="100%" height="460" controls>
+          <source src={selectedShot.youtubeLink} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      )}
+  
+   
+    </div>
+  ) : (
+    <p>No valid video link found.</p>
+  )}
+      {selectedShot.timecodes && selectedShot.timecodes.length > 0 && (
+  
+        
+        <div className="mt-4  lg:hidden max-h-full overflow-y-scroll lg:p-3 lg:ml-2 rounded-lg">
+                <h3 className="font-semibold text-2xl mb-2">Interest Points</h3>
+  
+          <div className="space-y-2 bg-[#2a2a2a] lg:p-3 p-2 rounded-3xl ">
+            {selectedShot.timecodes.map((tc, idx) => ( 
+              <div 
+                key={idx} 
+                className={`flex gap-3  items-center hover:bg-[#3a3a3a] p-2  pb-2  cursor-pointer transition-colors ${idx+1 === selectedShot.timecodes.length ? '' : 'border-b'}`}
+                onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink , tc.time)}
+  
+  
+  
               >
-                ×
-              </button>
-
-              {/* Video Player */}
-              {selectedShot.youtubeLink?.includes('youtu') ? (
-                <div className="aspect-w-16 aspect-h-9 w-full">
-                  <iframe
-                    width="100%"
-                    height="400"
-                    src={getYouTubeEmbedUrl(selectedShot.youtubeLink)}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="rounded-lg"
-                  ></iframe>
-                </div>
-              ) : selectedShot.youtubeLink?.includes('cloudinary.com') ? (
-                <video width="100%" height="400" controls className="rounded-lg">
-                  <source src={selectedShot.youtubeLink} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              ) : (
-                <div className="flex items-center justify-center h-64 bg-gray-800 rounded-lg">
-                  <p>No valid video link found</p>
-                </div>
-              )}
-
-              {/* Shot Details */}
-              <div className="mt-4 space-y-4">
-                <h2 className="text-2xl font-bold">{selectedShot.title}</h2>
-                <p className="text-gray-300">{selectedShot.description}</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                  {/* Left Column */}
-                  <div className="space-y-2">
-                    {selectedShot.director && (
-                      <div>
-                        <span className="font-semibold">Director: </span>
-                        <span>{selectedShot.director}</span>
-                      </div>
-                    )}
-                    {selectedShot.cinematographer && (
-                      <div>
-                        <span className="font-semibold">Cinematographer: </span>
-                        <span>{selectedShot.cinematographer}</span>
-                      </div>
-                    )}
-                    {selectedShot.genre?.length > 0 && (
-                      <div>
-                        <span className="font-semibold">Genre: </span>
-                        <span>{selectedShot.genre.join(', ')}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Middle Column */}
-                  <div className="space-y-2">
-                    {selectedShot.aspectRatio && (
-                      <div>
-                        <span className="font-semibold">Aspect Ratio: </span>
-                        <span>{selectedShot.aspectRatio}</span>
-                      </div>
-                    )}
-                    {selectedShot.camera && (
-                      <div>
-                        <span className="font-semibold">Camera: </span>
-                        <span>{selectedShot.camera}</span>
-                      </div>
-                    )}
-                    {selectedShot.lens && (
-                      <div>
-                        <span className="font-semibold">Lens: </span>
-                        <span>{selectedShot.lens}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-2">
-                    {selectedShot.lightingStyle?.length > 0 && (
-                      <div>
-                        <span className="font-semibold">Lighting: </span>
-                        <span>{selectedShot.lightingStyle.join(', ')}</span>
-                      </div>
-                    )}
-                    {selectedShot.timeOfDay?.length > 0 && (
-                      <div>
-                        <span className="font-semibold">Time of Day: </span>
-                        <span>{selectedShot.timeOfDay.join(', ')}</span>
-                      </div>
-                    )}
-                    {selectedShot.interiorExterior && (
-                      <div>
-                        <span className="font-semibold">Location: </span>
-                        <span>{selectedShot.interiorExterior}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <Image alt='img' src={tc.image} width={150} height={200}/>
+  
+  
+              <div className=''>
+                  <p className=" font-semibold font-mono mr-3">{tc.time}</p>
+                <p className="text-gray-300">{tc.label}</p>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+          {/* Rest of your existing modal content */}
+          <div className="text-left space-y-2">
+     
+            <p className="text-sm text-gray-300">{selectedShot.description || 'No description available.'}</p>
+  
+            <div className="border-t border-gray-400">
+              <section className="lg:flex space-y-4 justify-between gap-8">
+                {/* Left Side */}
+                <div className="space-y-4 mt-4">
+                  <h4 className="font-semibold text-white text-xs">
+                    Focal Length:
+                    {selectedShot?.focalLength?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+                  <h4 className="font-semibold text-white text-xs">
+                    Lighting Conditons:
+                    {selectedShot?.lightingConditions?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+                  <h4 className="font-semibold text-white text-xs">
+                   Video Type:
+                    {selectedShot?.videoType?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+                  <h4 className="font-semibold text-white text-xs">
+                   Reference Type:
+                    {selectedShot?.referenceType?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+       
+                        {/* <h4 className="font-semibold text-white text-xs">
+                          Cinematographer:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.cinematographer}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Production Designer:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.productionDesigner}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Costume Designer:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.costumeDesigner}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Editor:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.editor}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Colorist:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.colorist}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Actors:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.actors}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Shot Time:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.shotTime}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Time Period:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.timePeriod}</span>
+                        </h4> */}
+                      </div>
+  
+                      {/* Middle */}
+  
+  
+                      
+                      <div className="space-y-4 mt-4">
+                                 <h4 className="font-semibold text-white text-xs">
+                   Video Quality:
+                    {selectedShot?.videoQuality?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+                                 <h4 className="font-semibold text-white text-xs">
+                   Video Speed:
+                    {selectedShot?.videoSpeed?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+                                 <h4 className="font-semibold text-white text-xs">
+                   Simulation Type:
+                    {  selectedShot?.simulatorTypes?.particles &&  selectedShot?.simulatorTypes?.particles?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                    {   selectedShot?.simulatorTypes?.rigidbodies &&  selectedShot?.simulatorTypes?.rigidbodies?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                    {  selectedShot?.simulatorTypes?.softBodies &&  selectedShot?.simulatorTypes?.softBodies?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                    {   selectedShot?.simulatorTypes?.clothgroom &&  selectedShot?.simulatorTypes?.clothgroom?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                    {selectedShot?.simulatorTypes?.magicAbstract &&  selectedShot?.simulatorTypes?.magicAbstract?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                       {  selectedShot?.simulatorTypes?.crowd &&   selectedShot?.simulatorTypes?.crowd?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                    {   selectedShot?.simulatorTypes?.mechanicsTech &&  selectedShot?.simulatorTypes?.mechanicsTech?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                    {   selectedShot?.simulatorTypes?.ompositing &&  selectedShot?.simulatorTypes?.compositing?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+  
+  
+  
+                    <h4 className="font-semibold text-white text-xs">
+                   Simulation Scale:
+                    {selectedShot?.simulationSize?.map((g, idx) => (
+                      <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                        {g}
+                      </span>
+                    ))}
+                  </h4>
+                        {/* <h4 className="font-semibold text-white text-xs"> */}
+                          {/* Aspect Ratio:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.aspectRatio}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Format:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.format}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Frame Size:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.frameSize}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Shot Type:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.shotType}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Lens Size:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.lensSize}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Composition:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.composition}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Lighting:
+                          {selectedShot?.lightingStyle?.map((l, idx) => (
+                            <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                              {l}
+                            </span>
+                          ))}
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Lighting Type:
+                          {selectedShot?.lightingType?.map((l, idx) => (
+                            <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                              {l}
+                            </span>
+                          ))}
+                        </h4> */}
+                      </div>
+  
+                      {/* Right Side */}
+                      <div className="space-y-4 mt-4">
+                        <h4 className="font-semibold text-white text-xs">
+                          Style:
+                          {selectedShot?.simulationStyle?.map((t, idx) => (
+                            <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                              {t}
+                            </span>
+                          ))}
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Motion Style:
+                          {selectedShot?.motionStyle?.map((t, idx) => (
+                            <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                              {t}
+                            </span>
+                          ))}
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Emitter Speed:
+                          {selectedShot?.emitterSpeed?.map((t, idx) => (
+                            <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                              {t}
+                            </span>
+                          ))}
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Software:
+                          {selectedShot?.simulationSoftware?.map((t, idx) => (
+                            <span key={idx} className="text-xs font-normal ml-4 text-[#999]">
+                              {t}
+                            </span>
+                          ))}
+                        </h4>
+                        {/* <h4 className="font-semibold text-white text-xs">
+                          Interior/Exterior:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.interiorExterior}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Location Type:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.filmingLocation}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Set:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.set}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Story Location:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.storyLocation}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Camera:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.camera}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Lens:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.lens}</span>
+                        </h4>
+                        <h4 className="font-semibold text-white text-xs">
+                          Film Stock / Resolution:
+                          <span className="text-xs font-normal ml-4 text-[#999]">{selectedShot?.filmStockResolution}</span>
+                        </h4> */}
+                </div>
+              </section>
+            </div>
+          </div>
+  
+          </section>
+  
+  
+  {/* devider */}
+  
+  <section>
+    <h4 className='border-r h-full w-2 ml-2 border-gray-400'></h4>
+  </section>
+  
+          <section className='h-svh hidden flex-1 lg:blcok border-gray-400 w-2 px-4 border-r'>
+  
+  
+  </section>
+          <section>
+  
+  
+            
+     {/* Timecodes section */}
+       {selectedShot.timecodes && selectedShot.timecodes.length > 0 && (
+  
+        
+        <div className="mt-4 hidden lg:block max-h-full overflow-y-scroll scrollbar-thin-gray  lg:p-3 lg:ml-2 rounded-lg">
+                <h3 className="font-semibold text-2xl mb-2">Interest Points</h3>
+  
+          <div className="space-y-2 bg-[#2a2a2a] lg:p-3 p-2 rounded-3xl ">
+            {selectedShot.timecodes.map((tc, idx) => ( 
+              <div 
+                key={idx} 
+                className={`flex gap-3  items-center hover:bg-[#3a3a3a] p-2  pb-2  cursor-pointer transition-colors ${idx+1 === selectedShot.timecodes.length ? '' : 'border-b'}`}
+                onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink , tc.time)}
+  
+  
+  
+              >
+                <Image alt='img' src={tc.image} width={150} height={200}/>
+  
+  
+              <div className=''>
+                  <p className=" font-semibold font-mono mr-3">{tc.time}</p>
+                <p className="text-gray-300">{tc.label}</p>
+              </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )} 
+          </section>
+        
+        </motion.div>
+  
+  
+  <motion.div>
+  
+  
+       {/* Timecodes section */}
+      {/* {selectedShot.timecodes && selectedShot.timecodes.length > 0 && (
+        <div className="mt-4 bg-[#2a2a2a] p-3 rounded-lg">
+          <h3 className="font-semibold mb-2">Timecodes</h3>
+          <div className="space-y-2">
+            {selectedShot.timecodes.map((tc, idx) => (
+              <div 
+                key={idx} 
+                className="flex items-center hover:bg-[#3a3a3a] p-2 rounded cursor-pointer transition-colors"
+                onClick={() => handleTimecodeClick(tc.time, selectedShot.youtubeLink)}
+              >
+                <span className="text-blue-400 font-mono mr-3">{tc.time}</span>
+                <span className="text-gray-300">{tc.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )} */}
+  </motion.div>
+  
+      </motion.div>
+    )}
+  </AnimatePresence>
 
       {/* Hide Scrollbar */}
       <style jsx>{`
