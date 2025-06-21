@@ -4,40 +4,82 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const handler = NextAuth({
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
 
+  // Security configurations
   secret: process.env.NEXTAUTH_SECRET || 'aidfjnvociydfnovfadf',
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  trustHost: true,
+
+  // Cookie settings
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? '.fx-references.com' : undefined
+      }
+    },
+    callbackUrl: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
+  },
+
+  // JWT settings
+  jwt: {
+    encryption: true,
+    secret: process.env.NEXTAUTH_SECRET,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
 
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
- 
-        token: { type: "text" },
-        role: { type: "text" },
-        id: { type: "text" },
+        token: { label: "Token", type: "text" },
+        role: { label: "Role", type: "text" },
+        id: { label: "ID", type: "text" },
       },
-      async authorize(credentials) {
-      
+      async authorize(credentials, req) {
+        try {
+          // Add your authentication logic here
+          if (!credentials?.token || !credentials?.id) {
+            throw new Error("Missing required credentials");
+          }
 
-     
-        return {
- 
-   
-          token: credentials.token,
-          role: credentials.role,
-          id: credentials.id
-        };
+          // Example: Verify token with your backend
+          // const user = await verifyToken(credentials.token);
+          // if (!user) return null;
+
+          return {
+            token: credentials.token,
+            role: credentials.role,
+            id: credentials.id
+          };
+        } catch (error) {
+          console.error("Authorization error:", error);
+          return null;
+        }
       }
     })
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+    async jwt({ token, user, account }) {
+      // Initial sign in
+      if (user && account) {
+        console.log("JWT user data:", user);
         token.user = {
-     
           token: user.token,
           role: user.role,
           id: user.id,
@@ -47,19 +89,43 @@ const handler = NextAuth({
     },
 
     async session({ session, token }) {
-      if (token.user) {
+      if (token?.user) {
         session.user = token.user;
       }
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      return url.startsWith(baseUrl) ? url : baseUrl;
     }
   },
 
   pages: {
     signIn: '/sign-in',
-    error: '/sign-in?error='
+    signOut: '/auth/signout',
+    error: '/sign-in?error=',
+    verifyRequest: '/auth/verify-request',
   },
 
-  debug: process.env.NODE_ENV === 'development'
+  // Enable debug in both development and production temporarily
+  debug: true,
+
+  // Security
+  csrf: {
+    check: true,
+  },
+  logger: {
+    error(code, metadata) {
+      console.error(code, metadata);
+    },
+    warn(code) {
+      console.warn(code);
+    },
+    debug(code, metadata) {
+      console.debug(code, metadata);
+    }
+  }
 });
 
 export { handler as GET, handler as POST };
