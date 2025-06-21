@@ -1,12 +1,9 @@
 import { FaCamera, FaLightbulb } from "react-icons/fa";
 import { FiFilm } from "react-icons/fi";
 
-// export const base_url = 'https://shotdeck-backend.vercel.app/api';
-// export const base_url = 'http://localhost:5000/api';
-// export const base_url = 'https://shotdeck-backend-production.up.railway.app/api';
-// shotdeck-backend-production.up.railway.app
-export const base_url = 'http://31.97.156.58:5000/api';
-export const upload_preset = 'e-paper';
+
+export const base_url = 'https://www.fx-references.com/api/api';
+
 export const cloud_name = 'djf8l2ahy'
 
 
