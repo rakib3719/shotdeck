@@ -699,7 +699,7 @@ const handleFileUpload = async (event) => {
           <div className="mb-10">
             {/* Checkbox detaisl */}
 
-            <div className="xl:flex gap-8 ">
+            <div className="2xl:flex gap-8 ">
               <div className="flex-1 ">
                 <div className="mb-10">
                   <div className="flex items-center mb-4">
@@ -1315,10 +1315,10 @@ const handleFileUpload = async (event) => {
 
            {/* video preview */}
 
-           <div className="flex  gap-8">
+           <div className="md:flex  gap-8">
 
                 <div className="mb-10 flex-1">
-  <div className="flex items-center mb-4">
+  <div className="flex mt-8 items-center mb-4">
     <FiImage className="mr-2 text-blue-400" />
     <h2 className="text-xl font-semibold">Media</h2>
   </div>
@@ -1357,7 +1357,7 @@ const handleFileUpload = async (event) => {
       </div>
     </div>
   ) : (
-    <div className="w-[400px] h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+    <div className="sm:w-[400px] w-[300px] h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
       <div className="text-center text-gray-500">
         <FiImage className="mx-auto text-4xl mb-2" />
         <p className="text-sm">No video selected</p>
@@ -1523,7 +1523,7 @@ const handleFileUpload = async (event) => {
                         </div>
 
                         <div className="flex flex-col">
-                          <label className="text-sm -mt-6 text-white mb-1">
+                          <label className="text-sm md:-mt-6 text-white mb-1">
                             Or choose from video (Timecode)
                           </label>
                           <div className="flex items-center gap-2">
@@ -1563,9 +1563,9 @@ const handleFileUpload = async (event) => {
 
             {/* OC Haron marka section------------>>>>>> */}
             <section className="mb-10">
-              <div className="flex items-center mb-4">
+              <div className="flex items-center mt-8 mb-4">
                 <FaLightbulb className="mr-2 text-blue-400" />
-                <h2 className="text-xl font-semibold">Simulator Type</h2>
+                <h2 className="text-xl  font-semibold">Simulator Type</h2>
               </div>
 
               <div className="relative">

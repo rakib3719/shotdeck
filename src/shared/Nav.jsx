@@ -59,7 +59,7 @@ export default function Nav() {
   return (
     <div className='bg-primary'>
       {/* Mobile menu button */}
-      <div className='lg:hidden flex justify-end '>
+      <div className='xl:hidden flex justify-end '>
         <button 
           onClick={toggleShowMenu}
           className='text-white focus:outline-none'
@@ -94,11 +94,11 @@ export default function Nav() {
                 height: { duration: 0.3 }
               }
             }}
-            className={`lg:mt-0 overflow-hidden lg:overflow-visible lg:flex lg:items-center lg:space-x-6 lg:space-y-0 lg:relative lg:h-auto`}
+            className={`xl:mt-0 overflow-hidden xl:overflow-visible xl:flex xl:items-center xl:space-x-6 xl:space-y-0 xl:relative xl:h-auto`}
           >
-            <div className={`lg:flex space-y-4 lg:space-y-0 text-white font-semibold p-4 lg:p-0 items-center gap-6`}>
+            <div className={`xl:flex space-y-4 xl:space-y-0 text-white font-semibold p-4 xl:p-0 items-center gap-6`}>
               {/* Home Icon */}
-              <div className='flex justify-end lg:justify-start  lg:mt-[30px]'>
+              <div className='flex justify-end xl:justify-start  xl:mt-[30px]'>
                 <Link href={'/'}>
                   <FaHome className='text-white hover:text-[#31caff] text-xl hover:text-primary-light transition-colors' />
                 </Link>
@@ -113,14 +113,14 @@ export default function Nav() {
                   transition={{ delay: idx * 0.05 + 0.2 }}
                 >
                   <Link href={item.link}>
-                    <p className='hover:text-primary hover:text-[#31caff] lg:mt-8 text-right lg:text-left font-sub-heading transition-colors whitespace-nowrap'>
+                    <p className='hover:text-primary hover:text-[#31caff] xl:mt-8 text-right xl:text-left font-sub-heading transition-colors whitespace-nowrap'>
                       {item.name}
                     </p>
                   </Link>
                 </motion.div>
               ))}
 
-             <div className='lg:hidden'>
+             <div className='xl:hidden'>
                    <motion.div 
                
                   initial={{ x: 20, opacity: 0 }}
@@ -128,7 +128,7 @@ export default function Nav() {
                   transition={{ delay:  0.05 + 0.2 }}
                 >
                   <Link href={'/account'}>
-                    <p className='hover:text-primary hover:text-[#31caff] lg:mt-8 text-right lg:text-left font-sub-heading transition-colors whitespace-nowrap'>
+                    <p className='hover:text-primary hover:text-[#31caff] xl:mt-8 text-right xl:text-left font-sub-heading transition-colors whitespace-nowrap'>
                   Your Account
                     </p>
                   </Link>
@@ -158,7 +158,7 @@ export default function Nav() {
                   transition={{ delay: navItems.length * 0.05 + 0.2 }}
                 >
                   <Link href={'/sign-in'} className='uppercase'>
-                    <p className='hover:text-primary lg:mt-[30px] font-sub-heading transition-colors text-right lg:text-left'>
+                    <p className='hover:text-primary xl:mt-[30px] font-sub-heading transition-colors text-right xl:text-left'>
                       Sign In
                     </p>
                   </Link>
@@ -169,7 +169,7 @@ export default function Nav() {
               {user.status === "authenticated" ? (
                 <motion.div 
                   ref={dropdownRef} 
-                  className='relative hidden lg:flex justify-end  lg:justify-start'
+                  className='relative hidden xl:flex justify-end  xl:justify-start'
                   initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: navItems.length * 0.05 + 0.2 }}
@@ -178,11 +178,11 @@ export default function Nav() {
                     className='flex items-center z-50 gap-1 cursor-pointer hover:text-primary transition-colors'
                     onClick={() => setIsOpen(!isOpen)}
                   >
-                    <IoMdSettings className='text-white text-xl lg:mt-8' />
+                    <IoMdSettings className='text-white text-xl xl:mt-8' />
                     <motion.div
                    
                     >
-                      <BiSolidDownArrow className='text-white hover:text-[#31caff] text-xs lg:mt-8' />
+                      <BiSolidDownArrow className='text-white hover:text-[#31caff] text-xs xl:mt-8' />
                     </motion.div>
                   </div>
 
@@ -223,7 +223,7 @@ export default function Nav() {
                 </motion.div>
               ) : (
                 <motion.div
-                  className='flex justify-end mt-[30px] lg:justify-start'
+                  className='flex justify-end mt-[30px] xl:justify-start'
                   initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: navItems.length * 0.05 + 0.2 }}
